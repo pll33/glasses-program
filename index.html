@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html ng-app="glasses">
+<head>
+  <title>GlassesInventoryAng</title>
+  <link rel="stylesheet" media="all" href="css/bootstrap.min.css">
+  <link rel="stylesheet" media="all" href="css/styles.css">
+</head>
+
+<body data-ng-controller="glassesController as tab">
+    <div id="tabContainer">
+    <ul class="nav nav-tabs">
+        <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">Glasses Search</a></li>
+        <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">Inventory</a></li>
+        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import<!--/Export--></a></li>
+        <!-- <li id="tabHelp" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Help</a></li> -->
+    </ul>
+
+<div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchController">
+
+    <form name="searchForm" novalidate>
+    <h3 style="margin-top: 0;">Search Glasses</h3>
+    <section>
+        <div class="form-group form-inline">
+            <span class="h4">1. Dominant Eye<span>
+            <select id="dominantEye" class="form-control" style="margin-left: 17px" ng-model="search.dominantEye" ng-init="search.dominantEye = 'Right'">
+              <option value="Right">Right</option>
+              <option value="Left">Left</option>
+              <option value="None">None</option>
+            </select>
+        </div>
+    </section>
+
+    <section>
+    <h4>2. Patient's Refraction</h4>
+        <div class="form-group form-inline mb padt">
+            <span class="lbl">Right Eye:</span>
+            <input type="text" class="form-control" id="searchRightSphere" placeholder="Sphere" ng-model="search.rightSphere" ng-change="calculateRightEquiv(search)">
+            <input type="text" class="form-control" id="searchRightCylinder" placeholder="Cylinder" ng-model="search.rightCylinder" ng-change="calculateRightEquiv(search)">
+            <input type="text" class="form-control" id="searchRightAxis" placeholder="Axis" ng-model="search.rightAxis">
+        </div>
+        <div class="form-group form-inline mb">
+            <span class="lbl">Left Eye:</span>
+            <input type="text" class="form-control" id="searchLeftSphere" placeholder="Sphere"  ng-model="search.leftSphere" ng-change="calculateLeftEquiv(search)">
+            <input type="text" class="form-control" id="searchLeftCylinder" placeholder="Cylinder" ng-model="search.leftCylinder" ng-change="calculateLeftEquiv(search)">
+            <input type="text" class="form-control" id="searchLeftAxis" placeholder="Axis" ng-model="search.leftAxis">
+        </div>
+    </section>
+
+    <section>
+    <h4>3. Spherical Equivalent</h4>
+        <div class="form-group form-inline mb">
+            <span class="lbl">Right Eye:</span> <input type="text" class="form-control" id="searchRightEquivalent" placeholder="" ng-model="search.rightEquiv" readonly>
+        <!-- </div> -->
+        <!-- <div class="form-group form-inline mb"> -->
+            <span style="margin-left: 35px;">Left Eye:</span> <input type="text" class="form-control" id="searchLeftEquivalent" placeholder="" ng-model="search.leftEquiv" readonly>
+        </div>
+    </section>
+
+    <section>
+        <span class="lblb"></span>
+        <button type="submit" class="btn btn-default" ng-click="reset()">Reset</button>
+        <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">Find Matches</button>
+    </section>
+    </form>
+
+
+    <div id="searchResults" class="active"><!--ng-class="{active:showResults}" -->
+        <h3>Available Glasses</h3>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="4">Right Eye (OD)</th>
+                    <th colspan="4">Left Eye (OS)</th>
+                    <th>Bifocal</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th class="bl">Pair #</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                    <th>Available</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-class="{taken:x.taken}" ng-repeat="x in searchResults">
+                    <td class="bl">{{ x.pairNumber }}</td>
+                    <td ng-class="{match:isMatch(x.rsph)}">{{ x.rightSphere.toFixed(2) }}</td>
+                    <td ng-class="{match:isMatch(x.rcyl)}">{{ x.rightCylinder.toFixed(2) }}</td>
+                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
+                    <td ng-class="{match:isMatch(x.raxi)}">{{ x.rightAxis }}</td>
+                    <td ng-class="{match:isMatch(x.lsph)}">{{ x.leftSphere.toFixed(2) }}</td>
+                    <td ng-class="{match:isMatch(x.lcyl)}">{{ x.leftCylinder.toFixed(2) }}</td>
+                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
+                    <td ng-class="{match:isMatch(x.laxi)}">{{ x.leftAxis }}</td>
+                    <td>{{ x.bifocalADD }}</td>
+                    <td><button class="" type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
+                </tr>
+                <tr ng-show="searchResults.length==0 || !searchResults">
+                    <td class="bl" colspan="11">No results to display.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <h3><a class="sh" ng-click="togglePrevSearches()">Previous Searches</a></h3>
+    <div id="previousSearches" ng-class="{active:showPrevSearches}">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="4">Right Eye (OD)</th>
+                    <th colspan="4">Left Eye (OS)</th>
+                </tr>
+                <tr>
+                    <th class="bl">Dominant Eye</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in prevSearches" ng-click="searchGlasses(x)">
+                    <td class="bl">{{ x.dominantEye }}</td>
+                    <td>{{ x.rightSphere.toFixed(2) }}</td>
+                    <td>{{ x.rightCylinder.toFixed(2) }}</td>
+                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.rightAxis }}</td>
+                    <td>{{ x.leftSphere.toFixed(2) }}</td>
+                    <td>{{ x.leftCylinder.toFixed(2) }}</td>
+                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.leftAxis }}</td>
+                </tr>
+                <tr ng-show="prevSearches.length==0 || !prevSearches">
+                    <td class="bl" colspan="9">No previous searches.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="inventory" class="tab-content" ng-show="tab.isSet(2)" ng-controller="inventoryController">
+    <form class="form-inline" novalidate>
+        <h3 style="margin-top: 0">Search Inventory</h3>
+        <div class="form-group">
+            <div class="input-group"> 
+                <div class="input-group-addon">Pair #</div>
+                <input type="text" class="form-control" id="findPairs" placeholder="" style="text-align: left" ng-model="find.pairNumber">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary start">Find</button>
+                </span>
+            </div>
+        </div>
+    </form>
+    <section>
+        <h3>Taken Pairs</h3>
+        <div id="inventoryTaken">
+            <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th colspan="2"></th>
+                    <th colspan="5">Right Eye (OD)</th>
+                    <th colspan="5">Left Eye (OS)</th>
+                </tr>
+                <tr>
+                    <th class="bl">Taken</th>
+                    <th>Pair #</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in takenPairs | filter:find" ng-class="{match:x.pairNumber==find.pairNumber}">
+                    <td class="bl"><input type="checkbox" ng-model="checked" ng-init="checked=true" ng-click="inventory.putback(x.pairNumber)"></td>
+                    <td>{{ x.pairNumber }}</td>
+                    <td>{{ x.rightSphere }}</td>
+                    <td>{{ x.rightCylinder }}</td>
+                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.rightAxis }}</td>
+                    <td>{{ x.rightADD  }}</td>
+                    <td>{{ x.leftSphere }}</td>
+                    <td>{{ x.leftCylinder }}</td>
+                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.leftAxis }}</td>
+                    <td>{{ x.leftADD }}</td>
+                </tr>
+                <tr ng-show="takenPairs.length==0 || !takenPairs">
+                    <td class="bl" colspan="13">Nothing to display.</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </section>
+    <section>
+        <h3>Available Pairs</h3>
+        <div id="inventoryAvailable">
+            <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th colspan="2"></th>
+                    <th colspan="5">Right Eye (OD)</th>
+                    <th colspan="5">Left Eye (OS)</th>
+                </tr>
+                <tr>
+                    <th class="bl">Taken</th>
+                    <th>Pair #</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in availablePairs | filter:find" ng-class="{match:x.pairNumber==find.pairNumber}">
+                    <td class="bl"><input type="checkbox" ng-click="inventory.take(x.pairNumber)"></td>
+                    <td>{{ x.pairNumber }}</td>
+                    <td>{{ x.rightSphere }}</td>
+                    <td>{{ x.rightCylinder }}</td>
+                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.rightAxis }}</td>
+                    <td>{{ x.rightADD  }}</td>
+                    <td>{{ x.leftSphere }}</td>
+                    <td>{{ x.leftCylinder }}</td>
+                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.leftAxis }}</td>
+                    <td>{{ x.leftADD }}</td>
+                </tr>
+                <tr ng-show="availablePairs.length==0 || !availablePairs">
+                    <td class="bl" colspan="13">Nothing to display.</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </section>
+</div>
+
+<div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importController">
+    <h3 style="margin-top: 0">Import<!--/Export--> Inventory</h3>
+    <!--
+    <form id="formUpload" class="form-inline" novalidate>
+    <h4>Upload a .xlsx, .xls, or .csv file</h4>
+        <section>
+        <div class="form-group">
+            <input id="fileSelect" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" /> 
+        </div>
+        </section>
+        <section>
+            <button type="submit" class="btn btn-primary start">
+                <span>Import</span>
+            </button>
+        </section>
+    </form>
+    <span class="lbl"><h4>OR</h4></span>-->
+    <form name="manualAddForm" novalidate>
+        <section>
+            <h4>Enter manually: </h4>
+            <div class="form-group form-inline mb">
+                <span class="lbl">Right Eye</span>
+                <input type="text" class="form-control" id="addRightSphere" placeholder="Sphere" ng-model="add.rightSphere">
+                <input type="text" class="form-control" id="addRightCylinder" placeholder="Cylinder" ng-model="add.rightCylinder">
+                <input type="text" class="form-control" id="addRightAxis" placeholder="Axis" ng-model="add.rightAxis">
+                <input type="text" class="form-control" id="addRightADD" placeholder="ADD" ng-model="add.rightADD">
+            </div>
+            <div class="form-group form-inline mb">
+                <span class="lbl">Left Eye</span>
+                <input type="text" class="form-control" id="addLeftSphere" placeholder="Sphere" ng-model="add.leftSphere">
+                <input type="text" class="form-control" id="addLeftCylinder" placeholder="Cylinder" ng-model="add.leftCylinder">
+                <input type="text" class="form-control" id="addLeftAxis" placeholder="Axis" ng-model="add.leftAxis">
+                <input type="text" class="form-control" id="addLeftADD" placeholder="ADD" ng-model="add.leftADD">
+            </div>
+        </section>
+        <section>
+            <div class="form-group form-inline mb">
+                <!-- <span class="lblb"></span> -->
+                <button type="submit" class="btn btn-primary start" ng-click="addToInventory(add)">
+                    <span>Add</span>
+                </button>
+            </div>
+        </section>
+    </form>
+    <div>
+    <h4>Added Glasses</h4>
+        <div id="inventoryAdded">
+            <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th colspan="6">Right Eye (OD)</th>
+                    <th colspan="6">Left Eye (OS)</th>
+                </tr>
+                <tr>
+                    <th class="bl">Pair #</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (unrounded)">SEu</span></th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">SEr</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (unrounded)">SEu</span></th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">SEr</span></th>
+                    <th>Axis</th>
+                    <th>ADD</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="x in addedGlasses" ng-click="">
+                    <td class="bl">{{ x.pairNumber }}</td>
+                    <td>{{ x.rightSphere }}</td>
+                    <td>{{ x.rightCylinder }}</td>
+                    <td>{{ x.rightEquivUnround.toFixed(2) }}</td>
+                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.rightAxis }}</td>
+                    <td>{{ x.rightADD  }}</td>
+                    <td>{{ x.leftSphere }}</td>
+                    <td>{{ x.leftCylinder }}</td>
+                    <td>{{ x.leftEquivUnround.toFixed(2) }}</td>
+                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.leftAxis }}</td>
+                    <td>{{ x.leftADD }}</td>
+                </tr>
+                <tr ng-show="addedGlasses.length==0 || !addedGlasses">
+                    <td class="bl" colspan="15">Nothing to display.</td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+</div>
+
+<div id="help" class="tab-content" ng-show="tab.isSet(4)">
+</div>
+</div>
+  <script src="js/lib/angular.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
