@@ -1,7 +1,9 @@
 (function () {
-    var app = angular.module('glasses', []);
-    var _lastPairNum = 0;
+    var app = angular.module('app', ['pascalprecht.translate']);
+    var db = new PouchDB('glassesDB');
+    var remoteCouch = false;
 
+    var _lastPairNum = 0;
     var roundEquiv = function(unrounded) {
         return (Math.round(unrounded * 4) / 4);
     };
@@ -18,6 +20,122 @@
     var sphericalEquiv = function(cylinder, sphere) {
         return ((cylinder * 0.5) + sphere);
     };
+
+
+    var addPairDB = function(glassesObj) {
+        var now = Date.now();
+        var pair = {
+            _id: glassesObj.idx,
+            info: glasses.info,
+            available: glassesObj.available,
+            time_added: now,
+            time_modified: now
+        };
+        db.put(pair, function callback(err, result) {
+            if (!err) {
+                console.log("Added glasses pair.");
+            }
+        });
+    };
+
+    /** 
+    **  Update pair of glasses in PouchDB database
+    **    pairIdx: pair index or pair #,
+    **    availableBool: bool to set pair availability (true=Not Taken, false=Taken)
+    **/
+    var updatePairDB = function(pairIdx, availableBool) {
+        db.get(pairIdx).then(function(err, pair) {
+            if (err) { return console.log(err); }
+            pair.time_modified = Date.now();
+            pair.available = availableBool;
+            return db.put(pair);
+        });
+    };
+
+    //TODO: Move logic from the map function to query()
+    //http://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
+    var createDesignDoc = function(name, mapFunction) {
+      var ddoc = {
+            _id: '_design/' + name,
+            views: {
+            }
+        };
+        ddoc.views[name] = { map: mapFunction.toString() };
+        return ddoc;
+    };
+    var availableDoc = createDesignDoc('by_avail', function(doc) {
+        emit(doc.available);
+    });
+    db.put(availableDoc);
+
+    var queryTaken = function() {
+        return db.query('by_avail', {key: true });
+    };
+    var queryAvailable = function() {
+        return db.query('by_avail', {key: false});
+    };
+
+    app.config(function ($translateProvider) {
+        $translateProvider.translations('en', {
+            GLASSES: 'Glasses',
+            SEARCH: 'Search',
+            DOMINANT_EYE: 'Dominant Eye',
+            LEFT_EYE: 'Left Eye',
+            RIGHT_EYE: 'Right Eye',
+            SPHERE: 'Sphere',
+            CYLINDER: 'Cylinder',
+            AXIS: 'Axis',
+            PATIENT_REFRACTION: 'Patient Refraction',
+            SPHERICAL_EQUIV: 'Spherical Equivalent',
+            UNROUNDED: 'Unrounded',
+            ROUNDED: 'Rounded',
+            PAIR: 'Pair',
+            BIFOCAL: '',
+            ADD: '',
+            AVAILABLE: '',
+            RESET: '',
+            FIND: '',
+            TAKEN: '',
+            AVAILABLE: '',
+            IMPORT: '',
+            INVENTORY: '',
+            MANUAL_INPUT: '',
+            ADDED_GLASSES: '',
+            NO_RESULTS: '',
+            BUTTON_LANG_EN: 'english',
+            BUTTON_LANG_ES: 'spanish'
+        });
+        $translateProvider.translations('es', {
+            GLASSES: 'gafas',
+            SEARCH: '',
+            DOMINANT_EYE: '',
+            LEFT_EYE: '',
+            RIGHT_EYE: '',
+            SPHERE: '',
+            CYLINDER: '',
+            AXIS: '',
+            PATIENT_REFRACTION: '',
+            SPHERICAL_EQUIV: '',
+            UNROUNDED: '',
+            ROUNDED: '',
+            PAIR: '',
+            BIFOCAL: '',
+            ADD: '',
+            AVAILABLE: '',
+            RESET: '',
+            FIND: '',
+            TAKEN: '',
+            AVAILABLE: '',
+            IMPORT: '',
+            INVENTORY: '',
+            MANUAL_INPUT: '',
+            ADDED_GLASSES: '',
+            NO_RESULTS: '',
+            BUTTON_LANG_EN: 'inglés',
+            BUTTON_LANG_ES: 'espanol'
+        });
+      $translateProvider.preferredLanguage('en');
+    });
 
     app.factory('inventoryService', function() {
         var inventory = {
@@ -83,7 +201,7 @@
         return inventory;
     });
 
-    app.controller('glassesController', function () {
+    app.controller('glassesController', function ($scope, $translate) {
         this.tab = 1;
 
         this.setTab = function (tabId) {
@@ -93,9 +211,14 @@
         this.isSet = function (tabId) {
             return this.tab === tabId;
         };
+
+        $scope.langPick = 'en';
+        $scope.changeLanguage = function (key) {
+            $translate.use(key);
+        };
     });
 
-    app.controller('searchController', function ($scope, inventoryService) {
+    app.controller('searchCtrl', function ($scope, inventoryService) {
         var defaultForm = { dominantEye: "Right", rightSphere: "", rightCylinder: "", rightAxis: "", leftSphere: "", leftCylinder: "", leftAxis: "", rightEquiv: "0.00", leftEquiv: "0.00"};
         $scope.search = angular.copy(defaultForm); //{};
         $scope.results = [];
@@ -180,7 +303,7 @@
         };
     });
 
-    app.controller('inventoryController', function ($scope, inventoryService) {
+    app.controller('inventoryCtrl', function ($scope, inventoryService) {
         var defaultForm = { pairNumber: "" };
         $scope.find = angular.copy(defaultForm);
         
@@ -189,7 +312,7 @@
         $scope.availablePairs = inventoryService.invAvailable;
     });
 
-    app.controller('importController', function ($scope, inventoryService) {
+    app.controller('importCtrl', function ($scope, inventoryService) {
         var defaultForm = { rightSphere: "", rightCylinder: "", rightAxis: "", rightADD: "", leftSphere: "", leftCylinder: "", leftAxis: "", leftADD: "" };
         $scope.add = angular.copy(defaultForm); 
 
@@ -238,4 +361,7 @@
         };
     });
 
+    app.controller('exportCtrl', function ($scope, inventoryService) {
+
+    });
 })();
