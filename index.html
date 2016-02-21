@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="glasses">
+<html ng-app="app">
 <head>
   <title>GlassesInventoryAng</title>
   <link rel="stylesheet" media="all" href="css/bootstrap.min.css">
@@ -11,11 +11,12 @@
     <ul class="nav nav-tabs">
         <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">Glasses Search</a></li>
         <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">Inventory</a></li>
-        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import<!--/Export--></a></li>
-        <!-- <li id="tabHelp" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Help</a></li> -->
+        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import</a></li>
+        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Export/Sync</a></li>
+        <li id="tabHelp" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">Help</a></li>
     </ul>
 
-<div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchController">
+<div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchCtrl">
 
     <form name="searchForm" novalidate>
     <h3 style="margin-top: 0;">Search Glasses</h3>
@@ -150,7 +151,7 @@
     </div>
 </div>
 
-<div id="inventory" class="tab-content" ng-show="tab.isSet(2)" ng-controller="inventoryController">
+<div id="inventory" class="tab-content" ng-show="tab.isSet(2)" ng-controller="inventoryCtrl">
     <form class="form-inline" novalidate>
         <h3 style="margin-top: 0">Search Inventory</h3>
         <div class="form-group">
@@ -251,7 +252,7 @@
                     <td>{{ x.leftADD }}</td>
                 </tr>
                 <tr ng-show="availablePairs.length==0 || !availablePairs">
-                    <td class="bl" colspan="13">Nothing to display.</td>
+                    <td class="bl" colspan="13">No pairs available.</td>
                 </tr>
             </tbody>
         </table>
@@ -259,15 +260,14 @@
     </section>
 </div>
 
-<div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importController">
-    <h3 style="margin-top: 0">Import<!--/Export--> Inventory</h3>
-    <!--
+<div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importCtrl">
+    <h3 style="margin-top: 0">Import Inventory</h3>
     <form id="formUpload" class="form-inline" novalidate>
     <h4>Upload a .xlsx, .xls, or .csv file</h4>
         <section>
-        <div class="form-group">
-            <input id="fileSelect" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" /> 
-        </div>
+            <div class="form-group">
+                <input id="fileSelect" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+            </div>
         </section>
         <section>
             <button type="submit" class="btn btn-primary start">
@@ -275,7 +275,7 @@
             </button>
         </section>
     </form>
-    <span class="lbl"><h4>OR</h4></span>-->
+    <!-- <span class="lbl"><h4>OR</h4></span> -->
     <form name="manualAddForm" novalidate>
         <section>
             <h4>Enter manually: </h4>
@@ -352,13 +352,25 @@
         </table>
         </div>
     </div>
-    
 </div>
-
-<div id="help" class="tab-content" ng-show="tab.isSet(4)">
+<div id="export" class="tab-content" ng-show="tab.isSet(4)" ng-controller="exportCtrl">
+    <h3 style="margin-top: 0">Export Inventory</h3>
+    <h4>Full Inventory</h4>
+    <button type="button" class="btn btn-default" ng-click="exportJSON()">.JSON</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV()">.CSV</button>
+    <button type="button" class="btn btn-default" ng-click="exportXSLX()">.XSLX</button>
 </div>
+<div id="help" class="tab-content" ng-show="tab.isSet(5)">
+    <h3 style="margin-top: 0">Help</h3>
+    <h4>Language Selection</h4>
+    <div class="btn-group">
+        <label class="btn btn-primary" ng-model="langPick" uib-btn-radio="'en'">English</label>
+        <label class="btn btn-primary" ng-model="langPick" uib-btn-radio="'es'">Spanish</label>
+    </div>
 </div>
+  <script src="js/lib/pouchdb-5.2.1.min.js"></script>
   <script src="js/lib/angular.min.js"></script>
+  <script src="js/lib/angular-translate.min.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>
