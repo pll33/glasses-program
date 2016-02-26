@@ -1,7 +1,5 @@
 (function () {
-    var app = angular.module('app', ['pascalprecht.translate']);
-    var db = new PouchDB('glassesDB');
-    var remoteCouch = false;
+    var app = angular.module('app', ['pouchdb', 'pascalprecht.translate']);
 
     var _lastPairNum = 0;
     var roundEquiv = function(unrounded) {
@@ -13,66 +11,12 @@
     };
     var axisParse = function(num) {
         var n = parseInt(num) || 0;
-        if (n <= 0) return 0;
-        else if (n > 180) return num % 180; 
-        else return n;
+        if (n <= 0) { return 0; }
+        else if (n > 180) { return num % 180; }
+        else { return n; }
     }; 
     var sphericalEquiv = function(cylinder, sphere) {
         return ((cylinder * 0.5) + sphere);
-    };
-
-
-    var addPairDB = function(glassesObj) {
-        var now = Date.now();
-        var pair = {
-            _id: glassesObj.idx,
-            info: glasses.info,
-            available: glassesObj.available,
-            time_added: now,
-            time_modified: now
-        };
-        db.put(pair, function callback(err, result) {
-            if (!err) {
-                console.log("Added glasses pair.");
-            }
-        });
-    };
-
-    /** 
-    **  Update pair of glasses in PouchDB database
-    **    pairIdx: pair index or pair #,
-    **    availableBool: bool to set pair availability (true=Not Taken, false=Taken)
-    **/
-    var updatePairDB = function(pairIdx, availableBool) {
-        db.get(pairIdx).then(function(err, pair) {
-            if (err) { return console.log(err); }
-            pair.time_modified = Date.now();
-            pair.available = availableBool;
-            return db.put(pair);
-        });
-    };
-
-    //TODO: Move logic from the map function to query()
-    //http://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
-    var createDesignDoc = function(name, mapFunction) {
-      var ddoc = {
-            _id: '_design/' + name,
-            views: {
-            }
-        };
-        ddoc.views[name] = { map: mapFunction.toString() };
-        return ddoc;
-    };
-    var availableDoc = createDesignDoc('by_avail', function(doc) {
-        emit(doc.available);
-    });
-    db.put(availableDoc);
-
-    var queryTaken = function() {
-        return db.query('by_avail', {key: true });
-    };
-    var queryAvailable = function() {
-        return db.query('by_avail', {key: false});
     };
 
     app.config(function ($translateProvider) {
@@ -90,24 +34,26 @@
             UNROUNDED: 'Unrounded',
             ROUNDED: 'Rounded',
             PAIR: 'Pair',
-            BIFOCAL: '',
-            ADD: '',
-            AVAILABLE: '',
-            RESET: '',
-            FIND: '',
-            TAKEN: '',
-            AVAILABLE: '',
-            IMPORT: '',
-            INVENTORY: '',
-            MANUAL_INPUT: '',
-            ADDED_GLASSES: '',
-            NO_RESULTS: '',
-            BUTTON_LANG_EN: 'english',
-            BUTTON_LANG_ES: 'spanish'
+            BIFOCAL: 'Bifocal',
+            ADD: 'ADD',
+            AVAILABLE: 'Available',
+            RESET: 'Reset',
+            FIND: 'Find',
+            TAKEN: 'Taken',
+            IMPORT: 'Import',
+            EXPORT: 'Export',
+            SYNC: 'Sync',
+            INVENTORY: 'Inventory',
+            HELP: 'Help',
+            MANUAL_INPUT: 'Manual Input',
+            ADDED_GLASSES: 'Added Glasses',
+            NO_RESULTS: 'No results',
+            BUTTON_LANG_EN: 'English',
+            BUTTON_LANG_ES: 'Spanish'
         });
         $translateProvider.translations('es', {
             GLASSES: 'gafas',
-            SEARCH: '',
+            SEARCH: 'buscar',
             DOMINANT_EYE: '',
             LEFT_EYE: '',
             RIGHT_EYE: '',
@@ -125,9 +71,11 @@
             RESET: '',
             FIND: '',
             TAKEN: '',
-            AVAILABLE: '',
-            IMPORT: '',
-            INVENTORY: '',
+            IMPORT: 'importar',
+            EXPORT: 'exportar',
+            SYNC: 'sincronizar',
+            INVENTORY: 'inventario',
+            HELP: 'ayuda',
             MANUAL_INPUT: '',
             ADDED_GLASSES: '',
             NO_RESULTS: '',
@@ -138,18 +86,167 @@
     });
 
     app.factory('inventoryService', function() {
-        var inventory = {
-            invAll: [],
-            invTaken: [],
-            invAvailable: []
+        var localDB = new PouchDB('glassesDB');
+        var remoteDB = new PouchDB('http://localhost:5984/glassesDB');;
+
+        function initDB() {
+            //  check if local database exists
+            localDB.info().then(function (info) {
+                console.log("InitDB: Local DB info below");
+                console.log(info);
+                console.log("--------------");
+            });
+
+            // check if remote exists
+            remoteDB.info().then(function (info) {
+                console.log("InitDB: Remote DB info below");
+                console.log(info);
+                console.log("--------------");
+            });
+
+            var lastNumDoc = {
+                _id: 'last_num',
+                number: _lastPairNum
+            };
+
+            // check if lastNum doc exists,
+            // if exists - update lastNum
+            // else - add doc for lastNum, init 1
+            localDB.get('last_num').then(function(doc) {
+                console.log("InitDB: last_num document already exists. Setting last_num to " + doc.number);
+                _lastPairNum = doc.number;
+            }).catch(function(err) {
+                if (err && err.status == '404') {
+                    localDB.put(lastNumDoc).then(function() {
+                        console.log("InitDB: Added last_num document");
+                    });
+                } else {
+                    console.log("InitDB: last_num document lookup error");
+                    console.log(err);
+                }
+            });
+
+            // check for indexes
+            localDB.getIndexes().then(function (result) {
+
+                if (result.indexes.length > 1) {
+                    console.log("InitDB: Search indexes already exist.");
+                } else {
+                    console.log("InitDB: Search indexes do not exist, creating indexes...")
+
+                    // create index for inventory (pouchdb-find)
+                    localDB.createIndex({
+                        index: {
+                            fields: ['available', 'number'],
+                            name: 'inventory'
+                        }
+                    });
+
+                    localDB.createIndex({
+                        index: {
+                            fields: ['available', 'number'],
+                            name: 'search'
+                        }
+                    });
+                }
+            }).catch(function (err) {
+                console.log("InitDB: Index check error.");
+                console.log(err);
+            });
+        }
+
+        initDB();
+
+        var addPairDB = function(glassesObj) {
+            var now = Date.now();
+            var pairNumStr = 'pair-' + glassesObj.pairNumber.toString();
+            var pair = {
+                _id: pairNumStr,
+                number: glassesObj.pairNumber,
+                data: glassesObj.data,
+                available: glassesObj.available,
+                time_added: now,
+                time_modified: now
+            };
+
+            localDB.put(pair).then(function() {
+                // update last pair ID
+                if (glassesObj.pairNumber > _lastPairNum) {
+                    _lastPairNum = glassesObj.pairNumber;
+                }
+
+                console.log("Added glasses pair #: " + glassesObj.pairNumber);
+                return localDB.get(pairNumStr);
+            }).catch(function (err) {
+                console.log(err);
+            });
         };
-        var getPairIdx = function(arr, pairNum) {
-            var idx = arr.map(function(x) {return x.pairNumber; }).indexOf(pairNum);
-            return idx;
+
+        /**
+        **  Update pair of glasses in PouchDB database
+        **    pairNum: pair #,
+        **    availableBool: bool to set pair availability (true=Not Taken, false=Taken)
+        **/
+        var updatePairDB = function(pairNum, availableBool) {
+            var pairStr = 'pair-' + pairNum.toString();
+
+            // get pair from DB and put back
+            localDB.get(pairStr).then(function(pair) {
+                pair.time_modified = Date.now();
+                pair.available = availableBool;
+                return localDB.put(pair);
+            }).catch(function (err) {
+                console.log(err);
+            });
+        };
+
+        var updateLastNum = function() {
+            var pairNum = ++_lastPairNum;
+            localDB.get("last_num").then(function(id) {
+                id.number = pairNum;
+                return localDB.put(id);
+            }).catch(function (err) {
+                console.log(err);
+            });
+        };
+
+        //TODO: Move logic from the map function to query()
+        //http://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
+        // var createDesignDoc = function(name, mapFunction) {
+        //   var ddoc = {
+        //         _id: '_design/' + name,
+        //         views: {
+        //         }
+        //     };
+        //     ddoc.views[name] = { map: mapFunction.toString() };
+        //     return ddoc;
+        // };
+        // var availableDoc = createDesignDoc('by_avail', function(doc) {
+        //     emit(doc.available);
+        // });
+        // localDB.put(availableDoc);
+
+        var queryTaken = function() {
+            //return localDB.query('by_avail', {key: true });
+            localDB.find({
+                selector: {available: {$eq: false}},
+                sort: [{number: 'asc'}]
+            }).then(function(result) {
+                return result;
+            });
+        };
+        var queryAvailable = function() {
+            //return localDB.query('by_avail', {key: false});
+            localDB.find({
+                selector: {available: {$eq: true}},
+                sort: [{number: 'asc'}]
+            }).then(function(result) {
+                return result;
+            });
         };
 
         // add to inventory from xls/xlsx/csv import
-        inventory.import = function(obj) {
+        inventory.import = function(pairListObj) {
             // add all pairs to all
             // figure out where to sort taken/available glasses
         };
@@ -157,47 +254,75 @@
         // add to inventory from manual input
         // NOTE: assumes all glasses from manual input are available (=NOT taken)
         inventory.add = function(obj) {
-            this.invAll.push(obj);
-            this.invAvailable.push(obj);
+            addPairDB(obj);
         };
 
         // export inventory as csv/json
-        inventory.export = function(obj) {
+        inventory.exportAll = function() {
+            var csv;
 
+            // get all pair docs
+
+            // compile into csv and return
+
+        };
+
+        inventory.exportTaken = function() {
+            // get taken (queryTaken)
+
+            // compile into csv and return
         };
 
         // search for matching available glasses in _available
         inventory.lookup = function(searchObj) {
+            localDB.find({
 
+            });
         };
 
         // available -> taken glasses
         inventory.take = function(pairNum) {
-            // remove from _available, add to _taken
-            var idx = getPairIdx(this.invAvailable, pairNum);
-            var pair = this.invAvailable.splice(idx, 1)[0];
-            if (pair) this.invTaken.push(pair);
+            updatePairDB(pairNum, false);
         };
 
         // taken --> available glasses
         inventory.putback = function(pairNum) {
-            //remove from _taken, add to _available
-            var idx = getPairIdx(this.invTaken, pairNum);
-            var pair = this.invTaken.splice(idx, 1)[0];
-            if (pair) this.invAvailable.push(pair);
+            updatePairDB(pairNum, true);
         };
 
         inventory.generatePairNumber = function() {
-            if (this.invAll.length) {
-                // update highest pair number in inventory
-                var inv = this.invAll;
-                var arr = inv.map(function(g) { return g.pairNumber; });
-                _lastPairNum = Math.max.apply(Math, arr);
-            }
-
-            // return lastPairNum + 1
             return ++_lastPairNum;
         };
+
+        inventory.sync = function() {
+            localDB.replicate.to(remoteDB).on('complete', function () {
+              // yay, we're done!
+              console.log("Local->Remote: Sync complete.")
+            }).on('error', function (err) {
+              // boo, something went wrong!
+
+              console.log("Local->Remote: Sync error.");
+              console.log(err);
+            });
+        };
+
+        inventory.destroy = function() {
+            localDB.destroy().then(function () {
+                // double-check info
+                localDB.info().then(function (info) {
+                    console.log("Local DB info:");
+                    console.log(info);
+                    console.log("--------------");
+                }).catch(function(err) {
+                    // database actually destroyed
+                    console.log("Local DB: Database successfully destroyed.");
+                });
+            }).catch(function (err) {
+                console.log("Local DB: Destroy error");
+                console.log(err);
+            })
+        };
+
         return inventory;
     });
 
@@ -215,6 +340,7 @@
         $scope.langPick = 'en';
         $scope.changeLanguage = function (key) {
             $translate.use(key);
+            $scope.langPick = key;
         };
     });
 
@@ -268,7 +394,7 @@
                 leftEquiv: floatParse(srch.leftEquiv)
             };
 
-            // search by filtering db for <value>
+            // search by filtering localDB for <value>
 
             // then <value>
 
@@ -281,7 +407,7 @@
 
             // add search to previous searches list
             var prev = $scope.prevSearches;
-            var prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID });
+            var prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID; });
             if (!prevsID.length) $scope.prevSearches.push(revSrch);
 
             // console.log("srch: " + JSON.stringify(srch));
@@ -308,8 +434,12 @@
         $scope.find = angular.copy(defaultForm);
         
         $scope.inventory = inventoryService;
-        $scope.takenPairs = inventoryService.invTaken;
-        $scope.availablePairs = inventoryService.invAvailable;
+        // $scope.takenPairs = inventoryService.invTaken;
+        // $scope.availablePairs = inventoryService.invAvailable;
+
+        // TODO: update taken pairs when DB is updated
+        // TODO: update available pairs when DB is updated
+
     });
 
     app.controller('importCtrl', function ($scope, inventoryService) {
@@ -331,20 +461,24 @@
 
             var pair = {
                 pairNumber: inv.generatePairNumber(),
-                rightSphere: floatParse(input.rightSphere),
-                rightCylinder: floatParse(input.rightCylinder),
-                rightEquivUnround: unroundR,
-                rightEquiv: roundR,
-                rightAxis: axisParse(input.rightAxis),
-                rightADD: floatParse(input.rightADD),
-                leftSphere: floatParse(input.leftSphere),
-                leftCylinder: floatParse(input.leftCylinder),
-                leftEquivUnround: unroundL,
-                leftEquiv: roundL,
-                leftAxis: axisParse(input.leftAxis),
-                leftADD: floatParse(input.leftADD)
+                data: {
+                    rightSphere: floatParse(input.rightSphere),
+                    rightCylinder: floatParse(input.rightCylinder),
+                    rightEquivUnround: unroundR,
+                    rightEquiv: roundR,
+                    rightAxis: axisParse(input.rightAxis),
+                    rightADD: floatParse(input.rightADD),
+                    leftSphere: floatParse(input.leftSphere),
+                    leftCylinder: floatParse(input.leftCylinder),
+                    leftEquivUnround: unroundL,
+                    leftEquiv: roundL,
+                    leftAxis: axisParse(input.leftAxis),
+                    leftADD: floatParse(input.leftADD)
+                },
+                available: true
             };
 
+            //TODO: remove after dev
             // console.log("obj: " + JSON.stringify(glasses));
 
             // add to added glasses
@@ -359,9 +493,36 @@
             $scope.manualAddForm.$setPristine();
             $scope.add = angular.copy(defaultForm);
         };
+
+        $scope.importCSV = function() {
+            Papa.parse("", {
+                worker: true,
+                dynamicTyping: true,
+                step: function(row) {
+
+                },
+                complete: function() {
+
+                }
+            });
+        };
+
+        $scope.importJSON = function() {
+
+        };
     });
 
     app.controller('exportCtrl', function ($scope, inventoryService) {
+        //TODO:
+        // functions for: exportXLSX, XLS, JSON, CSV
+        // for: taken inventory, available inventory, full inventory
 
+        $scope.syncDB = function() {
+            inventoryService.sync();
+        };
+
+        $scope.destroyDB = function() {
+            inventoryService.destroy();
+        };
     });
 })();

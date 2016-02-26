@@ -1,5 +1,6 @@
-/* CSS file placeholder. */
-
+html, body {
+    overflow-y: scroll;
+}
 #tabContainer {
     padding: 20px;
 }

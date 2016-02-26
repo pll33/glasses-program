@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="app">
 <head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <title>GlassesInventoryAng</title>
   <link rel="stylesheet" media="all" href="css/bootstrap.min.css">
   <link rel="stylesheet" media="all" href="css/styles.css">
@@ -9,11 +10,11 @@
 <body data-ng-controller="glassesController as tab">
     <div id="tabContainer">
     <ul class="nav nav-tabs">
-        <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">Glasses Search</a></li>
-        <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">Inventory</a></li>
-        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import</a></li>
-        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Export/Sync</a></li>
-        <li id="tabHelp" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">Help</a></li>
+        <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">{{ 'GLASSES' | translate }} {{ 'SEARCH' | translate}}</a></li>
+        <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">{{ 'INVENTORY' | translate }}</a></li>
+        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">{{ 'IMPORT' | translate }}</a></li>
+        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">{{ 'EXPORT' | translate }}/{{ 'SYNC' | translate }}</a></li>
+        <li id="tabHelp" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">{{ 'HELP' | translate }}</a></li>
     </ul>
 
 <div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchCtrl">
@@ -86,7 +87,7 @@
                     <th>Cylinder</th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                     <th>Available</th>
                 </tr>
             </thead>
@@ -181,28 +182,28 @@
                     <th>Cylinder</th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                     <th>Sphere</th>
                     <th>Cylinder</th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="x in takenPairs | filter:find" ng-class="{match:x.pairNumber==find.pairNumber}">
                     <td class="bl"><input type="checkbox" ng-model="checked" ng-init="checked=true" ng-click="inventory.putback(x.pairNumber)"></td>
-                    <td>{{ x.pairNumber }}</td>
-                    <td>{{ x.rightSphere }}</td>
-                    <td>{{ x.rightCylinder }}</td>
-                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.rightAxis }}</td>
-                    <td>{{ x.rightADD  }}</td>
-                    <td>{{ x.leftSphere }}</td>
-                    <td>{{ x.leftCylinder }}</td>
-                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.leftAxis }}</td>
-                    <td>{{ x.leftADD }}</td>
+                    <td>{{ x.number }}</td>
+                    <td>{{ x.data.rightSphere }}</td>
+                    <td>{{ x.data.rightCylinder }}</td>
+                    <td>{{ x.data.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.data.rightAxis }}</td>
+                    <td>{{ x.data.rightADD  }}</td>
+                    <td>{{ x.data.leftSphere }}</td>
+                    <td>{{ x.data.leftCylinder }}</td>
+                    <td>{{ x.data.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.data.leftAxis }}</td>
+                    <td>{{ x.data.leftADD }}</td>
                 </tr>
                 <tr ng-show="takenPairs.length==0 || !takenPairs">
                     <td class="bl" colspan="13">Nothing to display.</td>
@@ -228,28 +229,28 @@
                     <th>Cylinder</th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                     <th>Sphere</th>
                     <th>Cylinder</th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="x in availablePairs | filter:find" ng-class="{match:x.pairNumber==find.pairNumber}">
                     <td class="bl"><input type="checkbox" ng-click="inventory.take(x.pairNumber)"></td>
-                    <td>{{ x.pairNumber }}</td>
-                    <td>{{ x.rightSphere }}</td>
-                    <td>{{ x.rightCylinder }}</td>
-                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.rightAxis }}</td>
-                    <td>{{ x.rightADD  }}</td>
-                    <td>{{ x.leftSphere }}</td>
-                    <td>{{ x.leftCylinder }}</td>
-                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.leftAxis }}</td>
-                    <td>{{ x.leftADD }}</td>
+                    <td>{{ x.number }}</td>
+                    <td>{{ x.data.rightSphere }}</td>
+                    <td>{{ x.data.rightCylinder }}</td>
+                    <td>{{ x.data.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.data.rightAxis }}</td>
+                    <td>{{ x.data.rightADD  }}</td>
+                    <td>{{ x.data.leftSphere }}</td>
+                    <td>{{ x.data.leftCylinder }}</td>
+                    <td>{{ x.data.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.data.leftAxis }}</td>
+                    <td>{{ x.data.leftADD }}</td>
                 </tr>
                 <tr ng-show="availablePairs.length==0 || !availablePairs">
                     <td class="bl" colspan="13">No pairs available.</td>
@@ -263,10 +264,10 @@
 <div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importCtrl">
     <h3 style="margin-top: 0">Import Inventory</h3>
     <form id="formUpload" class="form-inline" novalidate>
-    <h4>Upload a .xlsx, .xls, or .csv file</h4>
+    <h4>Upload a <!-- .xlsx, .xls, or  -->.csv or .json file</h4>
         <section>
             <div class="form-group">
-                <input id="fileSelect" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                <input id="fileSelect" type="file" accept=".csv, .json" />
             </div>
         </section>
         <section>
@@ -284,14 +285,14 @@
                 <input type="text" class="form-control" id="addRightSphere" placeholder="Sphere" ng-model="add.rightSphere">
                 <input type="text" class="form-control" id="addRightCylinder" placeholder="Cylinder" ng-model="add.rightCylinder">
                 <input type="text" class="form-control" id="addRightAxis" placeholder="Axis" ng-model="add.rightAxis">
-                <input type="text" class="form-control" id="addRightADD" placeholder="ADD" ng-model="add.rightADD">
+                <input type="text" class="form-control" id="addRightADD" placeholder="Add" ng-model="add.rightADD">
             </div>
             <div class="form-group form-inline mb">
                 <span class="lbl">Left Eye</span>
                 <input type="text" class="form-control" id="addLeftSphere" placeholder="Sphere" ng-model="add.leftSphere">
                 <input type="text" class="form-control" id="addLeftCylinder" placeholder="Cylinder" ng-model="add.leftCylinder">
                 <input type="text" class="form-control" id="addLeftAxis" placeholder="Axis" ng-model="add.leftAxis">
-                <input type="text" class="form-control" id="addLeftADD" placeholder="ADD" ng-model="add.leftADD">
+                <input type="text" class="form-control" id="addLeftADD" placeholder="Add" ng-model="add.leftADD">
             </div>
         </section>
         <section>
@@ -320,30 +321,30 @@
                     <th><span class="tt" title="Spherical Equivalent (unrounded)">SEu</span></th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">SEr</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                     <th>Sphere</th>
                     <th>Cylinder</th>
                     <th><span class="tt" title="Spherical Equivalent (unrounded)">SEu</span></th>
                     <th><span class="tt" title="Spherical Equivalent (rounded)">SEr</span></th>
                     <th>Axis</th>
-                    <th>ADD</th>
+                    <th>Add</th>
                 </tr>
             </thead>
             <tbody>
                 <tr ng-repeat="x in addedGlasses" ng-click="">
                     <td class="bl">{{ x.pairNumber }}</td>
-                    <td>{{ x.rightSphere }}</td>
-                    <td>{{ x.rightCylinder }}</td>
-                    <td>{{ x.rightEquivUnround.toFixed(2) }}</td>
-                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.rightAxis }}</td>
-                    <td>{{ x.rightADD  }}</td>
-                    <td>{{ x.leftSphere }}</td>
-                    <td>{{ x.leftCylinder }}</td>
-                    <td>{{ x.leftEquivUnround.toFixed(2) }}</td>
-                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.leftAxis }}</td>
-                    <td>{{ x.leftADD }}</td>
+                    <td>{{ x.data.rightSphere }}</td>
+                    <td>{{ x.data.rightCylinder }}</td>
+                    <td>{{ x.data.rightEquivUnround.toFixed(2) }}</td>
+                    <td>{{ x.data.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ x.data.rightAxis }}</td>
+                    <td>{{ x.data.rightADD  }}</td>
+                    <td>{{ x.data.leftSphere }}</td>
+                    <td>{{ x.data.leftCylinder }}</td>
+                    <td>{{ x.data.leftEquivUnround.toFixed(2) }}</td>
+                    <td>{{ x.data.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ x.data.leftAxis }}</td>
+                    <td>{{ x.data.leftADD }}</td>
                 </tr>
                 <tr ng-show="addedGlasses.length==0 || !addedGlasses">
                     <td class="bl" colspan="15">Nothing to display.</td>
@@ -356,20 +357,33 @@
 <div id="export" class="tab-content" ng-show="tab.isSet(4)" ng-controller="exportCtrl">
     <h3 style="margin-top: 0">Export Inventory</h3>
     <h4>Full Inventory</h4>
-    <button type="button" class="btn btn-default" ng-click="exportJSON()">.JSON</button>
-    <button type="button" class="btn btn-default" ng-click="exportCSV()">.CSV</button>
-    <button type="button" class="btn btn-default" ng-click="exportXSLX()">.XSLX</button>
+    <button type="button" class="btn btn-default" ng-click="exportJSON()">.json</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV()">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportXSLX()">.xlsx</button>
+
+    <h3>Sync Inventory</h3>
+    Status: <span class="connectionStatus">OFFLINE</span><!--TODO--><br>
+    <button type="button" class="btn btn-info" ng-click="syncDB()">Sync</button>
+
+
+    <!--DEBUG PURPOSES, TODO: Remove after development-->
+    <h3>Destroy Inventory</h3>
+    <button type="button" class="btn btn-danger" ng-click="destroyDB()">DESTROY</button>
 </div>
+
 <div id="help" class="tab-content" ng-show="tab.isSet(5)">
     <h3 style="margin-top: 0">Help</h3>
     <h4>Language Selection</h4>
     <div class="btn-group">
-        <label class="btn btn-primary" ng-model="langPick" uib-btn-radio="'en'">English</label>
-        <label class="btn btn-primary" ng-model="langPick" uib-btn-radio="'es'">Spanish</label>
+        <label class="btn btn-primary" ng-class="{active: langPick=='en'}" ng-model="langPick" ng-click="changeLanguage('en')" uib-btn-radio="'en'">{{ 'BUTTON_LANG_EN' | translate }}</label>
+        <label class="btn btn-primary" ng-class="{active: langPick=='es'}" ng-model="langPick" ng-click="changeLanguage('es')" uib-btn-radio="'es'">{{ 'BUTTON_LANG_ES' | translate }}</label>
     </div>
 </div>
+  <script src="js/lib/papaparse.min.js"></script>
   <script src="js/lib/pouchdb-5.2.1.min.js"></script>
+  <script src="js/lib/pouchdb.find.min.js"></script>
   <script src="js/lib/angular.min.js"></script>
+  <script src="js/lib/angular-pouchdb.min.js"></script>
   <script src="js/lib/angular-translate.min.js"></script>
   <script src="js/app.js"></script>
 </body>
