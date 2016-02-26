@@ -1,0 +1,7 @@
+_replicator/
+_users/
+config.json
+glassesDB/
+log.txt
+pouch__all_dbs__/
+pouch__auth_sessions__/
