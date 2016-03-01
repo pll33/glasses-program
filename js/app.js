@@ -1,7 +1,6 @@
 (function () {
     var app = angular.module('app', ['pouchdb', 'pascalprecht.translate']);
 
-    var _lastPairNum = 0;
     var roundEquiv = function(unrounded) {
         return (Math.round(unrounded * 4) / 4);
     };
@@ -17,6 +16,16 @@
     }; 
     var sphericalEquiv = function(cylinder, sphere) {
         return ((cylinder * 0.5) + sphere);
+    };
+    var axisRange = function(axisNum) {
+        if (axisNum > 121) { return "high"; }
+        else if (axisNum > 61) { return "mid"; }
+        else if (axisNum > 0) { return "low"; }
+        else { return ""; }
+    };
+    var takenStr = function(availableBool) {
+        if (availableBool) { return "No"; }
+        else { return "Yes"; }
     };
 
     app.config(function ($translateProvider) {
@@ -44,7 +53,7 @@
             EXPORT: 'Export',
             SYNC: 'Sync',
             INVENTORY: 'Inventory',
-            HELP: 'Help',
+            SETTINGS: 'Settings',
             MANUAL_INPUT: 'Manual Input',
             ADDED_GLASSES: 'Added Glasses',
             NO_RESULTS: 'No results',
@@ -75,7 +84,7 @@
             EXPORT: 'exportar',
             SYNC: 'sincronizar',
             INVENTORY: 'inventario',
-            HELP: 'ayuda',
+            SETTINGS: '',
             MANUAL_INPUT: '',
             ADDED_GLASSES: '',
             NO_RESULTS: '',
@@ -89,46 +98,71 @@
         var localDB = new PouchDB('glassesDB');
         var remoteDB = new PouchDB('http://localhost:5984/glassesDB');;
 
+        var watchChanges;
+        var watchDB = function() {
+            watchChanges = localDB.changes({
+                live: true,
+                include_docs: true
+            }).on('change', function(info) {
+                console.log("WatchDB: Change event fired");
+                console.log(info);
+                if (info.doc && info.doc.data) {
+                    updateTaken();
+                    updateAvailable();
+                }
+            }).on('complete', function(info) {
+                console.log("WatchDB: Complete event fired");
+                console.log(info);
+            }).on('error', function(err) {
+                console.log("WatchDB: Error event fired");
+                console.log(err);
+            });
+        };
+
+        var _nextPairNum = 1;
+        var _invTaken = [];
+        var _invAvailable = [];
+        var _invAllLength = 0;
+        var _setLetter;
+
+        var _invSearch = [];
+
         function initDB() {
+            watchDB();
+
             //  check if local database exists
             localDB.info().then(function (info) {
-                console.log("InitDB: Local DB info below");
-                console.log(info);
-                console.log("--------------");
+                console.log("InitDB: Local DB info:", info);
             });
 
             // check if remote exists
             remoteDB.info().then(function (info) {
-                console.log("InitDB: Remote DB info below");
-                console.log(info);
-                console.log("--------------");
+                console.log("InitDB: Remote DB info:", info);
             });
 
-            var lastNumDoc = {
-                _id: 'last_num',
-                number: _lastPairNum
+            var nextNumDoc = {
+                _id: 'next_num',
+                number: _nextPairNum
             };
 
-            // check if lastNum doc exists,
-            // if exists - update lastNum
-            // else - add doc for lastNum, init 1
-            localDB.get('last_num').then(function(doc) {
-                console.log("InitDB: last_num document already exists. Setting last_num to " + doc.number);
-                _lastPairNum = doc.number;
+            // check if nextNum doc exists,
+            // if exists - update nextNum
+            // else - add doc for nextNum, init 1
+            localDB.get('next_num').then(function(doc) {
+                console.log("InitDB: next_num document already exists. Setting next_num to " + doc.number);
+                _nextPairNum = doc.number;
             }).catch(function(err) {
                 if (err && err.status == '404') {
-                    localDB.put(lastNumDoc).then(function() {
-                        console.log("InitDB: Added last_num document");
+                    localDB.put(nextNumDoc).then(function() {
+                        console.log("InitDB: Added next_num document");
                     });
                 } else {
-                    console.log("InitDB: last_num document lookup error");
-                    console.log(err);
+                    console.log("InitDB: next_num document lookup error", err);
                 }
             });
 
             // check for indexes
             localDB.getIndexes().then(function (result) {
-
                 if (result.indexes.length > 1) {
                     console.log("InitDB: Search indexes already exist.");
                 } else {
@@ -142,10 +176,31 @@
                         }
                     });
 
+                    // localDB.createIndex({
+                    //     index: {
+                    //         fields: ['available', 'number', 'data'],
+                    //         name: 'search'
+                    //     }
+                    // });
+
                     localDB.createIndex({
                         index: {
-                            fields: ['available', 'number'],
-                            name: 'search'
+                            fields: ['available', 'data.rightEquiv', 'data.rightCylinder', 'data.rightAxis'],
+                            name: 'rightSearch'
+                        }
+                    });
+
+                    localDB.createIndex({
+                        index: {
+                            fields: ['available', 'data.leftEquiv', 'data.leftCylinder', 'data.leftAxis'],
+                            name: 'leftSearch'
+                        }
+                    });
+
+                    localDB.createIndex({
+                        index: {
+                            fields: ['available', 'data.rightEquiv', 'data.rightCylinder', 'data.rightAxis', 'data.leftEquiv', 'data.leftCylinder', 'data.leftAxis'],
+                            name: 'noneSearch'
                         }
                     });
                 }
@@ -165,20 +220,21 @@
                 number: glassesObj.pairNumber,
                 data: glassesObj.data,
                 available: glassesObj.available,
+                set: glassesObj.setLetter || _setLetter,
                 time_added: now,
                 time_modified: now
             };
 
             localDB.put(pair).then(function() {
-                // update last pair ID
-                if (glassesObj.pairNumber > _lastPairNum) {
-                    _lastPairNum = glassesObj.pairNumber;
-                }
-
-                console.log("Added glasses pair #: " + glassesObj.pairNumber);
+                // console.log("Added glasses pair: #" + glassesObj.pairNumber);
                 return localDB.get(pairNumStr);
             }).catch(function (err) {
-                console.log(err);
+                console.log("Add pair: Error when adding pair to database.", err);
+                if (err.status == '409') {
+                    updateNextNum(_invAllLength+1);
+                }
+            }).then(function() {
+                updateNextNum(++_nextPairNum);
             });
         };
 
@@ -200,88 +256,101 @@
             });
         };
 
-        var updateLastNum = function() {
-            var pairNum = ++_lastPairNum;
-            localDB.get("last_num").then(function(id) {
-                id.number = pairNum;
+        var updateNextNum = function(num) {
+            localDB.get("next_num").then(function(id) {
+                id.number = num;
                 return localDB.put(id);
             }).catch(function (err) {
-                console.log(err);
+                if (err.status == "409") {
+                    if (_nextPairNum == num) {
+                        updateNextNum(_nextPairNum);
+                        console.log("Update next_num: next_num updated after bulk operation");
+                    }
+                    // note: lots of 409s fired when importing pairs in bulk
+                    // console.log("num:", num);
+                    // console.log("actual next num:", _nextPairNum);
+                } else {
+                    console.log("Update next_num: Error.", error);
+                }
             });
         };
 
-        //TODO: Move logic from the map function to query()
-        //http://pouchdb.com/2014/06/17/12-pro-tips-for-better-code-with-pouchdb.html
-        // var createDesignDoc = function(name, mapFunction) {
-        //   var ddoc = {
-        //         _id: '_design/' + name,
-        //         views: {
-        //         }
-        //     };
-        //     ddoc.views[name] = { map: mapFunction.toString() };
-        //     return ddoc;
-        // };
-        // var availableDoc = createDesignDoc('by_avail', function(doc) {
-        //     emit(doc.available);
-        // });
-        // localDB.put(availableDoc);
-
-        var queryTaken = function() {
-            //return localDB.query('by_avail', {key: true });
+        var updateTaken = function() {
             localDB.find({
-                selector: {available: {$eq: false}},
-                sort: [{number: 'asc'}]
+                selector: {available: {$eq: false}}
             }).then(function(result) {
-                return result;
+                // console.log("Taken inventory:", result);
+                _invTaken = result.docs;
+                _invAllLength = _invTaken.length + _invAvailable.length;
             });
         };
-        var queryAvailable = function() {
-            //return localDB.query('by_avail', {key: false});
+        var updateAvailable = function() {
             localDB.find({
-                selector: {available: {$eq: true}},
-                sort: [{number: 'asc'}]
+                selector: {available: {$eq: true}}
             }).then(function(result) {
-                return result;
+                // console.log("Available inventory:", result);
+                _invAvailable = result.docs;
+                _invAllLength = _invTaken.length + _invAvailable.length;
             });
-        };
-
-        // add to inventory from xls/xlsx/csv import
-        inventory.import = function(pairListObj) {
-            // add all pairs to all
-            // figure out where to sort taken/available glasses
         };
 
         // add to inventory from manual input
         // NOTE: assumes all glasses from manual input are available (=NOT taken)
         inventory.add = function(obj) {
+            if (obj.setLetter && !_setLetter) { _setLetter = obj.setLetter; }
             addPairDB(obj);
         };
 
-        // export inventory as csv/json
-        inventory.exportAll = function() {
-            var csv;
-
-            // get all pair docs
-
-            // compile into csv and return
-
-        };
-
-        inventory.exportTaken = function() {
-            // get taken (queryTaken)
-
-            // compile into csv and return
-        };
-
+        //TODO
         // search for matching available glasses in _available
-        inventory.lookup = function(searchObj) {
+        inventory.lookupDomRight = function(searchObj) {
             localDB.find({
+                selector: {
+                    'available': {$eq: true},
+                    'data.rightEquiv': {$gte: searchObj.equivMin, $lte: searchObj.equivMax },
+                    'data.rightCylinder': {$gte: searchObj.cylinderMin, $lte: searchObj.cylinderMax },
+                    'data.rightAxis': {$gte: searchObj.axisMin, $lte: searchObj.axisMax } 
+                }
+            }).then(function(result) {
+                console.log("SEARCH DOM RIGHT: ", result);
+                _invSearch = result.docs;
+            });
+        };
 
+        inventory.lookupDomLeft = function(searchObj) {
+            localDB.find({
+                selector: {
+                    'available': {$eq: true},
+                    'data.leftEquiv': {$gte: searchObj.equivMin, $lte: searchObj.equivMax },
+                    'data.leftCylinder': {$gte: searchObj.cylinderMin, $lte: searchObj.cylinderMax },
+                    'data.leftAxis': {$gte: searchObj.axisMin, $lte: searchObj.axisMax }
+                }
+            }).then(function(result) {
+                console.log("SEARCH DOM LEFT: ", result);
+                _invSearch = result.docs;
+            });
+        };
+
+        inventory.lookupDomNone = function(rightObj, leftObj) {
+            localDB.find({
+                selector: {
+                    'available': {$eq: true},
+                    'data.rightEquiv': {$gte: rightObj.equivMin, $lte: rightObj.equivMax },
+                    'data.rightCylinder': {$gte: rightObj.cylinderMin, $lte: rightObj.cylinderMax },
+                    'data.rightAxis': {$gte: rightObj.axisMin, $lte: rightObj.axisMax },
+                    'data.leftEquiv': {$gte: leftObj.equivMin, $lte: leftObj.equivMax },
+                    'data.leftCylinder': {$gte: leftObj.cylinderMin, $lte: leftObj.cylinderMax },
+                    'data.leftAxis': {$gte: leftObj.axisMin, $lte: leftObj.axisMax }
+                }
+            }).then(function(result) {
+                console.log("SEARCH DOM NONE: ", result);
+                _invSearch = result.docs;
             });
         };
 
         // available -> taken glasses
         inventory.take = function(pairNum) {
+            console.log("take: " + pairNum);
             updatePairDB(pairNum, false);
         };
 
@@ -290,19 +359,17 @@
             updatePairDB(pairNum, true);
         };
 
-        inventory.generatePairNumber = function() {
-            return ++_lastPairNum;
-        };
+        inventory.getSearchResults = function() { return _invSearch; };
+        inventory.getSetLetter = function() { return _setLetter; };
+        inventory.getPairNumber = function() { return _nextPairNum; };
+        inventory.getTaken = function() { return _invTaken; };
+        inventory.getAvailable = function() { return _invAvailable; };
 
         inventory.sync = function() {
             localDB.replicate.to(remoteDB).on('complete', function () {
-              // yay, we're done!
               console.log("Local->Remote: Sync complete.")
             }).on('error', function (err) {
-              // boo, something went wrong!
-
-              console.log("Local->Remote: Sync error.");
-              console.log(err);
+              console.log("Local->Remote: Sync error.", err);
             });
         };
 
@@ -310,17 +377,22 @@
             localDB.destroy().then(function () {
                 // double-check info
                 localDB.info().then(function (info) {
-                    console.log("Local DB info:");
-                    console.log(info);
-                    console.log("--------------");
+                    console.log("Local DB info:", info);
                 }).catch(function(err) {
                     // database actually destroyed
                     console.log("Local DB: Database successfully destroyed.");
+
+                    console.log("Local DB: Resetting database..");
+                    localDB = new PouchDB('glassesDB');
+                    _nextPairNum = 1;
+                    _invTaken = [];
+                    _invAvailable = [];
+                    initDB();
                 });
             }).catch(function (err) {
                 console.log("Local DB: Destroy error");
                 console.log(err);
-            })
+            });
         };
 
         return inventory;
@@ -347,7 +419,8 @@
     app.controller('searchCtrl', function ($scope, inventoryService) {
         var defaultForm = { dominantEye: "Right", rightSphere: "", rightCylinder: "", rightAxis: "", leftSphere: "", leftCylinder: "", leftAxis: "", rightEquiv: "0.00", leftEquiv: "0.00"};
         $scope.search = angular.copy(defaultForm); //{};
-        $scope.results = [];
+
+        $scope.searchResults = [];
         $scope.prevSearches = [];
         $scope.showPrevSearches = false;
         $scope.showResults = false;
@@ -376,7 +449,6 @@
         };
 
         $scope.searchGlasses = function (srch) {  
-            $scope.results = [];
             //srch = obj representation of search
             //example: {"rightSphere":"2.200","rightEquiv":"3.25","rightCylinder":"2.3","rightAxis":"5","leftSphere":"2","leftEquiv":"5.50","leftCylinder":"7","leftAxis":"6"}
 
@@ -394,16 +466,47 @@
                 leftEquiv: floatParse(srch.leftEquiv)
             };
 
+            var axisMinFunc = function(axis) { return (axis < 15) ? 0 : (axis < 165) ? axis-15 : 165; }
+            var axisMaxFunc = function(axis) { return (axis > 165) ? 180 : (axis < 15) ? axis+15 : 0; }
+            var searchObjFunc = function(equiv, cyl, axis) {
+                return {
+                    equivMin: equiv,
+                    equivMax: equiv+1,
+                    cylinderMin: cyl-0.75,
+                    cylinderMax: cyl+0.75,
+                    axisMin: axisMinFunc(axis),
+                    axisMax: axisMaxFunc(axis)
+                }
+            };
+
             // search by filtering localDB for <value>
-
+                //spherical equivalent = x to x+1
+                //cylinder = (x-.75)<x<(x+.75)
+                //axis = group 1 (0-15 or 165-180)
+                //axis = group 2 (16-164) (x-15)<x<(x+15)
             // then <value>
-
-
-            // list glasses matching search
-            // $scope.results = 
+            var searchObj;
+            switch(revSrch.dominantEye) {
+                case 'Right':
+                    searchObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
+                    inventoryService.lookupDomRight(searchObj);
+                    break;
+                case 'Left':
+                    searchObj = searchObjFunc(revSrch.leftEquiv, revSrch.leftCylinder, revSrch.leftAxis);
+                    inventoryService.lookupDomLeft(searchObj);
+                    break;
+                case 'None':
+                    var rightObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
+                    var leftObj = searchObjFunc(revSrch.leftEquiv, revSrch.leftCylinder, revSrch.leftAxis);
+                    inventoryService.lookupDomNone(rightObj, leftObj);
+                    break;
+                default:
+                    searchObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
+                    inventoryService.lookupDomRight(searchObj);
+            }
 
             // reset the form -- clear all text fields
-            this.resetForm();
+            // this.resetForm();
 
             // add search to previous searches list
             var prev = $scope.prevSearches;
@@ -414,8 +517,8 @@
             // console.log("rev: " + JSON.stringify(revSrch));
         };
 
-        $scope.isMatch = function(frm, result) {
-
+        $scope.isMatch = function(key, cellData) {
+            return ($scope.search[key] == cellData);
         };
 
         $scope.togglePrevSearches = function() {
@@ -427,29 +530,176 @@
             $scope.search = angular.copy(defaultForm);
             $scope.search.rightEquiv = $scope.search.leftEquiv = '0.00';
         };
+
+        $scope.$watch(
+            function watchResults(scope) {
+                return inventoryService.getSearchResults();
+            },
+            function handleChange(newRes, oldRes) {
+                // update only if pair array has changed (pair removed/added)
+                // if (newRes.length > 0) {
+                    console.log("SEARCH RESULTS ARE IN: ", newRes);
+
+                    // list glasses matching search
+                    $scope.searchResults = newRes;
+                // }
+            //TODO: fix watch not firing until view is actually loaded
+        });
+
     });
 
     app.controller('inventoryCtrl', function ($scope, inventoryService) {
-        var defaultForm = { pairNumber: "" };
+        var defaultForm = { number: "" };
         $scope.find = angular.copy(defaultForm);
         
-        $scope.inventory = inventoryService;
-        // $scope.takenPairs = inventoryService.invTaken;
-        // $scope.availablePairs = inventoryService.invAvailable;
+        $scope.model = {};
 
-        // TODO: update taken pairs when DB is updated
-        // TODO: update available pairs when DB is updated
+        $scope.model.takenPairs = inventoryService._invTaken;
+        $scope.model.availablePairs = inventoryService._invAvailable;
 
+        $scope.takePair = function(numPair) {
+            inventoryService.take(numPair);
+        };
+
+        $scope.putbackPair = function(numPair) {
+            inventoryService.putback(numPair);
+            // TODO: then properly update available+takenPairs
+        };
+
+        // update taken pairs when DB is updated
+        $scope.$watch(
+            function watchTaken(scope) {
+                return inventoryService.getTaken();
+            },
+            function handleChange(newTaken, oldTaken) {
+                // update only if pair array has changed (pair removed/added)
+                if (newTaken.length !== oldTaken.length) {
+                    console.log("taken pairs was updated: ", newTaken);
+                    $scope.model.takenPairs = newTaken;
+                }
+            //TODO: fix watch not firing until view is actually loaded
+        });
+
+        // update available pairs when DB is updated
+        $scope.$watch(
+            function watchAvailable(scope) {
+                return inventoryService.getAvailable();
+            },
+            function handleChange(newAvail, oldAvail) {
+                // update only if pair array has changed (pair removed/added)
+                if (newAvail.length !== oldAvail.length) {
+                    console.log("avail pairs was updated: ", newAvail);
+                    $scope.model.availablePairs = newAvail;
+                }
+            //TODO: fix watch not firing until view is actually loaded
+        });
     });
 
+    app.directive('fileModel', ['$parse', function($parse) {
+        return {
+            restrict: 'A',
+            link: function(scope, element, attrs) {
+                var model = $parse(attrs.fileModel);
+                var modelSetter = model.assign;
+
+                element.bind('change', function() {
+                    scope.$apply(function() {
+                        modelSetter(scope, element[0].files[0]);
+                    });
+                });
+            }
+        }
+    }]);
+
     app.controller('importCtrl', function ($scope, inventoryService) {
+        var formData = new FormData();
         var defaultForm = { rightSphere: "", rightCylinder: "", rightAxis: "", rightADD: "", leftSphere: "", leftCylinder: "", leftAxis: "", leftADD: "" };
+
         $scope.add = angular.copy(defaultForm); 
 
         $scope.inventory = inventoryService;
         $scope.addedGlasses = [];
 
-        $scope.addToInventory = function(input) {
+        function importCSV(file) {
+            var tempNextNum = $scope.inventory.getPairNumber();
+            var rowCount = 0;
+
+            // parse/read in CSV file
+            Papa.parse(file, {
+                dynamicTyping: true,
+                skipEmptyLines: true,
+                preview: 55, //TODO: remove
+                step: function(results, parser) {
+                    // add rows past row 0
+                    if (rowCount && results.data) {
+                        console.log("Parse row data: ", results.data);
+                        $scope.importCSVAdd(results.data[0], tempNextNum);
+                        tempNextNum++;
+                    }
+                    rowCount++;
+                },
+                complete: function(results, file) {
+                    console.log("Parsing complete:", results, file);
+                },
+                error: function(error) {
+                    console.log("Import CSV: Error encountered:", error);
+                }
+            });
+        }
+
+        function importJSON(file) {
+
+        }
+
+        // Assumes 16 columnn CSV data
+        $scope.importCSVAdd = function(input, nextNum) {
+            var parsePairNum = function(inStr) { return parseInt(inStr.replace( /^\D+/g, '')); }
+            var parseSetLetter = function(inStr) { return inStr.replace(/\d+$/g, ''); }
+            var parseAvail = function(inStr) {
+                var s = inStr.toLowerCase();
+                switch(s) {
+                    case 'no':
+                        return true;
+                    case 'yes':
+                        return false;
+                    default:
+                        return true;
+                }
+            };
+
+            // check if input.pairNumber vs nextPairNum
+            // if input < nextNum: assign nextNum
+            // else if input >= nextNum: use input number
+            var inputNum = parsePairNum(input[14]);
+            var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+
+            var pair = {
+                setLetter: parseSetLetter(input[14]),
+                pairNumber: pairNum,
+                data: {
+                    rightSphere: input[0],
+                    rightCylinder: input[1],
+                    rightEquivUnround: input[2],
+                    rightEquiv: input[3],
+                    rightAxis: input[4],
+                    rightADD: input[6],
+                    leftSphere: input[7],
+                    leftCylinder: input[8],
+                    leftEquivUnround: input[9],
+                    leftEquiv: input[10],
+                    leftAxis: input[11],
+                    leftADD: input[13]
+                },
+                available: parseAvail(input[15])
+            };
+            // console.log("ImportCSV Add:", pair);
+
+            // add to added glasses
+            $scope.addedGlasses.push(pair);
+            $scope.inventory.add(pair);
+        };
+
+        $scope.manualAdd = function(input) {
             var inv = $scope.inventory;
 
              // calculate spherical equivalents (rounded+unrounded)
@@ -460,7 +710,7 @@
             var roundL = roundEquiv(unroundL);
 
             var pair = {
-                pairNumber: inv.generatePairNumber(),
+                pairNumber: inv.getPairNumber(),
                 data: {
                     rightSphere: floatParse(input.rightSphere),
                     rightCylinder: floatParse(input.rightCylinder),
@@ -478,9 +728,6 @@
                 available: true
             };
 
-            //TODO: remove after dev
-            // console.log("obj: " + JSON.stringify(glasses));
-
             // add to added glasses
             $scope.addedGlasses.push(pair);
             inv.add(pair);
@@ -494,33 +741,92 @@
             $scope.add = angular.copy(defaultForm);
         };
 
-        $scope.importCSV = function() {
-            Papa.parse("", {
-                worker: true,
-                dynamicTyping: true,
-                step: function(row) {
-
-                },
-                complete: function() {
-
+        $scope.import = function() {
+            var file = $scope.importFile;
+            if (file) {
+                console.log("Import file: ", file);
+                if (file.type == "text/csv") {
+                    importCSV(file)
+                } else if (file.type == "application/json") {
+                    importJSON(file);
                 }
-            });
-        };
-
-        $scope.importJSON = function() {
-
+            } else {
+                console.log("Import file: No file to import.");
+            }
         };
     });
 
     app.controller('exportCtrl', function ($scope, inventoryService) {
-        //TODO:
-        // functions for: exportXLSX, XLS, JSON, CSV
+        var simpleObj = function(dbObj) {
+            return {
+                pairNumber: dbObj.number,
+                data: JSON.stringify(dbObj.data),
+                available: dbObj.available
+            }
+        };
+
+        var simpleCSV = function(dbObj) {
+            var data = dbObj.data;
+            var pNum = dbObj.set + '' + dbObj.number;
+            return {
+                rightSphere: data.rightSphere,
+                rightCylinder: data.rightCylinder,
+                rightEquivUnround: data.rightEquivUnround,
+                rightEquiv: data.rightEquiv,
+                rightAxis: data.rightAxis,
+                rightAxisRange: axisRange(data.rightAxis),
+                rightADD: data.rightADD,
+                leftSphere: data.leftSphere,
+                leftCylinder: data.leftCylinder,
+                leftEquivUnround: data.leftEquivUnround,
+                leftEquiv: data.leftEquiv,
+                leftAxis: data.leftAxis,
+                leftAxisRange: axisRange(data.leftAxis),
+                leftADD: data.leftADD,
+                number: pNum,
+                taken: takenStr(dbObj.available)
+            }
+        }
+
+        // functions for: CSV, JSON
         // for: taken inventory, available inventory, full inventory
+        $scope.exportCSV = function() {
+            var taken = inventoryService.getTaken();
+            var avail = inventoryService.getAvailable();
+            var all = taken.concat(avail);
+
+            all.forEach(function (element, idx, arr) {
+                var dbObj = arr[idx];
+                arr[idx] = simpleCSV(dbObj);
+            });
+
+            var csv = Papa.unparse(all);
+            console.log(csv);
+            //TODO: complete
+        };
+
+        $scope.exportJSON = function() {
+            var taken = inventoryService.getTaken();
+            var avail = inventoryService.getAvailable();
+            var all = taken.concat(avail);
+
+            all.forEach(function (element, idx, arr) {
+                var dbObj = arr[idx];
+                arr[idx] = simpleObj(dbObj);
+            });
+
+            console.dir(all[0]);
+            // keep available, data, number fields in JSON file
+
+            // console.log(JSON.stringify(all));
+            //TODO: complete
+        };
 
         $scope.syncDB = function() {
             inventoryService.sync();
         };
 
+        // TODO: remove Destroy div in HTML after development, keep this function
         $scope.destroyDB = function() {
             inventoryService.destroy();
         };
