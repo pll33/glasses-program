@@ -103,9 +103,8 @@ a.sh:hover {
 } 
 
 #searchResults table>thead>tr:nth-child(2)>th:nth-child(1), 
-#searchResults table>thead>tr:nth-child(2)>th:nth-child(5), 
-#searchResults table>thead>tr:nth-child(2)>th:nth-child(9), 
-#searchResults table>thead>tr:nth-child(2)>th:nth-child(10), 
+#searchResults table>thead>tr:nth-child(2)>th:nth-child(6),  
+#searchResults table>thead>tr:nth-child(2)>th:nth-child(11), 
 #searchResults table>thead>tr:nth-child(2)>th:last-child {
     border-right: 2px solid #ddd;
 }
