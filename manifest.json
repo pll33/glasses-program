@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "GlassesInventoryAng",
-  "short_name": "GlassesInventoryAng",
+  "name": "Glasses Inventory",
+  "short_name": "Glasses Inventory",
   "description": "",
   "version": "0.0.1",
   "minimum_chrome_version": "38",
@@ -17,8 +17,9 @@
     },
     "launch": {
       "local_path": "index.html"
-    },
+    }
   },
+  "offline_enabled": true,
   "permissions": [
     "unlimitedStorage"
   ]
