@@ -28,8 +28,9 @@
         else { return "Yes"; }
     };
 
-    var searchTimeoutDelay = 500;
-    var invTimeoutDelay = 2000;
+    var firstSearch = false;
+    var searchTimeoutDelay = 2000;
+    var invTimeoutDelay = 500;
 
     app.config(function ($translateProvider) {
         $translateProvider.translations('en', {
@@ -101,29 +102,6 @@
         var localDB = new PouchDB('glassesDB');
         var remoteDB = new PouchDB('http://localhost:5984/glassesDB');;
 
-        var watchChanges;
-        var watchDB = function() {
-            watchChanges = localDB.changes({
-                live: true,
-                // include_docs: true
-            }).on('change', function(info) {
-                console.log("WatchDB: Change event fired");
-                console.log(info);
-                // if (info.doc && info.doc.data) {
-                    updateTaken();
-                    updateAvailable();
-                // }
-            }).on('complete', function(info) {
-                console.log("WatchDB: Complete event fired");
-                updateTaken();
-                updateAvailable();
-                console.log(info);
-            }).on('error', function(err) {
-                console.log("WatchDB: Error event fired");
-                console.log(err);
-            });
-        };
-
         var _nextPairNum = 1;
         var _invTaken = [];
         var _invAvailable = [];
@@ -133,7 +111,18 @@
         var _invSearch = [];
 
         function initDB() {
-            watchDB();
+            localDB.changes({include_docs: true}).on('change', function(info) {
+                // console.log("InitDB watch: Change event fired -- ", info);
+                // console.log("InitDB watch: Change event fired");
+            }).on('complete', function(info) {
+                console.log("InitDB watch: Complete event fired -- ", info);
+                //only update inventory if there are actually items
+                if (info.results.length) { 
+                    updateInventory();
+                }
+            }).on('error', function(err) {
+                console.log("InitDB watch: Error event fired -- ", err);
+            });
 
             //  check if local database exists
             localDB.info().then(function (info) {
@@ -233,7 +222,6 @@
                 }
             }).then(function() {
                 updateNextNum(++_nextPairNum);
-                console.log("WOULD BE UPDATE INVENTORY");
             });
         };
 
@@ -249,10 +237,12 @@
             localDB.get(pairStr).then(function(pair) {
                 pair.time_modified = Date.now();
                 pair.available = availableBool;
+                console.log("UPDATE PAIR: ", Date.now());
                 return localDB.put(pair);
             }).catch(function (err) {
                 console.log(err);
             }).then(function() {
+                console.log("UPDATE INVENTORY: ", Date.now());
                 updateInventory();
             });
         };
@@ -271,6 +261,9 @@
                     if (_nextPairNum == num) {
                         updateNextNum(_nextPairNum);
                         console.log("Update next_num: next_num updated after bulk operation");
+
+                        updateInventory();
+                        console.log("Update inventory: inventory updated after bulk operation");
                     }
                     // note: lots of 409s fired when importing pairs in bulk
                     // console.log("num:", num);
@@ -288,6 +281,8 @@
                 // console.log("Taken inventory:", result);
                 _invTaken = result.docs;
                 _invAllLength = _invTaken.length + _invAvailable.length;
+            }).catch(function(err) {
+                // console.log("Update taken inventory: ", err);
             });
         };
         var updateAvailable = function() {
@@ -297,6 +292,8 @@
                 // console.log("Available inventory:", result);
                 _invAvailable = result.docs;
                 _invAllLength = _invTaken.length + _invAvailable.length;
+            }).catch(function(err) {
+                // console.log("Update taken inventory: ", err);
             });
         };
 
@@ -317,8 +314,8 @@
                     'data.rightAxis': {$gte: searchObj.axisMin, $lte: searchObj.axisMax } 
                 }
             }).then(function(result) {
-                console.log("SEARCH DOM RIGHT: ", result);
-                console.log("SEARCH: ", Date.now())
+                // console.log("SEARCH DOM RIGHT: ", result);
+                // console.log("SEARCH DONE: ", Date.now())
                 _invSearch = result.docs;
             });
         };
@@ -332,7 +329,7 @@
                     'data.leftAxis': {$gte: searchObj.axisMin, $lte: searchObj.axisMax }
                 }
             }).then(function(result) {
-                console.log("SEARCH DOM LEFT: ", result);
+                // console.log("SEARCH DOM LEFT: ", result);
                 _invSearch = result.docs;
             });
         };
@@ -349,14 +346,13 @@
                     'data.leftAxis': {$gte: leftObj.axisMin, $lte: leftObj.axisMax }
                 }
             }).then(function(result) {
-                console.log("SEARCH DOM NONE: ", result);
+                // console.log("SEARCH DOM NONE: ", result);
                 _invSearch = result.docs;
             });
         };
 
         // available -> taken glasses
         inventory.take = function(pairNum) {
-            console.log("take: " + pairNum);
             updatePairDB(pairNum, false);
         };
 
@@ -511,10 +507,13 @@
                     inventoryService.lookupDomRight(searchObj);
             }
 
-            console.log("CTRL: ", Date.now());
             setTimeout(function () {
+                // console.log("SEARCH RESULTS RETRIEVE: ", Date.now());
                 $scope.searchResults = inventoryService.getSearchResults();
                 $scope.$apply();
+
+                // update timeout after first search
+                if (!firstSearch) { firstSearch = true; searchTimeoutDelay = 500; }
             }, searchTimeoutDelay);
             // reset the form -- clear all text fields
             // this.resetForm();
@@ -523,9 +522,6 @@
             var prev = $scope.prevSearches;
             var prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID; });
             if (!prevsID.length) $scope.prevSearches.push(revSrch);
-
-            // console.log("srch: " + JSON.stringify(srch));
-            // console.log("rev: " + JSON.stringify(revSrch));
         };
 
         $scope.takeGlasses = function(pair) {
@@ -547,20 +543,20 @@
             $scope.search.rightEquiv = $scope.search.leftEquiv = '0.00';
         };
 
-        $scope.$watchCollection(
-            function watchResults(scope) {
-                return inventoryService.getSearchResults();
-            },
-            function handleChange(newRes, oldRes) {
-                // update only if pair array has changed (pair removed/added)
-                // if (newRes.length > 0) {
-                    console.log("SEARCH RESULTS ARE IN: ", newRes);
+        // $scope.$watchCollection(
+        //     function watchResults(scope) {
+        //         return inventoryService.getSearchResults();
+        //     },
+        //     function handleChange(newRes, oldRes) {
+        //         // update only if pair array has changed (pair removed/added)
+        //         // if (newRes.length > 0) {
+        //             console.log("SEARCH RESULTS ARE IN: ", newRes);
 
-                    // list glasses matching search
-                    $scope.searchResults = newRes;
-                // }
-            //TODO: fix watch not firing until view is actually loaded
-        });
+        //             // list glasses matching search
+        //             $scope.searchResults = newRes;
+        //         // }
+        //     //TODO: fix watch not firing until view is actually loaded
+        // });
 
     });
 
@@ -570,9 +566,8 @@
         
         $scope.model = {};
 
-        $scope.model.takenPairs = inventoryService.getTaken();
-        console.log("INVENTORY TAKEN", $scope.model.takenPairs);
-        $scope.model.availablePairs = inventoryService.getAvailable();
+        $scope.model.takenPairs = [];
+        $scope.model.availablePairs = [];
 
         $scope.takePair = function(numPair) {
             inventoryService.take(numPair);
@@ -600,7 +595,8 @@
             function handleChange(newTaken, oldTaken) {
                 // update only if pair array has changed (pair removed/added)
                 if (newTaken.length !== oldTaken.length) {
-                    console.log("taken pairs was updated: ", newTaken);
+                    // console.log("taken pairs was updated: ", newTaken);
+                    // console.log("taken watch update: ", Date.now());
                     $scope.model.takenPairs = newTaken;
                 }
             //TODO: fix watch not firing until view is actually loaded
@@ -614,7 +610,8 @@
             function handleChange(newAvail, oldAvail) {
                 // update only if pair array has changed (pair removed/added)
                 if (newAvail.length !== oldAvail.length) {
-                    console.log("avail pairs was updated: ", newAvail);
+                    // console.log("avail pairs was updated: ", newAvail);
+                    // console.log("avail watch update: ", Date.now());
                     $scope.model.availablePairs = newAvail;
                 }
             //TODO: fix watch not firing until view is actually loaded
@@ -654,7 +651,7 @@
             Papa.parse(file, {
                 dynamicTyping: true,
                 skipEmptyLines: true,
-                preview: 55, //TODO: remove
+                // preview: 105, //TODO: remove
                 step: function(results, parser) {
                     // add rows past row 0
                     if (rowCount && results.data) {
@@ -670,7 +667,7 @@
                 error: function(error) {
                     console.log("Import CSV: Error encountered:", error);
                 }
-            })
+            });
         }
 
         //TODO
@@ -771,7 +768,8 @@
         $scope.import = function() {
             var file = $scope.importFile;
             if (file) {
-                console.log("Import file: ", file);
+                console.log("Import file: ", file.name);
+                // console.log("Import file: ", file);
                 if (file.type == "text/csv") {
                     importCSV(file)
                 } else if (file.type == "application/json") {
