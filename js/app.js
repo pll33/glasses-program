@@ -542,22 +542,6 @@
             $scope.search = angular.copy(defaultForm);
             $scope.search.rightEquiv = $scope.search.leftEquiv = '0.00';
         };
-
-        // $scope.$watchCollection(
-        //     function watchResults(scope) {
-        //         return inventoryService.getSearchResults();
-        //     },
-        //     function handleChange(newRes, oldRes) {
-        //         // update only if pair array has changed (pair removed/added)
-        //         // if (newRes.length > 0) {
-        //             console.log("SEARCH RESULTS ARE IN: ", newRes);
-
-        //             // list glasses matching search
-        //             $scope.searchResults = newRes;
-        //         // }
-        //     //TODO: fix watch not firing until view is actually loaded
-        // });
-
     });
 
     app.controller('inventoryCtrl', function ($scope, inventoryService) {
@@ -599,8 +583,8 @@
                     // console.log("taken watch update: ", Date.now());
                     $scope.model.takenPairs = newTaken;
                 }
-            //TODO: fix watch not firing until view is actually loaded
-        });
+            }
+        );
 
         // update available pairs when DB is updated
         $scope.$watchCollection(
@@ -614,8 +598,8 @@
                     // console.log("avail watch update: ", Date.now());
                     $scope.model.availablePairs = newAvail;
                 }
-            //TODO: fix watch not firing until view is actually loaded
-        });
+            }
+        );
     });
 
     app.directive('fileModel', ['$parse', function($parse) {
@@ -651,7 +635,7 @@
             Papa.parse(file, {
                 dynamicTyping: true,
                 skipEmptyLines: true,
-                // preview: 105, //TODO: remove
+                // preview: 100, 
                 step: function(results, parser) {
                     // add rows past row 0
                     if (rowCount && results.data) {
