@@ -28,6 +28,9 @@
         else { return "Yes"; }
     };
 
+    var searchTimeoutDelay = 500;
+    var invTimeoutDelay = 2000;
+
     app.config(function ($translateProvider) {
         $translateProvider.translations('en', {
             GLASSES: 'Glasses',
@@ -102,16 +105,18 @@
         var watchDB = function() {
             watchChanges = localDB.changes({
                 live: true,
-                include_docs: true
+                // include_docs: true
             }).on('change', function(info) {
                 console.log("WatchDB: Change event fired");
                 console.log(info);
-                if (info.doc && info.doc.data) {
+                // if (info.doc && info.doc.data) {
                     updateTaken();
                     updateAvailable();
-                }
+                // }
             }).on('complete', function(info) {
                 console.log("WatchDB: Complete event fired");
+                updateTaken();
+                updateAvailable();
                 console.log(info);
             }).on('error', function(err) {
                 console.log("WatchDB: Error event fired");
@@ -176,13 +181,6 @@
                         }
                     });
 
-                    // localDB.createIndex({
-                    //     index: {
-                    //         fields: ['available', 'number', 'data'],
-                    //         name: 'search'
-                    //     }
-                    // });
-
                     localDB.createIndex({
                         index: {
                             fields: ['available', 'data.rightEquiv', 'data.rightCylinder', 'data.rightAxis'],
@@ -235,6 +233,7 @@
                 }
             }).then(function() {
                 updateNextNum(++_nextPairNum);
+                console.log("WOULD BE UPDATE INVENTORY");
             });
         };
 
@@ -253,7 +252,14 @@
                 return localDB.put(pair);
             }).catch(function (err) {
                 console.log(err);
+            }).then(function() {
+                updateInventory();
             });
+        };
+
+        var updateInventory = function() {
+            updateTaken();
+            updateAvailable();
         };
 
         var updateNextNum = function(num) {
@@ -301,7 +307,6 @@
             addPairDB(obj);
         };
 
-        //TODO
         // search for matching available glasses in _available
         inventory.lookupDomRight = function(searchObj) {
             localDB.find({
@@ -313,6 +318,7 @@
                 }
             }).then(function(result) {
                 console.log("SEARCH DOM RIGHT: ", result);
+                console.log("SEARCH: ", Date.now())
                 _invSearch = result.docs;
             });
         };
@@ -505,6 +511,11 @@
                     inventoryService.lookupDomRight(searchObj);
             }
 
+            console.log("CTRL: ", Date.now());
+            setTimeout(function () {
+                $scope.searchResults = inventoryService.getSearchResults();
+                $scope.$apply();
+            }, searchTimeoutDelay);
             // reset the form -- clear all text fields
             // this.resetForm();
 
@@ -515,6 +526,11 @@
 
             // console.log("srch: " + JSON.stringify(srch));
             // console.log("rev: " + JSON.stringify(revSrch));
+        };
+
+        $scope.takeGlasses = function(pair) {
+            inventoryService.take(pair.number);
+            pair.available = false;
         };
 
         $scope.isMatch = function(key, cellData) {
@@ -531,7 +547,7 @@
             $scope.search.rightEquiv = $scope.search.leftEquiv = '0.00';
         };
 
-        $scope.$watch(
+        $scope.$watchCollection(
             function watchResults(scope) {
                 return inventoryService.getSearchResults();
             },
@@ -554,20 +570,30 @@
         
         $scope.model = {};
 
-        $scope.model.takenPairs = inventoryService._invTaken;
-        $scope.model.availablePairs = inventoryService._invAvailable;
+        $scope.model.takenPairs = inventoryService.getTaken();
+        console.log("INVENTORY TAKEN", $scope.model.takenPairs);
+        $scope.model.availablePairs = inventoryService.getAvailable();
 
         $scope.takePair = function(numPair) {
             inventoryService.take(numPair);
+
+            // manually update view after small delay
+            setTimeout(function() {
+                $scope.$apply();
+            }, invTimeoutDelay);
         };
 
         $scope.putbackPair = function(numPair) {
             inventoryService.putback(numPair);
-            // TODO: then properly update available+takenPairs
+
+            // manually update view after small delay
+            setTimeout(function() {
+                $scope.$apply();
+            }, invTimeoutDelay);
         };
 
         // update taken pairs when DB is updated
-        $scope.$watch(
+        $scope.$watchCollection(
             function watchTaken(scope) {
                 return inventoryService.getTaken();
             },
@@ -581,7 +607,7 @@
         });
 
         // update available pairs when DB is updated
-        $scope.$watch(
+        $scope.$watchCollection(
             function watchAvailable(scope) {
                 return inventoryService.getAvailable();
             },
@@ -632,7 +658,7 @@
                 step: function(results, parser) {
                     // add rows past row 0
                     if (rowCount && results.data) {
-                        console.log("Parse row data: ", results.data);
+                        // console.log("Parse row data: ", results.data);
                         $scope.importCSVAdd(results.data[0], tempNextNum);
                         tempNextNum++;
                     }
@@ -644,9 +670,10 @@
                 error: function(error) {
                     console.log("Import CSV: Error encountered:", error);
                 }
-            });
+            })
         }
 
+        //TODO
         function importJSON(file) {
 
         }
@@ -805,6 +832,7 @@
             //TODO: complete
         };
 
+        //TODO
         $scope.exportJSON = function() {
             var taken = inventoryService.getTaken();
             var avail = inventoryService.getAvailable();
@@ -826,7 +854,6 @@
             inventoryService.sync();
         };
 
-        // TODO: remove Destroy div in HTML after development, keep this function
         $scope.destroyDB = function() {
             inventoryService.destroy();
         };
