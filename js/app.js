@@ -469,8 +469,8 @@
                 leftEquiv: floatParse(srch.leftEquiv)
             };
 
-            var axisMinFunc = function(axis) { return (axis < 15) ? 0 : (axis < 165) ? axis-15 : 165; };
-            var axisMaxFunc = function(axis) { return (axis > 165) ? 180 : (axis > 15) ? axis+15 : 15; };
+            var axisMinFunc = function(axis) { return (axis <= 15) ? 0 : (axis < 165) ? axis-15 : 165; };
+            var axisMaxFunc = function(axis) { return (axis >= 165) ? 180 : (axis > 15) ? axis+15 : 15; };
             var searchObjFunc = function(equiv, cyl, axis) {
                 return {
                     equivMin: equiv,
