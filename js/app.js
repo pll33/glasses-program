@@ -15,6 +15,17 @@
         else if (n > 180) { return num % 180; }
         else { return n; }
     }; 
+    var axisStringParse = function(axisString) {
+        if (Number.isInteger(axisString) || (typeof axisString !== 'string')) { return axisParse(axisString); }
+        else {
+            var axisNumStr = axisString.replace(/^\D+/g, '');
+            return axisParse(axisNumStr);
+        }
+    };
+    var addParse = function(addStr) {
+        if (addStr == "-") return 0;
+        else return addStr;
+    };
     var sphericalEquiv = function(cylinder, sphere) {
         return ((cylinder * 0.5) + sphere);
     };
@@ -218,7 +229,7 @@
                 // console.log("Added glasses pair: #" + glassesObj.pairNumber);
                 return localDB.get(pairNumStr);
             }).catch(function (err) {
-                console.log("Add pair: Error when adding pair to database.", err);
+                console.log("Add pair: Error when adding pair to database.", err, pair);
                 if (err.status == '409') {
                     updateNextNum(_invAllLength+1);
                 }
@@ -641,6 +652,52 @@
         $scope.inventory = inventoryService;
         $scope.addedGlasses = [];
 
+        var parsePairNum = function(inStr) {
+            if (typeof inStr !== 'string') inStr = inStr.toString();
+            return parseInt(inStr.replace( /^\D+/g, '')); 
+        };
+        var parseSetLetter = function(inStr) {
+            if (typeof inStr !== 'string') return '';
+            return inStr.replace(/\d+$/g, '');
+        };
+        var parseAvail = function(inStr) {
+            if (!inStr || (typeof inStr !== 'string')) { return true; }
+            else {
+                var s = inStr.toLowerCase();
+                switch(s) {
+                    case 'no':
+                        return true;
+                    case 'yes':
+                        return false;
+                    default:
+                        return true;
+                }
+            }
+        };
+
+        //TODO: fix so it isn't hacky AF
+        var noDataCheck = function(inArr) {
+            if (inArr.length == 9) {
+                inArr.pop(); // remove number
+            } else if (inArr.length == 10) {
+                var first = inArr[0];
+                if (typeof first === 'string') {
+                    // first col is a pair number/ID
+                    inArr.shift(); // remove number
+                } else {
+                    // taken status is a column
+                    inArr.pop();
+                    inArr.pop();
+                }
+            } else if (inArr.length == 11) {
+                inArr.shift(); // remove number
+            }
+            var arrStr = inArr.toString();
+            var emptyStr = arrStr.replace(/,/g, "");
+            if (emptyStr == "") return true;
+            else return false;
+        };
+
         function importCSV(file) {
             var tempNextNum = $scope.inventory.getPairNumber();
             var rowCount = 0;
@@ -654,8 +711,13 @@
                     // add rows past row 0
                     if (rowCount && results.data) {
                         // console.log("Parse row data: ", results.data);
-                        $scope.importCSVAdd(results.data[0], tempNextNum);
-                        tempNextNum++;
+                        console.log("row: ", rowCount, results.data[0], noDataCheck(results.data[0]));
+                        if (!noDataCheck(results.data[0])) {
+                            $scope.importCSVAdd(results.data[0], tempNextNum);
+                            tempNextNum++;
+                        } else {
+                            console.log("Import CSV: Row "+rowCount+" skipped due to no glasses data.");
+                        }
                     }
                     rowCount++;
                 },
@@ -688,52 +750,152 @@
             fr.readAsText(file);
         }
 
-        // Assumes 16 columnn CSV data
-        $scope.importCSVAdd = function(input, nextNum) {
-            var parsePairNum = function(inStr) { return parseInt(inStr.replace( /^\D+/g, '')); };
-            var parseSetLetter = function(inStr) { return inStr.replace(/\d+$/g, ''); };
-            var parseAvail = function(inStr) {
-                var s = inStr.toLowerCase();
-                switch(s) {
-                    case 'no':
-                        return true;
-                    case 'yes':
-                        return false;
-                    default:
-                        return true;
-                }
+
+        function nineColumnImport(input, nextNum) {
+            // rightSphere, rightCylinder, rightAxis, rightAdd, leftSphere, leftCylinder, leftAxis, leftAdd, number
+
+            // check if input.pairNumber vs nextPairNum
+            // if input < nextNum: assign nextNum
+            // else if input >= nextNum: use input number
+            var inputNum = parsePairNum(input[8]);
+            var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+            if (!inputNum) { return {}; }
+
+            var unroundR = sphericalEquiv(floatParse(input[1]), floatParse(input[0]));
+            var unroundL = sphericalEquiv(floatParse(input[5]), floatParse(input[4]));
+
+            var roundR = roundEquiv(unroundR);
+            var roundL = roundEquiv(unroundL);
+
+            var pair = {
+                setLetter: parseSetLetter(input[8]),
+                pairNumber: pairNum,
+                data: {
+                    rightSphere: floatParse(input[0]),
+                    rightCylinder: floatParse(input[1]),
+                    rightEquivUnround: unroundR,
+                    rightEquiv: roundR,
+                    rightAxis: axisStringParse(input[2]),
+                    rightADD: addParse(input[3]),
+                    leftSphere: floatParse(input[4]),
+                    leftCylinder: floatParse(input[5]),
+                    leftEquivUnround: unroundL,
+                    leftEquiv: roundL,
+                    leftAxis: axisStringParse(input[6]),
+                    leftADD: addParse(input[7])
+                },
+                available: parseAvail(input[9])
             };
+
+            return pair;
+        }
+
+        function elevenColumnImport(input, nextNum) {
+            // Pair/ID number,
+            // Right Sphere, Right Cylinder, Right Axis, Right Add, Right Trifocal
+            // Left Sphere, Left Cylinder, Left Axis, Left Add, Left Trifocal
+
+            // check if input.pairNumber vs nextPairNum
+            // if input < nextNum: assign nextNum
+            // else if input >= nextNum: use input number
+            var inputNum = parsePairNum(input[0]);
+            var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+            if (!inputNum) { return {}; }
+
+            var unroundR = sphericalEquiv(floatParse(input[2]), floatParse(input[1]));
+            var unroundL = sphericalEquiv(floatParse(input[7]), floatParse(input[6]));
+
+            var roundR = roundEquiv(unroundR);
+            var roundL = roundEquiv(unroundL);
+
+            var biAddR = floatParse(input[4]);
+            var triAddR = floatParse(input[5]);
+            var biAddL = floatParse(input[9]);
+            var triAddL = floatParse(input[10]);
+            var addR = (biAddR > triAddR) ? biAddR : triAddR;
+            var addL = (biAddL > triAddL) ? biAddL : triAddL;
+
+            var pair = {
+                setLetter: parseSetLetter(input[0]),
+                pairNumber: pairNum,
+                data: {
+                    rightSphere: floatParse(input[1]),
+                    rightCylinder: floatParse(input[2]),
+                    rightEquivUnround: unroundR,
+                    rightEquiv: roundR,
+                    rightAxis: axisStringParse(input[3]),
+                    rightADD: addR,
+                    leftSphere: floatParse(input[6]),
+                    leftCylinder: floatParse(input[7]),
+                    leftEquivUnround: unroundL,
+                    leftEquiv: roundL,
+                    leftAxis: axisStringParse(input[8]),
+                    leftADD: addL
+                },
+                available: true
+            };
+
+            return pair;
+        }
+
+        function sixteenColumnImport(input, nextNum) {
+            // Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add,
+            // Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add,
+            // Pair Number, Taken Status
 
             // check if input.pairNumber vs nextPairNum
             // if input < nextNum: assign nextNum
             // else if input >= nextNum: use input number
             var inputNum = parsePairNum(input[14]);
             var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+            if (!inputNum) { return {}; }
 
             var pair = {
                 setLetter: parseSetLetter(input[14]),
                 pairNumber: pairNum,
                 data: {
-                    rightSphere: input[0],
-                    rightCylinder: input[1],
-                    rightEquivUnround: input[2],
-                    rightEquiv: input[3],
-                    rightAxis: input[4],
-                    rightADD: input[6],
-                    leftSphere: input[7],
-                    leftCylinder: input[8],
-                    leftEquivUnround: input[9],
-                    leftEquiv: input[10],
-                    leftAxis: input[11],
-                    leftADD: input[13]
+                    rightSphere: floatParse(input[0]),
+                    rightCylinder: floatParse(input[1]),
+                    rightEquivUnround: floatParse(input[2]),
+                    rightEquiv: floatParse(input[3]),
+                    rightAxis: axisStringParse(input[4]),
+                    rightADD: addParse(input[6]),
+                    leftSphere: floatParse(input[7]),
+                    leftCylinder: floatParse(input[8]),
+                    leftEquivUnround: floatParse(input[9]),
+                    leftEquiv: floatParse(input[10]),
+                    leftAxis: axisStringParse(input[11]),
+                    leftADD: addParse(input[13])
                 },
                 available: parseAvail(input[15])
             };
+
+            return pair;
+        }
+
+        // Assumes 9 columnn CSV data
+        // rightSphere, rightCylinder, rightAxis, rightAdd, leftSphere, leftCylinder, leftAxis, leftAdd, number
+        $scope.importCSVAdd = function(input, nextNum) {
+            var emptyObjCompare = function(obj) { return JSON.stringify(obj) == JSON.stringify({}); }
+            var pair = {};
+            if (input.length == 9 || input.length == 10) { pair = nineColumnImport(input, nextNum); }
+            else if (input.length == 11 || input.length == 12) { pair = elevenColumnImport(input, nextNum); }
+            else if (input.length == 16) { pair = sixteenColumnImport(input, nextNum); }
             // console.log("ImportCSV Add:", pair);
 
             // add to added glasses
-            $scope.addedGlasses.push(pair);
-            $scope.inventory.add(pair);
+            if (emptyObjCompare(pair.data) || emptyObjCompare(pair)) {
+                // no pair data, skip row
+                if (emptyObjCompare(pair.data)) {
+                    console.log("Error adding pair #"+pair.pairNumber+": Row skipped due to no glasses data.");
+                } else {
+                    console.log("Error adding pair: No pair # found. Please check data columns.");
+                }
+            }
+            else {
+                $scope.addedGlasses.push(pair);
+                $scope.inventory.add(pair);
+            }
         };
 
         $scope.manualAdd = function(input) {
@@ -812,10 +974,11 @@
             window.URL.revokeObjectURL(url);
         }
 
-        function csvify(inArr) {
+        function csvify(inArr, opt_compact) {
             inArr.forEach(function (element, idx, arr) {
                 var dbObj = arr[idx];
-                arr[idx] = simpleCSV(dbObj);
+                if (opt_compact) { arr[idx] = tenCSV(dbjOb); }
+                else { arr[idx] = sixteenCSV(dbObj); }
             });
             return Papa.unparse(inArr);
         }
@@ -838,7 +1001,7 @@
             return obj;
         };
 
-        var simpleCSV = function(dbObj) {
+        var sixteenCSV = function(dbObj) {
             var data = dbObj.data;
             var pNum = dbObj.set + '' + dbObj.number;
             return {
@@ -861,14 +1024,31 @@
             };
         };
 
+        var tenCSV = function(dbObj) {
+            var data = dbObj.data;
+            var pNum = dbObj.set + '' + dbObj.number;
+            return {
+                rightSphere: data.rightSphere,
+                rightCylinder: data.rightCylinder,
+                rightAxis: data.rightAxis,
+                rightADD: data.rightADD,
+                leftSphere: data.leftSphere,
+                leftCylinder: data.leftCylinder,
+                leftAxis: data.leftAxis,
+                leftADD: data.leftADD,
+                number: pNum,
+                taken: takenStr(dbObj.available)
+            };
+        };
+
         // functions for: CSV, JSON
         // for: taken inventory, available inventory, full inventory
-        $scope.exportCSV = function(getTaken, getAvailable) {
+        $scope.exportCSV = function(getTaken, getAvailable, opt_compact) {
             var taken = (getTaken) ? inventoryService.getTaken() : [];
             var avail = (getAvailable) ? inventoryService.getAvailable() : [];
             var all = taken.concat(avail);
 
-            var csv = csvify(all);
+            var csv = csvify(all, opt_compact);
             saveFile(csv, "text/csv", "export.csv");
         };
 

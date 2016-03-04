@@ -267,6 +267,10 @@
     <h3 style="margin-top: 0">Import Inventory</h3>
     <form id="formUpload" class="form-inline" novalidate>
     <h4>Upload a .csv or .json file</h4>
+        <p><b>Note:</b> When importing pairs of glasses, the first row of data should contain ONLY header information.<br>
+        The program accepts 3 different column set-ups for data (in specific order):</p>
+        <p><span class="tt" title="Right Sphere, Right Cylinder, Right Axis, Right Add, Left Sphere, Left Cylinder, Left Axis, Left Add, Pair Number">9 columns</span>, <span class="tt" title="Pair/ID number, Right Sphere, Right Cylinder, Right Axis, Right Add, Right Trifocal, Left Sphere, Left Cylinder, Left Axis, Left Add, Left Trifocal">11 columns</span>, 
+        <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns</span>
         <div class="form-group">
             <input id="fileSelect" file-model="importFile" type="file" accept=".csv, .json" />
         </div>
@@ -355,16 +359,25 @@
     <h3 style="margin-top: 0">Export</h3>
     <p>.CSV files can be opened in spreadsheet programs such as Microsoft Excel and Apple Numbers.<br>.JSON files are used by this program for debugging purposes. Both files can be imported into the program.</p>
 
+    <p>
+    Compact datasets contain <span class="tt" title="Right Sphere, Right Cylinder, Right Axis, Right Add, Left Sphere, Left Cylinder, Left Axis, Left Add, Pair Number, Taken Status">10 columns of data</span>.<br>
+    <p>
+    <p>
+    Full CSV datasets contain <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns of data</span>.<br>
+    </p>
     <h4>Full Inventory</h4>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true)">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true, true)">Compact .csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true, false)">Full .csv</button>
     <button type="button" class="btn btn-default" ng-click="exportJSON(true, true)">.json</button>
 
     <h4>Taken Glasses</h4>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false)">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false, true)">Compact .csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false, false)">Full .csv</button>
     <button type="button" class="btn btn-default" ng-click="exportJSON(true, false)">.json</button>
 
     <h4>Available Glasses</h4>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true)">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true, true)">Compact .csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true, false)">Full .csv</button>
     <button type="button" class="btn btn-default" ng-click="exportJSON(false, true)">.json</button>
 
 <!--     <h3>Sync</h3>
@@ -381,7 +394,8 @@
     <button type="button" class="btn btn-info" ng-click="syncDB()">Sync</button>
  -->
     <h3>Reset database</h3>
-    <p><b>WARNING</b>: This resets the database and removes ALL pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
+    <p><span class="reset-warning">WARNING:</span> This resets the database and removes ALL pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
+    <p><span class="reset-warning">This is the only warning.</span></p>
     <button type="button" class="btn btn-danger" ng-click="destroyDB()">Reset</button>
 </div>
 

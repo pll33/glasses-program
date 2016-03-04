@@ -187,3 +187,8 @@ table>tbody>tr>td.bl {
     background: #dff0d8;
 }
 
+.reset-warning {
+    font-weight: bold; 
+    color: #DC143C;
+}
+
