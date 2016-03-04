@@ -780,13 +780,17 @@
         $scope.import = function() {
             var file = $scope.importFile;
             if (file) {
-                console.log("Import file: ", file.name);
+                console.log("Import file:", file.name);
                 // console.log("Import file: ", file);
                 if (file.type == "text/csv") {
                     importCSV(file)
                 } else if (file.type == "application/json") {
                     importJSON(file);
                 }
+
+                setTimeout(function() {
+                    $scope.$apply();
+                }, 3500);
             } else {
                 console.log("Import file: No file to import.");
             }
