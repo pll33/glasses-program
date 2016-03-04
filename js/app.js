@@ -2,7 +2,8 @@
     var app = angular.module('app', ['pouchdb', 'pascalprecht.translate']);
 
     var roundEquiv = function(unrounded) {
-        return (Math.round(unrounded * 4) / 4);
+        if (unrounded < 0) { return -1*(Math.round((-1*unrounded) * 4) / 4); }
+        else { return (Math.round(unrounded * 4) / 4); }
     };
     var floatParse = function(floatNum) {
         var n = parseFloat(floatNum);
@@ -469,7 +470,7 @@
             };
 
             var axisMinFunc = function(axis) { return (axis < 15) ? 0 : (axis < 165) ? axis-15 : 165; };
-            var axisMaxFunc = function(axis) { return (axis > 165) ? 180 : (axis < 15) ? axis+15 : 0; };
+            var axisMaxFunc = function(axis) { return (axis > 165) ? 180 : (axis > 15) ? axis+15 : 0; };
             var searchObjFunc = function(equiv, cyl, axis) {
                 return {
                     equivMin: equiv,
