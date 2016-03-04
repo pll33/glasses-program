@@ -13,7 +13,7 @@
         <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">{{ 'GLASSES' | translate }} {{ 'SEARCH' | translate}}</a></li>
         <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">{{ 'INVENTORY' | translate }}</a></li>
         <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">{{ 'IMPORT' | translate }}</a></li>
-        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">{{ 'EXPORT' | translate }}/{{ 'SYNC' | translate }}</a></li>
+        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">{{ 'EXPORT' | translate }}<!-- /{{ 'SYNC' | translate }} --></a></li>
         <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">{{ 'SETTINGS' | translate }}</a></li>
     </ul>
 
@@ -52,15 +52,13 @@
     <h4>3. Spherical Equivalent</h4>
         <div class="form-group form-inline mb">
             <span class="lbl">Right Eye:</span> <input type="text" class="form-control" id="searchRightEquivalent" placeholder="" ng-model="search.rightEquiv" readonly>
-        <!-- </div> -->
-        <!-- <div class="form-group form-inline mb"> -->
             <span style="margin-left: 35px;">Left Eye:</span> <input type="text" class="form-control" id="searchLeftEquivalent" placeholder="" ng-model="search.leftEquiv" readonly>
         </div>
     </section>
 
     <section>
         <span class="lblb"></span>
-        <button type="submit" class="btn btn-default" ng-click="reset()">Reset</button>
+        <button type="submit" class="btn btn-default" ng-click="resetForm()">Reset</button>
         <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">Find Matches</button>
     </section>
     </form>
@@ -72,8 +70,8 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th ng-class="{match:(search.dominantEye=='Right')}" colspan="5">Right Eye (OD)</th>
-                    <th ng-class="{match:(search.dominantEye=='Left')}" colspan="5">Left Eye (OS)</th>
+                    <th ng-class="{match:(dominantMatch=='Right')}" colspan="5">Right Eye (OD)</th>
+                    <th ng-class="{match:(dominantMatch=='Left')}" colspan="5">Left Eye (OS)</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -128,7 +126,10 @@
                     <td>{{ x.data.leftADD }}</td>
                     <td><button class="" type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
                 </tr>
-                <tr ng-show="searchResults.length==0 || !searchResults">
+                <tr ng-show="searchResults.length==0 || !searchResults" ng-class="{hide:noResults}">
+                    <td class="bl" colspan="12">Nothing to display.</td>
+                </tr>
+                <tr ng-show="noResults">
                     <td class="bl" colspan="12">No results to display.</td>
                 </tr>
             </tbody>
@@ -189,8 +190,8 @@
         </div>
     </form>
     <section>
-        <h3>Taken Pairs</h3>
-        <div id="inventoryTaken">
+        <h3><a class="sh" ng-click="toggleTaken()">Taken Pairs <span ng-show="showhideTaken">▼</span></a></h3>
+        <div id="inventoryTaken" ng-class="{active:showhideTaken}">
             <table class="table table-hover">
             <thead>
                 <tr>
@@ -236,8 +237,8 @@
         </div>
     </section>
     <section>
-        <h3>Available Pairs</h3>
-        <div id="inventoryAvailable">
+        <h3><a class="sh" ng-click="toggleAvail()">Available Pairs <span ng-show="showhideAvail">▼</span></a></h3>
+        <div id="inventoryAvailable" ng-class="{active:showhideAvail}">
             <table class="table table-hover">
             <thead>
                 <tr>
@@ -287,7 +288,7 @@
 <div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importCtrl">
     <h3 style="margin-top: 0">Import Inventory</h3>
     <form id="formUpload" class="form-inline" novalidate>
-    <h4>Upload a <!-- .xlsx, .xls, or  -->.csv or .json file</h4>
+    <h4>Upload a .csv or .json file</h4>
         <div class="form-group">
             <input id="fileSelect" file-model="importFile" type="file" accept=".csv, .json" />
         </div>
@@ -388,7 +389,7 @@
     <button type="button" class="btn btn-default" ng-click="exportCSV(false, true)">.csv</button>
     <button type="button" class="btn btn-default" ng-click="exportJSON(false, true)">.json</button>
 
-    <h3>Sync</h3>
+<!--     <h3>Sync</h3>
     <form class="form-inline">
         <div class="input-group"> 
             <div class="input-group-addon">Database URL</div>
@@ -400,11 +401,10 @@
     </form>
     Status: <span class="connection">{{remoteDB.connectionStatus}}</span><br>
     <button type="button" class="btn btn-info" ng-click="syncDB()">Sync</button>
-
-    <!--DEBUG PURPOSES, TODO: Remove after development-->
-    <h3>Destroy</h3>
-    <p><b>WARNING</b>: This resets the database and removes ALL pairs of glasses. Be sure to export glasses data above before resetting the database. </p>
-    <button type="button" class="btn btn-danger" ng-click="destroyDB()">Destroy database</button>
+ -->
+    <h3>Reset database</h3>
+    <p><b>WARNING</b>: This resets the database and removes ALL pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
+    <button type="button" class="btn btn-danger" ng-click="destroyDB()">Reset</button>
 </div>
 
 <div id="settings" class="tab-content" ng-show="tab.isSet(5)">

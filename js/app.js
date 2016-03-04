@@ -106,7 +106,7 @@
         var _invTaken = [];
         var _invAvailable = [];
         var _invAllLength = 0;
-        var _setLetter;
+        var _setLetter = "";
 
         var _invSearch = [];
 
@@ -115,7 +115,8 @@
                 // console.log("InitDB watch: Change event fired -- ", info);
                 // console.log("InitDB watch: Change event fired");
             }).on('complete', function(info) {
-                console.log("InitDB watch: Complete event fired -- ", info);
+                console.log("InitDB watch: Complete event fired.");
+                // console.log("InitDB watch: Complete event fired -- ", info);
                 //only update inventory if there are actually items
                 if (info.results.length) { 
                     updateInventory();
@@ -130,9 +131,9 @@
             });
 
             // check if remote exists
-            remoteDB.info().then(function (info) {
-                console.log("InitDB: Remote DB info:", info);
-            });
+            // remoteDB.info().then(function (info) {
+            //     console.log("InitDB: Remote DB info:", info);
+            // });
 
             var nextNumDoc = {
                 _id: 'next_num',
@@ -237,12 +238,12 @@
             localDB.get(pairStr).then(function(pair) {
                 pair.time_modified = Date.now();
                 pair.available = availableBool;
-                console.log("UPDATE PAIR: ", Date.now());
+                // console.log("UPDATE PAIR: ", Date.now());
                 return localDB.put(pair);
             }).catch(function (err) {
                 console.log(err);
             }).then(function() {
-                console.log("UPDATE INVENTORY: ", Date.now());
+                // console.log("UPDATE INVENTORY: ", Date.now());
                 updateInventory();
             });
         };
@@ -298,7 +299,7 @@
         };
 
         // add to inventory from manual input
-        // NOTE: assumes all glasses from manual input are available (=NOT taken)
+        // NOTE: assumes all glasses from manual input are available (=NOT taken) and from the SAME set
         inventory.add = function(obj) {
             if (obj.setLetter && !_setLetter) { _setLetter = obj.setLetter; }
             addPairDB(obj);
@@ -406,14 +407,8 @@
 
     app.controller('glassesController', function ($scope, $translate) {
         this.tab = 1;
-
-        this.setTab = function (tabId) {
-            this.tab = tabId;
-        };
-
-        this.isSet = function (tabId) {
-            return this.tab === tabId;
-        };
+        this.setTab = function (tabId) { this.tab = tabId; };
+        this.isSet = function (tabId) { return this.tab === tabId; };
 
         $scope.langPick = 'en';
         $scope.changeLanguage = function (key) {
@@ -429,7 +424,8 @@
         $scope.searchResults = [];
         $scope.prevSearches = [];
         $scope.showPrevSearches = false;
-        $scope.showResults = false;
+        $scope.noResults = false;
+        $scope.dominantMatch = '';
 
         var search = $scope.search;
         var sIDcount = 0;
@@ -514,6 +510,9 @@
             setTimeout(function () {
                 // console.log("SEARCH RESULTS RETRIEVE: ", Date.now());
                 $scope.searchResults = inventoryService.getSearchResults();
+                $scope.dominantMatch = revSrch.dominantEye;
+                $scope.noResults = ($scope.searchResults.length) ? false : true;
+                console.log("Search results: " + $scope.searchResults.length + " pairs found.");
                 $scope.$apply();
 
                 // update timeout after first search
@@ -529,6 +528,7 @@
         };
 
         $scope.takeGlasses = function(pair) {
+            console.log("Taking pair #" + pair.number + " out of search results.");
             inventoryService.take(pair.number);
             pair.available = false;
         };
@@ -545,13 +545,19 @@
             $scope.searchForm.$setPristine();
             $scope.search = angular.copy(defaultForm);
             $scope.search.rightEquiv = $scope.search.leftEquiv = '0.00';
+
+            $scope.searchResults = [];
+            $scope.dominantMatch = '';
+            $scope.noResults = false;
         };
     });
 
     app.controller('inventoryCtrl', function ($scope, inventoryService) {
         var defaultForm = { number: "" };
         $scope.find = angular.copy(defaultForm);
-        
+        $scope.showhideTaken = false;
+        $scope.showhideAvail = false;
+
         $scope.model = {};
 
         $scope.model.takenPairs = [];
@@ -574,6 +580,9 @@
                 $scope.$apply();
             }, invTimeoutDelay);
         };
+
+        $scope.toggleTaken = function() { $scope.showhideTaken = !$scope.showhideTaken; };
+        $scope.toggleAvail = function() { $scope.showhideAvail = !$scope.showhideAvail; };
 
         // update taken pairs when DB is updated
         $scope.$watchCollection(
@@ -650,7 +659,7 @@
                     rowCount++;
                 },
                 complete: function(results, file) {
-                    console.log("Parsing complete:", results, file);
+                    // console.log("Parsing complete:", results, file);
                 },
                 error: function(error) {
                     console.log("Import CSV: Error encountered:", error);

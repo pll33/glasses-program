@@ -114,8 +114,10 @@ table>tbody>tr>td {
     border-bottom: 2px solid #ddd;
 }
 
-#searchResults.active, #previousSearches.active { display: block; }
-#searchResults, #previousSearches { display: none; }
+#searchResults.active, #previousSearches.active,
+#inventoryTaken.active, #inventoryAvailable.active { display: block; }
+#searchResults, #previousSearches,
+#inventoryTaken.active, #inventoryAvailable.active { display: none; }
 
 #previousSearches table>thead>tr:nth-child(1)>th:not(:first-child) {
     border-top: 2px solid #ddd;
@@ -171,7 +173,7 @@ table>tbody>tr>td.bl {
     border-right: 2px solid #ddd;
 }
 
-.taken {
+.taken, .hide {
     /*background: #f9f2f4;*/
     display: none;
 }
@@ -184,3 +186,4 @@ table>tbody>tr>td.bl {
 .match {
     background: #dff0d8;
 }
+
