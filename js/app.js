@@ -677,22 +677,24 @@
 
         //TODO: fix so it isn't hacky AF
         var noDataCheck = function(inArr) {
-            if (inArr.length == 9) {
-                inArr.pop(); // remove number
-            } else if (inArr.length == 10) {
-                var first = inArr[0];
+            var newArr = inArr.slice();
+            if (newArr.length == 9) {
+                newArr.pop(); // remove number
+            } else if (newArr.length == 10) {
+                var first = newArr[0];
+                // console.log(first);
                 if (typeof first === 'string') {
                     // first col is a pair number/ID
-                    inArr.shift(); // remove number
+                    newArr.shift(); // remove number
                 } else {
                     // taken status is a column
-                    inArr.pop();
-                    inArr.pop();
+                    newArr.pop();
+                    newArr.pop();
                 }
-            } else if (inArr.length == 11) {
-                inArr.shift(); // remove number
+            } else if (newArr.length == 11) {
+                newArr.shift(); // remove number
             }
-            var arrStr = inArr.toString();
+            var arrStr = newArr.toString();
             var emptyStr = arrStr.replace(/,/g, "");
             if (emptyStr == "") return true;
             else return false;
@@ -711,8 +713,9 @@
                     // add rows past row 0
                     if (rowCount && results.data) {
                         // console.log("Parse row data: ", results.data);
-                        console.log("row: ", rowCount, results.data[0], noDataCheck(results.data[0]));
+                        // console.log("row: ", rowCount, results.data[0], noDataCheck(results.data[0]));
                         if (!noDataCheck(results.data[0])) {
+                            // console.log("row results", results);
                             $scope.importCSVAdd(results.data[0], tempNextNum);
                             tempNextNum++;
                         } else {
@@ -884,6 +887,8 @@
             // console.log("ImportCSV Add:", pair);
 
             // add to added glasses
+            // console.log(input);
+            // console.log(input.length);
             if (emptyObjCompare(pair.data) || emptyObjCompare(pair)) {
                 // no pair data, skip row
                 if (emptyObjCompare(pair.data)) {
