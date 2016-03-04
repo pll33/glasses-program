@@ -72,8 +72,8 @@
             <thead>
                 <tr>
                     <th></th>
-                    <th colspan="5">Right Eye (OD)</th>
-                    <th colspan="5">Left Eye (OS)</th>
+                    <th ng-class="{match:(search.dominantEye=='Right')}" colspan="5">Right Eye (OD)</th>
+                    <th ng-class="{match:(search.dominantEye=='Left')}" colspan="5">Left Eye (OS)</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -91,8 +91,30 @@
                     <th>Available</th>
                 </tr>
             </thead>
+       <!--      <tfoot ng-if="searchResults.length">
+                <tr>
+                    <th class="bl">Pair #</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>Add</th>
+                    <th>Sphere</th>
+                    <th>Cylinder</th>
+                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
+                    <th>Axis</th>
+                    <th>Add</th>
+                    <th>Available</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th ng-class="{match:(search.dominantEye=='Right')}" colspan="5">Right Eye (OD)</th>
+                    <th ng-class="{match:(search.dominantEye=='Left')}" colspan="5">Left Eye (OS)</th>
+                    <th></th>
+                </tr>
+            </tfoot> -->
             <tbody>
-                <tr ng-class="{taken:x.taken}" ng-repeat="x in searchResults">
+                <tr ng-class="{taken:!x.available}" ng-repeat="x in searchResults">
                     <td class="bl">{{ x.number }}</td>
                     <td ng-class="{match:isMatch('rightSphere', x.data.rightSphere)}">{{ x.data.rightSphere.toFixed(2) }}</td>
                     <td ng-class="{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ x.data.rightCylinder.toFixed(2) }}</td>
@@ -266,18 +288,13 @@
     <h3 style="margin-top: 0">Import Inventory</h3>
     <form id="formUpload" class="form-inline" novalidate>
     <h4>Upload a <!-- .xlsx, .xls, or  -->.csv or .json file</h4>
-        <section>
-            <div class="form-group">
-                <input id="fileSelect" file-model="importFile" type="file" accept=".csv, .json" />
-            </div>
-        </section>
-        <section>
-            <button type="submit" class="btn btn-primary start" ng-click="import()">
-                <span>Import</span>
-            </button>
-        </section>
+        <div class="form-group">
+            <input id="fileSelect" file-model="importFile" type="file" accept=".csv, .json" />
+        </div>
+        <button type="submit" class="btn btn-primary start" ng-click="import()">
+            <span>Import</span>
+        </button>
     </form>
-    <!-- <span class="lbl"><h4>OR</h4></span> -->
     <form name="manualAddForm" novalidate>
         <section>
             <h4>Enter manually: </h4>
@@ -357,18 +374,37 @@
 </div>
 <div id="export" class="tab-content" ng-show="tab.isSet(4)" ng-controller="exportCtrl">
     <h3 style="margin-top: 0">Export</h3>
+    <p>.CSV files can be opened in spreadsheet programs such as Microsoft Excel and Apple Numbers.<br>.JSON files are used by this program for debugging purposes. Both files can be imported into the program.</p>
+
     <h4>Full Inventory</h4>
-    <button type="button" class="btn btn-default" ng-click="exportJSON()">.json</button>
-    <button type="button" class="btn btn-default" ng-click="exportCSV()">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true)">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportJSON(true, true)">.json</button>
+
+    <h4>Taken Glasses</h4>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false)">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportJSON(true, false)">.json</button>
+
+    <h4>Available Glasses</h4>
+    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true)">.csv</button>
+    <button type="button" class="btn btn-default" ng-click="exportJSON(false, true)">.json</button>
 
     <h3>Sync</h3>
-    Status: <span class="connectionStatus">OFFLINE</span><!--TODO--><br>
+    <form class="form-inline">
+        <div class="input-group"> 
+            <div class="input-group-addon">Database URL</div>
+            <input type="text" class="form-control" placeholder="" style="text-align: left" ng-model="remoteDB.url">
+            <span class="input-group-btn">
+                <button type="submit" class="btn btn-primary start">Save</button>
+            </span>
+        </div>
+    </form>
+    Status: <span class="connection">{{remoteDB.connectionStatus}}</span><br>
     <button type="button" class="btn btn-info" ng-click="syncDB()">Sync</button>
-
 
     <!--DEBUG PURPOSES, TODO: Remove after development-->
     <h3>Destroy</h3>
-    <button type="button" class="btn btn-danger" ng-click="destroyDB()">DESTROY</button>
+    <p><b>WARNING</b>: This resets the database and removes ALL pairs of glasses. Be sure to export glasses data above before resetting the database. </p>
+    <button type="button" class="btn btn-danger" ng-click="destroyDB()">Destroy database</button>
 </div>
 
 <div id="settings" class="tab-content" ng-show="tab.isSet(5)">

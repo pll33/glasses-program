@@ -172,7 +172,8 @@ table>tbody>tr>td.bl {
 }
 
 .taken {
-    background: #f9f2f4;
+    /*background: #f9f2f4;*/
+    display: none;
 }
 
 .tt {

@@ -20,7 +20,7 @@
     var axisRange = function(axisNum) {
         if (axisNum > 121) { return "high"; }
         else if (axisNum > 61) { return "mid"; }
-        else if (axisNum > 0) { return "low"; }
+        else if (axisNum >= 0) { return "low"; }
         else { return ""; }
     };
     var takenStr = function(availableBool) {
@@ -367,6 +367,10 @@
         inventory.getTaken = function() { return _invTaken; };
         inventory.getAvailable = function() { return _invAvailable; };
 
+        inventory.update = function() {
+            updateInventory();
+        };
+
         inventory.sync = function() {
             localDB.replicate.to(remoteDB).on('complete', function () {
               console.log("Local->Remote: Sync complete.")
@@ -654,9 +658,24 @@
             });
         }
 
-        //TODO
         function importJSON(file) {
+            var tempNextNum = $scope.inventory.getPairNumber();
+            var fr = new FileReader();
+            fr.onload = function(e) {
+                var contents = e.target.result;
+                var glasses = JSON.parse(contents);
 
+                glasses.forEach(function (el, idx, arr) {
+                    el.pairNumber = tempNextNum;
+
+                    $scope.addedGlasses.push(el);
+                    $scope.inventory.add(el);
+                    tempNextNum++;
+                });
+
+                $scope.inventory.update();
+            };
+            fr.readAsText(file);
         }
 
         // Assumes 16 columnn CSV data
@@ -766,12 +785,43 @@
     });
 
     app.controller('exportCtrl', function ($scope, inventoryService) {
+        function saveFile(data, dataType, fileName) {
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+
+            var blob = new Blob([data], {type: dataType});
+            var url = window.URL.createObjectURL(blob);
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function csvify(inArr) {
+            inArr.forEach(function (element, idx, arr) {
+                var dbObj = arr[idx];
+                arr[idx] = simpleCSV(dbObj);
+            });
+            return Papa.unparse(inArr);
+        }
+
+        function jsonify(inArr) {
+            inArr.forEach(function (element, idx, arr) {
+                var dbObj = arr[idx];
+                arr[idx] = simpleObj(dbObj);
+            });
+            return JSON.stringify(inArr);
+        }
+
         var simpleObj = function(dbObj) {
-            return {
+            var obj = {
                 pairNumber: dbObj.number,
-                data: JSON.stringify(dbObj.data),
-                available: dbObj.available
-            }
+                data: dbObj.data,
+                available: dbObj.available,
+                setLetter: dbObj.set
+            };
+            return obj;
         };
 
         var simpleCSV = function(dbObj) {
@@ -799,37 +849,22 @@
 
         // functions for: CSV, JSON
         // for: taken inventory, available inventory, full inventory
-        $scope.exportCSV = function() {
-            var taken = inventoryService.getTaken();
-            var avail = inventoryService.getAvailable();
+        $scope.exportCSV = function(getTaken, getAvailable) {
+            var taken = (getTaken) ? inventoryService.getTaken() : [];
+            var avail = (getAvailable) ? inventoryService.getAvailable() : [];
             var all = taken.concat(avail);
 
-            all.forEach(function (element, idx, arr) {
-                var dbObj = arr[idx];
-                arr[idx] = simpleCSV(dbObj);
-            });
-
-            var csv = Papa.unparse(all);
-            console.log(csv);
-            //TODO: complete
+            var csv = csvify(all);
+            saveFile(csv, "text/csv", "export.csv");
         };
 
-        //TODO
-        $scope.exportJSON = function() {
-            var taken = inventoryService.getTaken();
-            var avail = inventoryService.getAvailable();
+        $scope.exportJSON = function(getTaken, getAvailable) {
+            var taken = (getTaken) ? inventoryService.getTaken() : [];
+            var avail = (getAvailable) ? inventoryService.getAvailable() : [];
             var all = taken.concat(avail);
 
-            all.forEach(function (element, idx, arr) {
-                var dbObj = arr[idx];
-                arr[idx] = simpleObj(dbObj);
-            });
-
-            console.dir(all[0]);
-            // keep available, data, number fields in JSON file
-
-            // console.log(JSON.stringify(all));
-            //TODO: complete
+            var json = jsonify(all);
+            saveFile(json, "application/json", "export.json");
         };
 
         $scope.syncDB = function() {
