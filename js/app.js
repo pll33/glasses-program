@@ -238,12 +238,10 @@
             localDB.get(pairStr).then(function(pair) {
                 pair.time_modified = Date.now();
                 pair.available = availableBool;
-                // console.log("UPDATE PAIR: ", Date.now());
                 return localDB.put(pair);
             }).catch(function (err) {
                 console.log(err);
             }).then(function() {
-                // console.log("UPDATE INVENTORY: ", Date.now());
                 updateInventory();
             });
         };
@@ -354,11 +352,13 @@
 
         // available -> taken glasses
         inventory.take = function(pairNum) {
+            console.log("Taken->Available: Pair #" + pairNum);
             updatePairDB(pairNum, false);
         };
 
         // taken --> available glasses
         inventory.putback = function(pairNum) {
+            console.log("Available->Taken: Pair #" + pairNum);
             updatePairDB(pairNum, true);
         };
 
