@@ -1,5 +1,5 @@
 (function () {
-    var app = angular.module('app', ['pouchdb', 'pascalprecht.translate']);
+    var app = angular.module('app', ['pascalprecht.translate']);
 
     var roundEquiv = function(unrounded) {
         if (unrounded < 0) { return -1*(Math.round((-1*unrounded) * 4) / 4); }
