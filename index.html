@@ -64,7 +64,7 @@
     </form>
 
 
-    <div id="searchResults" class="active"><!--ng-class="{active:showResults}" -->
+    <div id="searchResults" class="active">
         <h3>Available Glasses</h3>
         <table class="table table-hover">
             <thead>
@@ -89,40 +89,18 @@
                     <th>Available</th>
                 </tr>
             </thead>
-       <!--      <tfoot ng-if="searchResults.length">
-                <tr>
-                    <th class="bl">Pair #</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Available</th>
-                </tr>
-                <tr>
-                    <th></th>
-                    <th ng-class="{match:(search.dominantEye=='Right')}" colspan="5">Right Eye (OD)</th>
-                    <th ng-class="{match:(search.dominantEye=='Left')}" colspan="5">Left Eye (OS)</th>
-                    <th></th>
-                </tr>
-            </tfoot> -->
             <tbody>
                 <tr ng-class="{taken:!x.available}" ng-repeat="x in searchResults">
-                    <td class="bl">{{ x.number }}</td>
-                    <td ng-class="{match:isMatch('rightSphere', x.data.rightSphere)}">{{ x.data.rightSphere.toFixed(2) }}</td>
-                    <td ng-class="{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ x.data.rightCylinder.toFixed(2) }}</td>
-                    <td ng-class="{match:isMatch('rightEquiv', x.data.rightEquiv)}">{{ x.data.rightEquiv.toFixed(2) }}</td>
-                    <td ng-class="{match:isMatch('rightAxis', x.data.rightAxis)}">{{ x.data.rightAxis }}</td>
+                    <td class="bl">{{ ::x.number }}</td>
+                    <td ng-class="::{match:isMatch('rightSphere', x.data.rightSphere)}">{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                    <td ng-class="::{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ ::x.data.rightCylinder.toFixed(2) }}</td>
+                    <td ng-class="::{match:isMatch('rightEquiv', x.data.rightEquiv)}">{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                    <td ng-class="::{match:isMatch('rightAxis', x.data.rightAxis)}">{{ ::x.data.rightAxis }}</td>
                     <td>{{ x.data.rightADD }}</td>
-                    <td ng-class="{match:isMatch('leftSphere', x.data.leftSphere)}">{{ x.data.leftSphere.toFixed(2) }}</td>
-                    <td ng-class="{match:isMatch('leftCylinder', x.data.leftCylinder)}">{{ x.data.leftCylinder.toFixed(2) }}</td>
-                    <td ng-class="{match:isMatch('leftEquiv', x.data.leftEquiv)}">{{ x.data.leftEquiv.toFixed(2) }}</td>
-                    <td ng-class="{match:isMatch('leftAxis', x.data.leftAxis)}">{{ x.data.leftAxis }}</td>
+                    <td ng-class="::{match:isMatch('leftSphere', x.data.leftSphere)}">{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                    <td ng-class="::{match:isMatch('leftCylinder', x.data.leftCylinder)}">{{ ::x.data.leftCylinder.toFixed(2) }}</td>
+                    <td ng-class="::{match:isMatch('leftEquiv', x.data.leftEquiv)}">{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                    <td ng-class="::{match:isMatch('leftAxis', x.data.leftAxis)}">{{ ::x.data.leftAxis }}</td>
                     <td>{{ x.data.leftADD }}</td>
                     <td><button class="" type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
                 </tr>
@@ -158,15 +136,15 @@
             </thead>
             <tbody>
                 <tr ng-repeat="x in prevSearches" ng-click="searchGlasses(x)">
-                    <td class="bl">{{ x.dominantEye }}</td>
-                    <td>{{ x.rightSphere.toFixed(2) }}</td>
-                    <td>{{ x.rightCylinder.toFixed(2) }}</td>
-                    <td>{{ x.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.rightAxis }}</td>
-                    <td>{{ x.leftSphere.toFixed(2) }}</td>
-                    <td>{{ x.leftCylinder.toFixed(2) }}</td>
-                    <td>{{ x.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.leftAxis }}</td>
+                    <td class="bl">{{ ::x.dominantEye }}</td>
+                    <td>{{ ::x.rightSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.rightCylinder.toFixed(2) }}</td>
+                    <td>{{ ::x.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.rightAxis }}</td>
+                    <td>{{ ::x.leftSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.leftCylinder.toFixed(2) }}</td>
+                    <td>{{ ::x.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.leftAxis }}</td>
                 </tr>
                 <tr ng-show="prevSearches.length==0 || !prevSearches">
                     <td class="bl" colspan="9">No previous searches.</td>
@@ -217,17 +195,17 @@
             <tbody>
                 <tr ng-repeat="x in model.takenPairs | filter:find" ng-class="{match:x.number==find.number}">
                     <td class="bl"><input type="checkbox" ng-model="checked" ng-init="checked=true" ng-click="putbackPair(x.number)"></td>
-                    <td>{{ x.number }}</td>
-                    <td>{{ x.data.rightSphere }}</td>
-                    <td>{{ x.data.rightCylinder }}</td>
-                    <td>{{ x.data.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.data.rightAxis }}</td>
-                    <td>{{ x.data.rightADD  }}</td>
-                    <td>{{ x.data.leftSphere }}</td>
-                    <td>{{ x.data.leftCylinder }}</td>
-                    <td>{{ x.data.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.data.leftAxis }}</td>
-                    <td>{{ x.data.leftADD }}</td>
+                    <td>{{ ::x.number }}</td>
+                    <td>{{ ::x.data.rightSphere }}</td>
+                    <td>{{ ::x.data.rightCylinder }}</td>
+                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightAxis }}</td>
+                    <td>{{ ::x.data.rightADD  }}</td>
+                    <td>{{ ::x.data.leftSphere }}</td>
+                    <td>{{ ::x.data.leftCylinder }}</td>
+                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftAxis }}</td>
+                    <td>{{ ::x.data.leftADD }}</td>
                 </tr>
                 <tr ng-show="model.takenPairs.length==0 || !model.takenPairs">
                     <td class="bl" colspan="13">Nothing to display.</td>
@@ -264,17 +242,17 @@
             <tbody>
                 <tr ng-repeat="x in model.availablePairs | filter:find" ng-class="{match:x.number==find.number}">
                     <td class="bl"><input type="checkbox" ng-click="takePair(x.number)"></td>
-                    <td>{{ x.number }}</td>
-                    <td>{{ x.data.rightSphere }}</td>
-                    <td>{{ x.data.rightCylinder }}</td>
-                    <td>{{ x.data.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.data.rightAxis }}</td>
-                    <td>{{ x.data.rightADD  }}</td>
-                    <td>{{ x.data.leftSphere }}</td>
-                    <td>{{ x.data.leftCylinder }}</td>
-                    <td>{{ x.data.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.data.leftAxis }}</td>
-                    <td>{{ x.data.leftADD }}</td>
+                    <td>{{ ::x.number }}</td>
+                    <td>{{ ::x.data.rightSphere }}</td>
+                    <td>{{ ::x.data.rightCylinder }}</td>
+                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightAxis }}</td>
+                    <td>{{ ::x.data.rightADD  }}</td>
+                    <td>{{ ::x.data.leftSphere }}</td>
+                    <td>{{ ::x.data.leftCylinder }}</td>
+                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftAxis }}</td>
+                    <td>{{ ::x.data.leftADD }}</td>
                 </tr>
                 <tr ng-show="model.availablePairs.length==0 || !model.availablePairs">
                     <td class="bl" colspan="13">No pairs available.</td>
@@ -352,18 +330,18 @@
             <tbody>
                 <tr ng-repeat="x in addedGlasses" ng-click="">
                     <td class="bl">{{ x.pairNumber }}</td>
-                    <td>{{ x.data.rightSphere }}</td>
-                    <td>{{ x.data.rightCylinder }}</td>
-                    <td>{{ x.data.rightEquivUnround.toFixed(2) }}</td>
-                    <td>{{ x.data.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ x.data.rightAxis }}</td>
-                    <td>{{ x.data.rightADD  }}</td>
-                    <td>{{ x.data.leftSphere }}</td>
-                    <td>{{ x.data.leftCylinder }}</td>
-                    <td>{{ x.data.leftEquivUnround.toFixed(2) }}</td>
-                    <td>{{ x.data.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ x.data.leftAxis }}</td>
-                    <td>{{ x.data.leftADD }}</td>
+                    <td>{{ ::x.data.rightSphere }}</td>
+                    <td>{{ ::x.data.rightCylinder }}</td>
+                    <td>{{ ::x.data.rightEquivUnround.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightAxis }}</td>
+                    <td>{{ ::x.data.rightADD  }}</td>
+                    <td>{{ ::x.data.leftSphere }}</td>
+                    <td>{{ ::x.data.leftCylinder }}</td>
+                    <td>{{ ::x.data.leftEquivUnround.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftAxis }}</td>
+                    <td>{{ ::x.data.leftADD }}</td>
                 </tr>
                 <tr ng-show="addedGlasses.length==0 || !addedGlasses">
                     <td class="bl" colspan="15">Nothing to display.</td>
