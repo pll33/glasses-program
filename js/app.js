@@ -88,7 +88,7 @@
             EXPORT: 'exportar',
             SYNC: 'sincronizar',
             INVENTORY: 'inventario',
-            SETTINGS: '',
+            SETTINGS: 'configuración',
             MANUAL_INPUT: '',
             ADDED_GLASSES: '',
             NO_RESULTS: '',
@@ -100,7 +100,7 @@
 
     app.factory('inventoryService', function() {
         var localDB = new PouchDB('glassesDB');
-        var remoteDB = new PouchDB('http://localhost:5984/glassesDB');;
+        var remoteDB = new PouchDB('http://localhost:5984/glassesDB');
 
         var _nextPairNum = 1;
         var _invTaken = [];
@@ -161,7 +161,7 @@
                 if (result.indexes.length > 1) {
                     console.log("InitDB: Search indexes already exist.");
                 } else {
-                    console.log("InitDB: Search indexes do not exist, creating indexes...")
+                    console.log("InitDB: Search indexes do not exist, creating indexes...");
 
                     // create index for inventory (pouchdb-find)
                     localDB.createIndex({
@@ -374,7 +374,7 @@
 
         inventory.sync = function() {
             localDB.replicate.to(remoteDB).on('complete', function () {
-              console.log("Local->Remote: Sync complete.")
+              console.log("Local->Remote: Sync complete.");
             }).on('error', function (err) {
               console.log("Local->Remote: Sync error.", err);
             });
@@ -468,8 +468,8 @@
                 leftEquiv: floatParse(srch.leftEquiv)
             };
 
-            var axisMinFunc = function(axis) { return (axis < 15) ? 0 : (axis < 165) ? axis-15 : 165; }
-            var axisMaxFunc = function(axis) { return (axis > 165) ? 180 : (axis < 15) ? axis+15 : 0; }
+            var axisMinFunc = function(axis) { return (axis < 15) ? 0 : (axis < 165) ? axis-15 : 165; };
+            var axisMaxFunc = function(axis) { return (axis > 165) ? 180 : (axis < 15) ? axis+15 : 0; };
             var searchObjFunc = function(equiv, cyl, axis) {
                 return {
                     equivMin: equiv,
@@ -478,7 +478,7 @@
                     cylinderMax: cyl+0.75,
                     axisMin: axisMinFunc(axis),
                     axisMax: axisMaxFunc(axis)
-                }
+                };
             };
 
             // search by filtering localDB for <value>
@@ -628,7 +628,7 @@
                     });
                 });
             }
-        }
+        };
     }]);
 
     app.controller('importCtrl', function ($scope, inventoryService) {
@@ -689,8 +689,8 @@
 
         // Assumes 16 columnn CSV data
         $scope.importCSVAdd = function(input, nextNum) {
-            var parsePairNum = function(inStr) { return parseInt(inStr.replace( /^\D+/g, '')); }
-            var parseSetLetter = function(inStr) { return inStr.replace(/\d+$/g, ''); }
+            var parsePairNum = function(inStr) { return parseInt(inStr.replace( /^\D+/g, '')); };
+            var parseSetLetter = function(inStr) { return inStr.replace(/\d+$/g, ''); };
             var parseAvail = function(inStr) {
                 var s = inStr.toLowerCase();
                 switch(s) {
@@ -783,7 +783,7 @@
                 console.log("Import file:", file.name);
                 // console.log("Import file: ", file);
                 if (file.type == "text/csv") {
-                    importCSV(file)
+                    importCSV(file);
                 } else if (file.type == "application/json") {
                     importJSON(file);
                 }
@@ -857,8 +857,8 @@
                 leftADD: data.leftADD,
                 number: pNum,
                 taken: takenStr(dbObj.available)
-            }
-        }
+            };
+        };
 
         // functions for: CSV, JSON
         // for: taken inventory, available inventory, full inventory
