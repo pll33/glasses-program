@@ -14,7 +14,7 @@
         <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">{{ 'INVENTORY' | translate }}</a></li>
         <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">{{ 'IMPORT' | translate }}</a></li>
         <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">{{ 'EXPORT' | translate }}<!-- /{{ 'SYNC' | translate }} --></a></li>
-        <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">{{ 'SETTINGS' | translate }}</a></li>
+        <!-- <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">{{ 'SETTINGS' | translate }}</a></li> -->
     </ul>
 
 <div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchCtrl">
@@ -58,7 +58,7 @@
 
     <section>
         <span class="lblb"></span>
-        <button type="submit" class="btn btn-default" ng-click="resetForm()">Reset</button>
+        <button type="submit" class="btn btn-default" ng-click="resetForm()">Reset Search</button>
         <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">Find Matches</button>
     </section>
     </form>
@@ -66,12 +66,13 @@
 
     <div id="searchResults" class="active">
         <h3>Available Glasses</h3>
+        <p>NOTE: Better matches have more cells highlighted in green in each row/pair. </p>
         <table class="table table-hover">
             <thead>
                 <tr>
                     <th></th>
-                    <th ng-class="{match:(dominantMatch=='Right')}" colspan="5">Right Eye (OD)</th>
-                    <th ng-class="{match:(dominantMatch=='Left')}" colspan="5">Left Eye (OS)</th>
+                    <th ng-class="{match:(dominantMatch=='Right'||dominantMatch=='None')}" colspan="5">Right Eye (OD)</th>
+                    <th ng-class="{match:(dominantMatch=='Left'||dominantMatch=='None')}" colspan="5">Left Eye (OS)</th>
                     <th></th>
                 </tr>
                 <tr>
@@ -96,12 +97,12 @@
                     <td ng-class="::{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ ::x.data.rightCylinder.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('rightEquiv', x.data.rightEquiv)}">{{ ::x.data.rightEquiv.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('rightAxis', x.data.rightAxis)}">{{ ::x.data.rightAxis }}</td>
-                    <td>{{ x.data.rightADD }}</td>
+                    <td>{{ x.data.rightADD.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('leftSphere', x.data.leftSphere)}">{{ ::x.data.leftSphere.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('leftCylinder', x.data.leftCylinder)}">{{ ::x.data.leftCylinder.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('leftEquiv', x.data.leftEquiv)}">{{ ::x.data.leftEquiv.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('leftAxis', x.data.leftAxis)}">{{ ::x.data.leftAxis }}</td>
-                    <td>{{ x.data.leftADD }}</td>
+                    <td>{{ x.data.leftADD.toFixed(2) }}</td>
                     <td><button class="" type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
                 </tr>
                 <tr ng-show="searchResults.length==0 || !searchResults" ng-class="{hide:noResults}">
@@ -196,16 +197,16 @@
                 <tr ng-repeat="x in model.takenPairs | filter:find" ng-class="{match:x.number==find.number}">
                     <td class="bl"><input type="checkbox" ng-model="checked" ng-init="checked=true" ng-click="putbackPair(x.number)"></td>
                     <td>{{ ::x.number }}</td>
-                    <td>{{ ::x.data.rightSphere }}</td>
-                    <td>{{ ::x.data.rightCylinder }}</td>
+                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightAxis }}</td>
-                    <td>{{ ::x.data.rightADD  }}</td>
-                    <td>{{ ::x.data.leftSphere }}</td>
-                    <td>{{ ::x.data.leftCylinder }}</td>
+                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
+                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftAxis }}</td>
-                    <td>{{ ::x.data.leftADD }}</td>
+                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
                 </tr>
                 <tr ng-show="model.takenPairs.length==0 || !model.takenPairs">
                     <td class="bl" colspan="13">Nothing to display.</td>
@@ -243,16 +244,16 @@
                 <tr ng-repeat="x in model.availablePairs | filter:find" ng-class="{match:x.number==find.number}">
                     <td class="bl"><input type="checkbox" ng-click="takePair(x.number)"></td>
                     <td>{{ ::x.number }}</td>
-                    <td>{{ ::x.data.rightSphere }}</td>
-                    <td>{{ ::x.data.rightCylinder }}</td>
+                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightAxis }}</td>
-                    <td>{{ ::x.data.rightADD  }}</td>
-                    <td>{{ ::x.data.leftSphere }}</td>
-                    <td>{{ ::x.data.leftCylinder }}</td>
+                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
+                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftAxis }}</td>
-                    <td>{{ ::x.data.leftADD }}</td>
+                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
                 </tr>
                 <tr ng-show="model.availablePairs.length==0 || !model.availablePairs">
                     <td class="bl" colspan="13">No pairs available.</td>
@@ -336,18 +337,18 @@
             <tbody>
                 <tr ng-repeat="x in addedGlasses" ng-click="">
                     <td class="bl">{{ x.pairNumber }}</td>
-                    <td>{{ ::x.data.rightSphere }}</td>
-                    <td>{{ ::x.data.rightCylinder }}</td>
+                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightEquivUnround.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightAxis }}</td>
-                    <td>{{ ::x.data.rightADD  }}</td>
-                    <td>{{ ::x.data.leftSphere }}</td>
-                    <td>{{ ::x.data.leftCylinder }}</td>
+                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
+                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftEquivUnround.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
                     <td>{{ ::x.data.leftAxis }}</td>
-                    <td>{{ ::x.data.leftADD }}</td>
+                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
                 </tr>
                 <tr ng-show="addedGlasses.length==0 || !addedGlasses">
                     <td class="bl" colspan="15">Nothing to display.</td>
@@ -396,19 +397,19 @@
     <button type="button" class="btn btn-info" ng-click="syncDB()">Sync</button>
  -->
     <h3>Reset database</h3>
-    <p><span class="reset-warning">WARNING:</span> This resets the database and removes ALL pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
+    <p><span class="reset-warning">WARNING:</span> This resets the database and removes <b>ALL</b> pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
     <p><span class="reset-warning">This is the only warning.</span></p>
-    <button type="button" class="btn btn-danger" ng-click="destroyDB()">Reset</button>
+    <button type="button" class="btn btn-danger" ng-click="destroyDB()">RESET DATABASE</button>
 </div>
 
-<div id="settings" class="tab-content" ng-show="tab.isSet(5)">
+<!-- <div id="settings" class="tab-content" ng-show="tab.isSet(5)">
     <h3 style="margin-top: 0">Settings</h3>
     <h4>Language Selection</h4>
     <div class="btn-group">
         <label class="btn btn-primary" ng-class="{active: langPick=='en'}" ng-model="langPick" ng-click="changeLanguage('en')" uib-btn-radio="'en'">{{ 'BUTTON_LANG_EN' | translate }}</label>
         <label class="btn btn-primary" ng-class="{active: langPick=='es'}" ng-model="langPick" ng-click="changeLanguage('es')" uib-btn-radio="'es'">{{ 'BUTTON_LANG_ES' | translate }}</label>
     </div>
-</div>
+</div> -->
   <script src="js/lib/papaparse.min.js"></script>
   <script src="js/lib/pouchdb-5.2.1.min.js"></script>
   <script src="js/lib/pouchdb.find.min.js"></script>

@@ -266,13 +266,14 @@
         var updateNextNum = function(num) {
             localDB.get("next_num").then(function(id) {
                 id.number = num;
+                _nextPairNum = num;
                 return localDB.put(id);
             }).catch(function (err) {
                 if (err.status == "409") {
                     if (_nextPairNum == num) {
                         updateNextNum(_nextPairNum);
                         console.log("Update next_num: next_num updated after bulk operation");
-
+                        // console.log("_nextPairNum",_nextPairNum);
                         updateInventory();
                         console.log("Update inventory: inventory updated after bulk operation");
                     }
@@ -701,6 +702,7 @@
         };
 
         function importCSV(file) {
+            csvNextNum = $scope.inventory.getPairNumber();
             var tempNextNum = $scope.inventory.getPairNumber();
             var rowCount = 0;
 
@@ -714,13 +716,14 @@
                     if (rowCount && results.data) {
                         // console.log("Parse row data: ", results.data);
                         // console.log("row: ", rowCount, results.data[0], noDataCheck(results.data[0]));
-                        if (!noDataCheck(results.data[0])) {
+                        // if (!noDataCheck(results.data[0])) {
                             // console.log("row results", results);
+                            // if (tempNextNum < 300) console.log(tempNextNum);
                             $scope.importCSVAdd(results.data[0], tempNextNum);
                             tempNextNum++;
-                        } else {
-                            console.log("Import CSV: Row "+rowCount+" skipped due to no glasses data.");
-                        }
+                        // } else {
+                            // console.log("Import CSV: Row "+rowCount+" skipped due to no glasses data.");
+                        // }
                     }
                     rowCount++;
                 },
@@ -752,7 +755,6 @@
             };
             fr.readAsText(file);
         }
-
 
         function nineColumnImport(input, nextNum) {
             // rightSphere, rightCylinder, rightAxis, rightAdd, leftSphere, leftCylinder, leftAxis, leftAdd, number
@@ -889,13 +891,13 @@
             // add to added glasses
             // console.log(input);
             // console.log(input.length);
-            if (emptyObjCompare(pair.data) || emptyObjCompare(pair)) {
+            if (/*emptyObjCompare(pair.data) || */emptyObjCompare(pair)) {
                 // no pair data, skip row
-                if (emptyObjCompare(pair.data)) {
-                    console.log("Error adding pair #"+pair.pairNumber+": Row skipped due to no glasses data.");
-                } else {
+                // if (emptyObjCompare(pair.data)) {
+                //     console.log("Error adding pair #"+pair.pairNumber+": Row skipped due to no glasses data.");
+                // } else {
                     console.log("Error adding pair: No pair # found. Please check data columns.");
-                }
+                // }
             }
             else {
                 $scope.addedGlasses.push(pair);
@@ -982,7 +984,7 @@
         function csvify(inArr, opt_compact) {
             inArr.forEach(function (element, idx, arr) {
                 var dbObj = arr[idx];
-                if (opt_compact) { arr[idx] = tenCSV(dbjOb); }
+                if (opt_compact) { arr[idx] = tenCSV(dbObj); }
                 else { arr[idx] = sixteenCSV(dbObj); }
             });
             return Papa.unparse(inArr);
@@ -1054,7 +1056,10 @@
             var all = taken.concat(avail);
 
             var csv = csvify(all, opt_compact);
-            saveFile(csv, "text/csv", "export.csv");
+            var filename;
+            if (opt_compact) filename = "export-compact.csv";
+            else filename = "export-full.csv"
+            saveFile(csv, "text/csv", filename);
         };
 
         $scope.exportJSON = function(getTaken, getAvailable) {
