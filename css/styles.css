@@ -124,15 +124,15 @@ table>tbody>tr>td {
 }
 
 #previousSearches table>thead>tr:nth-child(1)>th,
-#previousSearches table>thead>tr:nth-child(2)>th:nth-child(1),
-#previousSearches table>thead>tr:nth-child(2)>th:nth-child(5),
-#previousSearches table>thead>tr:nth-child(2)>th:nth-child(9) {
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(2),
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(6),
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(10) {
     border-right: 2px solid #ddd;
 }
 
-#previousSearches table>tbody>tr>td:nth-child(1),
-#previousSearches table>tbody>tr>td:nth-child(5),
-#previousSearches table>tbody>tr>td:nth-child(9),
+#previousSearches table>tbody>tr>td:nth-child(2),
+#previousSearches table>tbody>tr>td:nth-child(6),
+#previousSearches table>tbody>tr>td:nth-child(10),
 #previousSearches table>tbody>tr>td:last-child {
     border-right: 2px solid #ddd;
 }

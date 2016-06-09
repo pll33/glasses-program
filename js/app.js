@@ -365,13 +365,13 @@
 
         // available -> taken glasses
         inventory.take = function(pairNum) {
-            console.log("Taken->Available: Pair #" + pairNum);
+            console.log("Available->Taken: Pair #" + pairNum);
             updatePairDB(pairNum, false);
         };
 
         // taken --> available glasses
         inventory.putback = function(pairNum) {
-            console.log("Available->Taken: Pair #" + pairNum);
+            console.log("Taken->Available: Pair #" + pairNum);
             updatePairDB(pairNum, true);
         };
 
@@ -463,6 +463,22 @@
             model.leftEquiv = roundEquiv(unroundedLeft);
         };
 
+        $scope.previousSearch = function(prevSrch) {
+            $scope.search = {
+                patientName: prevSrch.patientName,
+                dominantEye: prevSrch.dominantEye,
+                rightSphere: prevSrch.rightSphere,
+                rightCylinder: prevSrch.rightCylinder,
+                rightAxis: prevSrch.rightAxis,
+                rightEquiv: prevSrch.rightEquiv,
+                leftSphere: prevSrch.leftSphere,
+                leftCylinder: prevSrch.leftCylinder,
+                leftAxis: prevSrch.leftAxis,
+                leftEquiv: prevSrch.leftEquiv,
+            }
+            $scope.searchGlasses(prevSrch);
+        };
+
         $scope.searchGlasses = function (srch) {  
             //srch = obj representation of search
             //example: {"rightSphere":"2.200","rightEquiv":"3.25","rightCylinder":"2.3","rightAxis":"5","leftSphere":"2","leftEquiv":"5.50","leftCylinder":"7","leftAxis":"6"}
@@ -470,6 +486,7 @@
             // parse+validate values
             var revSrch = { //revised/validated search
                 sID: srch.sID || ++sIDcount,
+                patientName: srch.patientName,
                 dominantEye: srch.dominantEye,
                 rightSphere: floatParse(srch.rightSphere),
                 rightCylinder: floatParse(srch.rightCylinder),
@@ -525,7 +542,7 @@
                 $scope.searchResults = inventoryService.getSearchResults();
                 $scope.dominantMatch = revSrch.dominantEye;
                 $scope.noResults = ($scope.searchResults.length) ? false : true;
-                console.log("Search results: " + $scope.searchResults.length + " pairs found.");
+                // console.log("Search results: " + $scope.searchResults.length + " pairs found.");
                 $scope.$apply();
 
                 // update timeout after first search
@@ -575,6 +592,10 @@
 
         $scope.model.takenPairs = [];
         $scope.model.availablePairs = [];
+
+        $scope.clearSearch = function() {
+            $scope.find.number = "";
+        };
 
         $scope.takePair = function(numPair) {
             inventoryService.take(numPair);
@@ -772,23 +793,52 @@
             var roundR = roundEquiv(unroundR);
             var roundL = roundEquiv(unroundL);
 
+            var rightCyl = floatParse(input[1]);
+            var leftCyl = floatParse(input[5]);
+
+            var data = {};
+
+            // Negative cylinder?
+            // newSphere = sph + f;
+            // newCylinder = Math.abs(f);
+            // newAxis = axisParse(axis+90);
+
+            if (rightCyl < 0) {
+                data.rightSphere = floatParse(input[0]) + rightCyl;
+                data.rightCylinder = Math.abs(rightCyl);
+                data.rightEquivUnround = unroundR;
+                data.rightEquiv = roundR;
+                data.rightAxis = axisParse(axisStringParse(input[2])+90);
+                data.rightADD = addParse(input[3]);
+            } else {
+                data.rightSphere = floatParse(input[0]);
+                data.rightCylinder = rightCyl;
+                data.rightEquivUnround = unroundR;
+                data.rightEquiv = roundR;
+                data.rightAxis = axisStringParse(input[2]);
+                data.rightADD = addParse(input[3]);
+            }
+
+            if (leftCyl < 0) {
+                data.leftSphere = floatParse(input[4]) + leftCyl;
+                data.leftCylinder = Math.abs(leftCyl);
+                data.leftEquivUnround = unroundL;
+                data.leftEquiv = roundL;
+                data.leftAxis = axisParse(axisStringParse(input[6])+90);
+                data.leftADD = addParse(input[7]);
+            } else {
+                data.leftSphere = floatParse(input[4]);
+                data.leftCylinder = leftCyl;
+                data.leftEquivUnround = unroundL;
+                data.leftEquiv = roundL;
+                data.leftAxis = axisStringParse(input[6]);
+                data.leftADD = addParse(input[7]);
+            }
+
             var pair = {
                 setLetter: parseSetLetter(input[8]),
                 pairNumber: pairNum,
-                data: {
-                    rightSphere: floatParse(input[0]),
-                    rightCylinder: floatParse(input[1]),
-                    rightEquivUnround: unroundR,
-                    rightEquiv: roundR,
-                    rightAxis: axisStringParse(input[2]),
-                    rightADD: addParse(input[3]),
-                    leftSphere: floatParse(input[4]),
-                    leftCylinder: floatParse(input[5]),
-                    leftEquivUnround: unroundL,
-                    leftEquiv: roundL,
-                    leftAxis: axisStringParse(input[6]),
-                    leftADD: addParse(input[7])
-                },
+                data: data,
                 available: parseAvail(input[9])
             };
 
@@ -820,23 +870,46 @@
             var addR = (biAddR > triAddR) ? biAddR : triAddR;
             var addL = (biAddL > triAddL) ? biAddL : triAddL;
 
+            var rightCyl = floatParse(input[2]);
+            var leftCyl = floatParse(input[7]);
+
+            var data = {};
+            if (rightCyl < 0) {
+                data.rightSphere = floatParse(input[1]) + rightCyl;
+                data.rightCylinder = Math.abs(rightCyl);
+                data.rightEquivUnround = unroundR;
+                data.rightEquiv = roundR;
+                data.rightAxis = axisParse(axisStringParse(input[3])+90);
+                data.rightADD = addR;
+            } else {
+                data.rightSphere = floatParse(input[1]);
+                data.rightCylinder = rightCyl;
+                data.rightEquivUnround = unroundR;
+                data.rightEquiv = roundR;
+                data.rightAxis = axisStringParse(input[3]);
+                data.rightADD = addR;
+            }
+
+            if (leftCyl < 0) {
+                data.leftSphere = floatParse(input[6]) + leftCyl;
+                data.leftCylinder = Math.abs(leftCyl);
+                data.leftEquivUnround = unroundL;
+                data.leftEquiv = roundL;
+                data.leftAxis = axisParse(axisStringParse(input[8])+90);
+                data.leftADD = addL;
+            } else {
+                data.leftSphere = floatParse(input[6]);
+                data.leftCylinder = leftCyl;
+                data.leftEquivUnround = unroundL;
+                data.leftEquiv = roundL;
+                data.leftAxis = axisStringParse(input[8]);
+                data.leftADD = addL;
+            }
+
             var pair = {
                 setLetter: parseSetLetter(input[0]),
                 pairNumber: pairNum,
-                data: {
-                    rightSphere: floatParse(input[1]),
-                    rightCylinder: floatParse(input[2]),
-                    rightEquivUnround: unroundR,
-                    rightEquiv: roundR,
-                    rightAxis: axisStringParse(input[3]),
-                    rightADD: addR,
-                    leftSphere: floatParse(input[6]),
-                    leftCylinder: floatParse(input[7]),
-                    leftEquivUnround: unroundL,
-                    leftEquiv: roundL,
-                    leftAxis: axisStringParse(input[8]),
-                    leftADD: addL
-                },
+                data: data,
                 available: true
             };
 
@@ -855,23 +928,59 @@
             var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
             if (!inputNum) { return {}; }
 
+            // rightSphere: floatParse(input[0]),
+            // rightCylinder: floatParse(input[1]),
+            // rightEquivUnround: floatParse(input[2]),
+            // rightEquiv: floatParse(input[3]),
+            // rightAxis: axisStringParse(input[4]),
+            // rightADD: addParse(input[6]),
+            // leftSphere: floatParse(input[7]),
+            // leftCylinder: floatParse(input[8]),
+            // leftEquivUnround: floatParse(input[9]),
+            // leftEquiv: floatParse(input[10]),
+            // leftAxis: axisStringParse(input[11]),
+            // leftADD: addParse(input[13])
+
+            var rightCyl = floatParse(input[1]);
+            var leftCyl = floatParse(input[8]);
+
+            var data = {};
+            if (rightCyl < 0) {
+                data.rightSphere = floatParse(input[0]) + rightCyl;
+                data.rightCylinder = Math.abs(rightCyl);
+                data.rightEquivUnround = floatParse(input[2]);
+                data.rightEquiv = floatParse(input[3]);
+                data.rightAxis = axisParse(axisStringParse(input[4])+90);
+                data.rightADD = addParse(input[6]);
+            } else {
+                data.rightSphere = floatParse(input[0]);
+                data.rightCylinder = rightCyl;
+                data.rightEquivUnround = floatParse(input[2]);
+                data.rightEquiv = floatParse(input[3]);
+                data.rightAxis = axisStringParse(input[4]);
+                data.rightADD = addParse(input[6]);
+            }
+
+            if (leftCyl < 0) {
+                data.leftSphere = floatParse(input[7]) + leftCyl;
+                data.leftCylinder = Math.abs(leftCyl);
+                data.leftEquivUnround = floatParse(input[9]);
+                data.leftEquiv = floatParse(input[10]);
+                data.leftAxis = axisParse(axisStringParse(input[11])+90);
+                data.leftADD = addParse(input[13]);
+            } else {
+                data.leftSphere = floatParse(input[7]);
+                data.leftCylinder = leftCyl;
+                data.leftEquivUnround = floatParse(input[9]);
+                data.leftEquiv = floatParse(input[10]);
+                data.leftAxis = axisStringParse(input[11]);
+                data.leftADD = addParse(input[13]);
+            }
+
             var pair = {
                 setLetter: parseSetLetter(input[14]),
                 pairNumber: pairNum,
-                data: {
-                    rightSphere: floatParse(input[0]),
-                    rightCylinder: floatParse(input[1]),
-                    rightEquivUnround: floatParse(input[2]),
-                    rightEquiv: floatParse(input[3]),
-                    rightAxis: axisStringParse(input[4]),
-                    rightADD: addParse(input[6]),
-                    leftSphere: floatParse(input[7]),
-                    leftCylinder: floatParse(input[8]),
-                    leftEquivUnround: floatParse(input[9]),
-                    leftEquiv: floatParse(input[10]),
-                    leftAxis: axisStringParse(input[11]),
-                    leftADD: addParse(input[13])
-                },
+                data: data, 
                 available: parseAvail(input[15])
             };
 
@@ -915,22 +1024,63 @@
             var roundR = roundEquiv(unroundR);
             var roundL = roundEquiv(unroundL);
 
+            var rightCyl = floatParse(input.rightCylinder);
+            var leftCyl = floatParse(input.leftCylinder);
+            var data = {};
+
+            // rightSphere: floatParse(input.rightSphere),
+            // rightCylinder: floatParse(input.rightCylinder),
+            // rightEquivUnround: unroundR,
+            // rightEquiv: roundR,
+            // rightAxis: axisParse(input.rightAxis),
+            // rightADD: floatParse(input.rightADD),
+            // leftSphere: floatParse(input.leftSphere),
+            // leftCylinder: floatParse(input.leftCylinder),
+            // leftEquivUnround: unroundL,
+            // leftEquiv: roundL,
+            // leftAxis: axisParse(input.leftAxis),
+            // leftADD: floatParse(input.leftADD)
+
+            // Negative cylinder? 
+            // newSphere = sph + f;
+            // newCylinder = Math.abs(f);
+            // newAxis = axisParse(axis+90);
+
+            if (rightCyl < 0) {
+                data.rightSphere = floatParse(input.rightSphere) + rightCyl;
+                data.rightCylinder = Math.abs(rightCyl);
+                data.rightEquivUnround = unroundR;
+                data.rightEquiv = roundR;
+                data.rightAxis = axisParse(axisParse(input.rightAxis) + 90);
+                data.rightADD = floatParse(input.rightADD);
+            } else {
+                data.rightSphere = floatParse(input.rightSphere);
+                data.rightCylinder = rightCyl;
+                data.rightEquivUnround = unroundR;
+                data.rightEquiv = roundR;
+                data.rightAxis = axisParse(input.rightAxis);
+                data.rightADD = floatParse(input.rightADD);
+            }
+
+            if (leftCyl < 0) {
+                data.leftSphere = floatParse(input.leftSphere) + leftCyl;
+                data.leftCylinder = Math.abs(leftCyl);
+                data.leftEquivUnround = unroundL;
+                data.leftEquiv = roundL;
+                data.leftAxis = axisParse(axisParse(input.leftAxis) + 90);
+                data.leftADD = floatParse(input.leftADD);
+            } else { 
+                data.leftSphere = floatParse(input.leftSphere);
+                data.leftCylinder = leftCyl;
+                data.leftEquivUnround = unroundL;
+                data.leftEquiv = roundL;
+                data.leftAxis = axisParse(input.leftAxis);
+                data.leftADD = floatParse(input.leftADD);
+            }
+
             var pair = {
                 pairNumber: inv.getPairNumber(),
-                data: {
-                    rightSphere: floatParse(input.rightSphere),
-                    rightCylinder: floatParse(input.rightCylinder),
-                    rightEquivUnround: unroundR,
-                    rightEquiv: roundR,
-                    rightAxis: axisParse(input.rightAxis),
-                    rightADD: floatParse(input.rightADD),
-                    leftSphere: floatParse(input.leftSphere),
-                    leftCylinder: floatParse(input.leftCylinder),
-                    leftEquivUnround: unroundL,
-                    leftEquiv: roundL,
-                    leftAxis: axisParse(input.leftAxis),
-                    leftADD: floatParse(input.leftADD)
-                },
+                data: data,
                 available: true
             };
 
@@ -950,12 +1100,16 @@
         $scope.import = function() {
             var file = $scope.importFile;
             if (file) {
-                console.log("Import file:", file.name);
+                console.log("Import file:", file.name, file.type);
                 // console.log("Import file: ", file);
-                if (file.type == "text/csv") {
+                if (file.type == "text/csv" || file.type == "application/vnd.ms-excel" || file.type == "application/excel" || file.type == "application/vnd.msexcel") {
+                    console.log("Import file: Importing CSV ", file.name, file.type);
                     importCSV(file);
                 } else if (file.type == "application/json") {
+                    console.log("Import file: Importing JSON ", file.name, file.type);
                     importJSON(file);
+                } else {
+                    console.log("Import file: Improper file format. Upload aborted.", file.type);
                 }
 
                 setTimeout(function() {
