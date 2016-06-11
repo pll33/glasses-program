@@ -10,16 +10,15 @@
 <body data-ng-controller="glassesController as tab">
     <div id="tabContainer">
     <ul class="nav nav-tabs">
-        <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">{{ 'GLASSES' | translate }} {{ 'SEARCH' | translate}}</a></li>
-        <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">{{ 'INVENTORY' | translate }}</a></li>
-        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">{{ 'IMPORT' | translate }}</a></li>
-        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">{{ 'EXPORT' | translate }}<!-- /{{ 'SYNC' | translate }} --></a></li>
-        <!-- <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">{{ 'SETTINGS' | translate }}</a></li> -->
+        <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">Glasses Search</a></li>
+        <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">Inventory</a></li>
+        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import</a></li>
+        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Export<!--/Sync--></a></li>
+        <!-- <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">Settings</a></li> -->
         <li id="tabLog" role="presentation" ng-class="{active:tab.isSet(6)}"><a ng-click="tab.setTab(6)">Log </a></li>
     </ul>
 
 <div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchCtrl">
-
     <form name="searchForm" novalidate>
     <h3 style="margin-top: 0;">Search Glasses</h3>
     <section>
@@ -415,15 +414,6 @@
     <button type="button" class="btn btn-danger" ng-click="destroyDB()">RESET DATABASE</button>
 </div>
 
-<!-- <div id="settings" class="tab-content" ng-show="tab.isSet(5)">
-    <h3 style="margin-top: 0">Settings</h3>
-    <h4>Language Selection</h4>
-    <div class="btn-group">
-        <label class="btn btn-primary" ng-class="{active: langPick=='en'}" ng-model="langPick" ng-click="changeLanguage('en')" uib-btn-radio="'en'">{{ 'BUTTON_LANG_EN' | translate }}</label>
-        <label class="btn btn-primary" ng-class="{active: langPick=='es'}" ng-model="langPick" ng-click="changeLanguage('es')" uib-btn-radio="'es'">{{ 'BUTTON_LANG_ES' | translate }}</label>
-    </div>
-</div> -->
-
 <div id="logInfo" class="tab-content" ng-show="tab.isSet(6)" ng-controller="logCtrl">
     
 </div>
@@ -431,7 +421,6 @@
   <script src="js/lib/pouchdb-5.2.1.min.js"></script>
   <script src="js/lib/pouchdb.find.min.js"></script>
   <script src="js/lib/angular.min.js"></script>
-  <script src="js/lib/angular-translate.min.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

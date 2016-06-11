@@ -1,5 +1,5 @@
 (function () {
-    var app = angular.module('app', ['pascalprecht.translate']);
+    var app = angular.module('app', []);
 
     var roundEquiv = function(unrounded) {
         if (unrounded < 0) { return -1*(Math.round((-1*unrounded) * 4) / 4); }
@@ -43,72 +43,6 @@
     var firstSearch = false;
     var searchTimeoutDelay = 2000;
     var invTimeoutDelay = 500;
-
-    app.config(function ($translateProvider) {
-        $translateProvider.translations('en', {
-            GLASSES: 'Glasses',
-            SEARCH: 'Search',
-            DOMINANT_EYE: 'Dominant Eye',
-            LEFT_EYE: 'Left Eye',
-            RIGHT_EYE: 'Right Eye',
-            SPHERE: 'Sphere',
-            CYLINDER: 'Cylinder',
-            AXIS: 'Axis',
-            PATIENT_REFRACTION: 'Patient Refraction',
-            SPHERICAL_EQUIV: 'Spherical Equivalent',
-            UNROUNDED: 'Unrounded',
-            ROUNDED: 'Rounded',
-            PAIR: 'Pair',
-            BIFOCAL: 'Bifocal',
-            ADD: 'ADD',
-            AVAILABLE: 'Available',
-            RESET: 'Reset',
-            FIND: 'Find',
-            TAKEN: 'Taken',
-            IMPORT: 'Import',
-            EXPORT: 'Export',
-            SYNC: 'Sync',
-            INVENTORY: 'Inventory',
-            SETTINGS: 'Settings',
-            MANUAL_INPUT: 'Manual Input',
-            ADDED_GLASSES: 'Added Glasses',
-            NO_RESULTS: 'No results',
-            BUTTON_LANG_EN: 'English',
-            BUTTON_LANG_ES: 'Spanish'
-        });
-        $translateProvider.translations('es', {
-            GLASSES: 'gafas',
-            SEARCH: 'buscar',
-            DOMINANT_EYE: '',
-            LEFT_EYE: '',
-            RIGHT_EYE: '',
-            SPHERE: '',
-            CYLINDER: '',
-            AXIS: '',
-            PATIENT_REFRACTION: '',
-            SPHERICAL_EQUIV: '',
-            UNROUNDED: '',
-            ROUNDED: '',
-            PAIR: '',
-            BIFOCAL: '',
-            ADD: '',
-            AVAILABLE: '',
-            RESET: '',
-            FIND: '',
-            TAKEN: '',
-            IMPORT: 'importar',
-            EXPORT: 'exportar',
-            SYNC: 'sincronizar',
-            INVENTORY: 'inventario',
-            SETTINGS: 'configuración',
-            MANUAL_INPUT: '',
-            ADDED_GLASSES: '',
-            NO_RESULTS: '',
-            BUTTON_LANG_EN: 'inglés',
-            BUTTON_LANG_ES: 'espanol'
-        });
-      $translateProvider.preferredLanguage('en');
-    });
 
     app.factory('inventoryService', function() {
         var localDB = new PouchDB('glassesDB');
@@ -418,16 +352,10 @@
         return inventory;
     });
 
-    app.controller('glassesController', function ($scope, $translate) {
+    app.controller('glassesController', function ($scope) {
         this.tab = 1;
         this.setTab = function (tabId) { this.tab = tabId; };
         this.isSet = function (tabId) { return this.tab === tabId; };
-
-        $scope.langPick = 'en';
-        $scope.changeLanguage = function (key) {
-            $translate.use(key);
-            $scope.langPick = key;
-        };
     });
 
     app.controller('searchCtrl', function ($scope, inventoryService) {
