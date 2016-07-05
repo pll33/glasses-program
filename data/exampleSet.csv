@@ -1,4 +1,4 @@
-Sphere,Cylinder,Sphe Equiv (unrounded,sphequiv (rounded),axis,axisrange,Add,Sphere,Cylinder,Sphe Equiv (unrounded,sphequiv (rounded),Axis,axisrange,Add,Number,TAKEN?
+Sphere,Cylinder,Spherical Equivalent (unrounded),Spherical Equivalent (rounded),Axis,Axis Range,Add,Sphere,Cylinder,Spherical Equivalent (unrounded),Spherical Equivalent (rounded),Axis,Axis Range,Add,Number,TAKEN?
 -0.5,1.25,0.13,0.25,165,high,3.25,-0.5,1.25,0.13,0.25,26,low,3.25,1,No
 1,0,1,1,0,low,2,1.25,0,1.25,1.25,0,low,2,2,No
 2,1.5,2.75,2.75,5,low,2.25,5.25,1,5.75,5.75,30,low,2.5,3,Yes
