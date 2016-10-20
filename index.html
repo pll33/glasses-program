@@ -2,7 +2,7 @@
 <html ng-app="app">
 <head>
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-  <title>GlassesInventoryAng</title>
+  <title>Glasses Inventory Program</title>
   <link rel="stylesheet" media="all" href="css/bootstrap.min.css">
   <link rel="stylesheet" media="all" href="css/styles.css">
 </head>
@@ -15,7 +15,7 @@
         <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import</a></li>
         <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Export<!--/Sync--></a></li>
         <!-- <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">Settings</a></li> -->
-        <li id="tabLog" role="presentation" ng-class="{active:tab.isSet(6)}"><a ng-click="tab.setTab(6)">Log </a></li>
+<!--         <li id="tabLog" role="presentation" ng-class="{active:tab.isSet(6)}"><a ng-click="tab.setTab(6)">Log </a></li> -->
     </ul>
 
 <div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchCtrl">
@@ -412,10 +412,6 @@
     <p><span class="reset-warning">WARNING:</span> This resets the database and removes <b>ALL</b> pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
     <p><span class="reset-warning">This is the only warning.</span></p>
     <button type="button" class="btn btn-danger" ng-click="destroyDB()">RESET DATABASE</button>
-</div>
-
-<div id="logInfo" class="tab-content" ng-show="tab.isSet(6)" ng-controller="logCtrl">
-    
 </div>
   <script src="js/lib/papaparse.min.js"></script>
   <script src="js/lib/pouchdb-5.2.1.min.js"></script>
