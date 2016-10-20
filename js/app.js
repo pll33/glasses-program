@@ -1050,6 +1050,10 @@
     });
 
     app.controller('exportCtrl', function ($scope, inventoryService) {
+        var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        var date = new Date();
+        var dateString = "-" + date.getDate() + months[date.getMonth()] + date.getFullYear();
+
         function saveFile(data, dataType, fileName) {
             var a = document.createElement("a");
             document.body.appendChild(a);
@@ -1139,8 +1143,8 @@
 
             var csv = csvify(all, opt_compact);
             var filename;
-            if (opt_compact) filename = "export-compact.csv";
-            else filename = "export-full.csv"
+            if (opt_compact) filename = "export-compact" + dateString + ".csv";
+            else filename = "export-full" + dateString + ".csv";
             saveFile(csv, "text/csv", filename);
         };
 
@@ -1150,7 +1154,7 @@
             var all = taken.concat(avail);
 
             var json = jsonify(all);
-            saveFile(json, "application/json", "export.json");
+            saveFile(json, "application/json", "export" + dateString + ".json");
         };
 
         $scope.syncDB = function() {
