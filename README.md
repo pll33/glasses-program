@@ -36,7 +36,7 @@ Program data is automatically saved within the application's local PouchDB datab
 
 ## To Do
 
-- [ ] Log easily understandable info/errors to the 'Log' tab
+- [ ] Log easily understandable info/errors to the 'Log' tab and to a file
 - [ ] Cleanup, refactor, and modularize code
 - [ ] Repurpose and deploy as an [Electron](http://electron.atom.io/) app
 - [ ] Replace Angular v1 with React

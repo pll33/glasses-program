@@ -15,7 +15,7 @@ I. Set Up
 4. Locate and click on the 'Import' tab
 5. Add glasses data by either clicking the 'Choose File' button under Upload, or add them manually. A sample dataset (exampleSet.csv) is provided in the data directory.
 6. Click the Import or Add button to add them to the program inventory. These will now be visible in the Inventory tab.
-____________________
+____________
 
 II. Searching the inventory
 
@@ -23,7 +23,7 @@ II. Searching the inventory
 2. Input the patient's dominant eye (right, left, or none) and their refraction numbers. Spherical equivalent values are automatically generated
 3. Click the 'Find Matches' button to search the inventory. Your search is automatically saved into the Previous Searches table at the bottom of the panel
 
-____________________
+____________
 
 III. Selecting the best pair
 
@@ -32,7 +32,7 @@ III. Selecting the best pair
      1. Take the right eye and left eye values listed in the "Spherical Equivalent" fields, and type them in as the spheres for the "Patient's Refraction" with 0.00 for both cylinders, and 0 for both axis values. Run the search again by clicking 'Find Matches'
      2. If still no eyeglasses appear, then there are no remaining pairs of eyeglasses in your set that fit for the patient.
 
-____________________
+____________
 
 IV. Exporting
 
