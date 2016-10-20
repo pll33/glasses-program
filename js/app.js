@@ -1041,6 +1041,7 @@
                 }
 
                 setTimeout(function() {
+                    $scope.resetForm();
                     $scope.$apply();
                 }, 3500);
             } else {

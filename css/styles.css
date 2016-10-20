@@ -9,16 +9,6 @@ html, body {
     padding-top: 20px;
 }
 
-/*.form-control { 
-    width: 100px;
-    display: inline-block;
-}
-input[type="text"].form-control {
-    width: 100px;
-
-}
-*/
-
 h4, .h4 {
     font-size: 18px;
 }
@@ -31,14 +21,16 @@ th, td {
     padding-top: 5px;
 }
 
+.form-group .input-heading {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.form-group .input-heading,
 .form-group input[type="text"] {
     width: 85px;
     text-align: center;
 }
-
-/*#search section { 
-    margin-bottom: 20px;
-}*/
 
 form section:last-child {
     margin-top: 5px;

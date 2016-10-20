@@ -41,6 +41,12 @@
     <section>
     <h4>3. Patient's Refraction</h4>
         <div class="form-group form-inline mb padt">
+            <span class="lbl"></span>
+            <span class="input-heading">Sphere</span>
+            <span class="input-heading">Cylinder</span>
+            <span class="input-heading">Axis</span>
+        </div>
+        <div class="form-group form-inline mb">
             <span class="lbl">Right Eye:</span>
             <input type="text" class="form-control" id="searchRightSphere" placeholder="Sphere" ng-model="search.rightSphere" ng-change="calculateRightEquiv(search)">
             <input type="text" class="form-control" id="searchRightCylinder" placeholder="Cylinder" ng-model="search.rightCylinder" ng-change="calculateRightEquiv(search)">
@@ -109,7 +115,7 @@
                     <td ng-class="::{match:isMatch('leftEquiv', x.data.leftEquiv)}">{{ ::x.data.leftEquiv.toFixed(2) }}</td>
                     <td ng-class="::{match:isMatch('leftAxis', x.data.leftAxis)}">{{ ::x.data.leftAxis }}</td>
                     <td>{{ x.data.leftADD.toFixed(2) }}</td>
-                    <td><button class="" type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
+                    <td><button type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
                 </tr>
                 <tr ng-show="searchResults.length==0 || !searchResults" ng-class="{hide:noResults}">
                     <td class="bl" colspan="12">Nothing to display.</td>
@@ -297,6 +303,13 @@
         <section>
             <h4>Enter manually: </h4>
             <div class="form-group form-inline mb">
+                <span class="lbl"></span>
+                <span class="input-heading">Sphere</span>
+                <span class="input-heading">Cylinder</span>
+                <span class="input-heading">Axis</span>
+                <span class="input-heading">Add</span>
+            </div>
+            <div class="form-group form-inline mb">
                 <span class="lbl">Right Eye</span>
                 <input type="text" class="form-control" id="addRightSphere" placeholder="Sphere" ng-model="add.rightSphere">
                 <input type="text" class="form-control" id="addRightCylinder" placeholder="Cylinder" ng-model="add.rightCylinder">
@@ -347,7 +360,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr ng-repeat="x in addedGlasses" ng-click="">
+                <tr ng-repeat="x in addedGlasses">
                     <td class="bl">{{ x.pairNumber }}</td>
                     <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
                     <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
