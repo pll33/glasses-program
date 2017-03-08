@@ -283,7 +283,7 @@
 
 <div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importCtrl">
     <h3 style="margin-top: 0">Import Inventory</h3>
-    <form id="formUpload" class="form-inline" novalidate>
+    <form name="uploadFileForm" id="formUpload" class="form-inline" novalidate>
     <h4>Upload a .csv or .json file</h4>
         <p><b>Instructions:</b> When importing pairs of glasses, ONLY the first row of data should contain header information. <br>
         Remove all empty rows and prefix each pair number with the letter of the set (example: Set C, Pair # 1 becomes "C1"). </p>
@@ -293,7 +293,7 @@
         <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns</span>
         <p><b>NOTE:</b> Negative cylinders prescriptions will be converted to positive values.</p>
         <div class="form-group">
-            <input id="fileSelect" file-model="importFile" type="file" accept=".csv, .json" />
+            <input file-model="importFile" type="file" accept=".csv, .json" />
         </div>
         <button type="submit" class="btn btn-primary start" ng-click="import()">
             <span>Import</span>
