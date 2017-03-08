@@ -1017,12 +1017,17 @@
             inv.add(pair);
 
             // reset input form
-            this.resetForm();
+            this.resetAddForm();
         };
         
-        $scope.resetForm = function() {
+        $scope.resetAddForm = function() {
             $scope.manualAddForm.$setPristine();
             $scope.add = angular.copy(defaultForm);
+        };
+
+        $scope.resetUploadForm = function() {
+            $scope.importFile = null;
+            $scope.uploadFileForm.$setPristine();
         };
 
         $scope.import = function() {
@@ -1030,7 +1035,9 @@
             if (file) {
                 console.log("Import file:", file.name, file.type);
                 // console.log("Import file: ", file);
-                if (file.type == "text/csv" || file.type == "application/vnd.ms-excel" || file.type == "application/excel" || file.type == "application/vnd.msexcel") {
+                if (file.type == "text/csv" || file.type.contains("vnd.ms-excel") ||
+                    file.type.contains("spreadsheetml") ||
+                    file.type == "application/excel" || file.type == "application/vnd.msexcel") {
                     console.log("Import file: Importing CSV ", file.name, file.type);
                     importCSV(file);
                 } else if (file.type == "application/json") {
@@ -1041,7 +1048,7 @@
                 }
 
                 setTimeout(function() {
-                    $scope.resetForm();
+                    $scope.resetUploadForm();
                     $scope.$apply();
                 }, 3500);
             } else {
@@ -1084,6 +1091,10 @@
             });
             return JSON.stringify(inArr);
         }
+
+        var sortGlassesPairs = function(a, b) {
+            return parseInt(a.number) - parseInt(b.number);
+        };
 
         var simpleObj = function(dbObj) {
             var obj = {
@@ -1141,6 +1152,7 @@
             var taken = (getTaken) ? inventoryService.getTaken() : [];
             var avail = (getAvailable) ? inventoryService.getAvailable() : [];
             var all = taken.concat(avail);
+            all.sort(sortGlassesPairs)
 
             var csv = csvify(all, opt_compact);
             var filename;
@@ -1153,6 +1165,7 @@
             var taken = (getTaken) ? inventoryService.getTaken() : [];
             var avail = (getAvailable) ? inventoryService.getAvailable() : [];
             var all = taken.concat(avail);
+            all.sort(sortGlassesPairs)
 
             var json = jsonify(all);
             saveFile(json, "application/json", "export" + dateString + ".json");
