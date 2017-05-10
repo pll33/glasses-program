@@ -1035,16 +1035,19 @@
             if (file) {
                 console.log("Import file:", file.name, file.type);
                 // console.log("Import file: ", file);
-                if (file.type == "text/csv" || file.type.contains("vnd.ms-excel") ||
-                    file.type.contains("spreadsheetml") ||
+                if (file.type == "text/csv" || file.type.indexOf("vnd.ms-excel") > -1 ||
+                    file.type.indexOf("spreadsheetml") > -1 ||
                     file.type == "application/excel" || file.type == "application/vnd.msexcel") {
                     console.log("Import file: Importing CSV ", file.name, file.type);
                     importCSV(file);
                 } else if (file.type == "application/json") {
                     console.log("Import file: Importing JSON ", file.name, file.type);
                     importJSON(file);
+                } else if (file.name.indexOf('.csv') === file.name.length - 4) {
+                    console.log("Import file: Could not confirm CSV file type but found .csv file extension. Attempting to import as CSV ", file.name)
+                    importCSV(file);
                 } else {
-                    console.log("Import file: Improper file format. Upload aborted.", file.type);
+                    console.log("Import file: Improper file format. Upload aborted.", file.name, file.type);
                 }
 
                 setTimeout(function() {
