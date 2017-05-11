@@ -412,6 +412,8 @@
             //example: {"rightSphere":"2.200","rightEquiv":"3.25","rightCylinder":"2.3","rightAxis":"5","leftSphere":"2","leftEquiv":"5.50","leftCylinder":"7","leftAxis":"6"}
 
             // parse+validate values
+            $scope.searchLoadingIcon = true;
+
             var revSrch = { //revised/validated search
                 sID: srch.sID || ++sIDcount,
                 patientName: srch.patientName,
@@ -470,8 +472,10 @@
                 $scope.searchResults = inventoryService.getSearchResults();
                 $scope.dominantMatch = revSrch.dominantEye;
                 $scope.noResults = ($scope.searchResults.length) ? false : true;
+                $scope.searchLoadingIcon = false;
                 // console.log("Search results: " + $scope.searchResults.length + " pairs found.");
                 $scope.$apply();
+
 
                 // update timeout after first search
                 if (!firstSearch) { firstSearch = true; searchTimeoutDelay = 500; }
