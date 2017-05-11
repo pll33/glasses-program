@@ -601,6 +601,7 @@
 
         $scope.inventory = inventoryService;
         $scope.addedGlasses = [];
+        $scope.importLoadingIcon = false;
 
         var parsePairNum = function(inStr) {
             if (typeof inStr !== 'string') inStr = inStr.toString();
@@ -678,9 +679,11 @@
                 },
                 complete: function(results, file) {
                     // console.log("Parsing complete:", results, file);
+                    $scope.importLoadingIcon = false;
                 },
                 error: function(error) {
                     console.log("Import CSV: Error encountered:", error);
+                    $scope.importLoadingIcon = false;
                 }
             });
         }
@@ -701,6 +704,7 @@
                 });
 
                 $scope.inventory.update();
+                $scope.importLoadingIcon = false;
             };
             fr.readAsText(file);
         }
@@ -1032,6 +1036,7 @@
 
         $scope.import = function() {
             var file = $scope.importFile;
+            $scope.importLoadingIcon = true;
             if (file) {
                 console.log("Import file:", file.name, file.type);
                 // console.log("Import file: ", file);
