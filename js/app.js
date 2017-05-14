@@ -40,6 +40,10 @@
         else { return "Yes"; }
     };
 
+    var formatFloat = function(unformattedNumber) {
+        return floatParse(unformattedNumber).toFixed(2);
+    };
+
     var firstSearch = false;
     var searchTimeoutDelay = 2000;
     var invTimeoutDelay = 500;
@@ -447,6 +451,7 @@
                 //axis = group 1 (0-15 or 165-180)
                 //axis = group 2 (16-164) (x-15)<x<(x+15)
             // then <value>
+
             var searchObj;
             switch(revSrch.dominantEye) {
                 case 'Right':
@@ -489,6 +494,19 @@
             if (!prevsID.length) $scope.prevSearches.push(revSrch);
         };
 
+        // Search By Spherical Equivalent (values)
+        $scope.searchBySE = function(srch) {
+            // use spherical equivalent values as new sphere values
+            search.rightSphere = srch.rightSphere = srch.rightEquiv;
+            search.leftSphere = srch.leftSphere = srch.leftEquiv;
+
+            // clear cylinder and axis values
+            srch.rightCylinder = srch.leftCylinder = "0.00"
+            srch.rightAxis = srch.leftAxis = "0"
+
+            $scope.searchGlasses(srch)
+        }
+
         $scope.takeGlasses = function(pair) {
             console.log("Taking pair #" + pair.number + " out of search results.");
             inventoryService.take(pair.number);
@@ -512,6 +530,23 @@
             $scope.dominantMatch = '';
             $scope.noResults = false;
         };
+
+        $scope.searchFormatFloat = function(inputName) {
+            switch(inputName) {
+                case 'rightSphere':
+                    $scope.search.rightSphere = formatFloat($scope.search.rightSphere);
+                    break;
+                case 'rightCylinder':
+                    $scope.search.rightCylinder = formatFloat($scope.search.rightCylinder);
+                    break;
+                case 'leftSphere':
+                    $scope.search.leftSphere = formatFloat($scope.search.leftSphere);
+                    break;
+                case 'leftCylinder':
+                    $scope.search.leftCylinder = formatFloat($scope.search.leftCylinder);
+                    break;
+            }
+        }
     });
 
     app.controller('inventoryCtrl', function ($scope, inventoryService) {
@@ -1067,6 +1102,30 @@
                 console.log("Import file: No file to import.");
             }
         };
+
+        // adds sig figs to numbers
+        $scope.addFormatFloat = function(inputName) {
+            switch(inputName) {
+                case 'rightSphere':
+                    $scope.add.rightSphere = formatFloat($scope.add.rightSphere);
+                    break;
+                case 'rightCylinder':
+                    $scope.add.rightCylinder = formatFloat($scope.add.rightCylinder);
+                    break;
+                case 'rightADD':
+                    $scope.add.rightADD = formatFloat($scope.add.rightADD);
+                    break;
+                case 'leftSphere':
+                    $scope.add.leftSphere = formatFloat($scope.add.leftSphere);
+                    break;
+                case 'leftCylinder':
+                    $scope.add.leftCylinder = formatFloat($scope.add.leftCylinder);
+                    break;
+                case 'leftADD':
+                    $scope.add.leftADD = formatFloat($scope.add.leftADD);
+                    break;
+            }
+        }
     });
 
     app.controller('exportCtrl', function ($scope, inventoryService) {

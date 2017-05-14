@@ -23,13 +23,13 @@
     <h3 style="margin-top: 0;">Search Glasses</h3>
     <section>
         <div class="form-group form-inline">
-            <span class="h4">1. Patient's Name</span>
+            <h4 class="inline-block">1. Patient's Name</h4>
             <input type="text" style="margin-left: 8px; width: 150px;" class="form-control" id="searchName" placeholder="Name (optional)" ng-model="search.patientName">
         </div>
     </section>
     <section>
         <div class="form-group form-inline">
-            <span class="h4">2. Dominant Eye<span>
+            <h4 class="inline-block">2. Dominant Eye</h4>
             <select id="dominantEye" class="form-control" style="margin-left: 17px" ng-model="search.dominantEye" ng-init="search.dominantEye = 'Right'">
               <option value="Right">Right</option>
               <option value="Left">Left</option>
@@ -39,7 +39,7 @@
     </section>
 
     <section>
-    <h4>3. Patient's Refraction</h4>
+        <h4 class="inline-block">3. Patient's Refraction</h4>
         <div class="form-group form-inline mb padt">
             <span class="lbl"></span>
             <span class="input-heading">Sphere</span>
@@ -48,31 +48,36 @@
         </div>
         <div class="form-group form-inline mb">
             <span class="lbl">Right Eye:</span>
-            <input type="text" class="form-control" id="searchRightSphere" placeholder="Sphere" ng-model="search.rightSphere" ng-change="calculateRightEquiv(search)">
-            <input type="text" class="form-control" id="searchRightCylinder" placeholder="Cylinder" ng-model="search.rightCylinder" ng-change="calculateRightEquiv(search)">
+            <input type="text" class="form-control" id="searchRightSphere" placeholder="Sphere" ng-model="search.rightSphere" ng-change="calculateRightEquiv(search)" ng-blur="searchFormatFloat('rightSphere')">
+            <input type="text" class="form-control" id="searchRightCylinder" placeholder="Cylinder" ng-model="search.rightCylinder" ng-change="calculateRightEquiv(search)" ng-blur="searchFormatFloat('rightCylinder')">
             <input type="text" class="form-control" id="searchRightAxis" placeholder="Axis" ng-model="search.rightAxis">
         </div>
         <div class="form-group form-inline mb">
             <span class="lbl">Left Eye:</span>
-            <input type="text" class="form-control" id="searchLeftSphere" placeholder="Sphere"  ng-model="search.leftSphere" ng-change="calculateLeftEquiv(search)">
-            <input type="text" class="form-control" id="searchLeftCylinder" placeholder="Cylinder" ng-model="search.leftCylinder" ng-change="calculateLeftEquiv(search)">
+            <input type="text" class="form-control" id="searchLeftSphere" placeholder="Sphere"  ng-model="search.leftSphere" ng-change="calculateLeftEquiv(search)" ng-blur="searchFormatFloat('leftSphere')">
+            <input type="text" class="form-control" id="searchLeftCylinder" placeholder="Cylinder" ng-model="search.leftCylinder" ng-change="calculateLeftEquiv(search)" ng-blur="searchFormatFloat('leftCylinder')">
             <input type="text" class="form-control" id="searchLeftAxis" placeholder="Axis" ng-model="search.leftAxis">
         </div>
     </section>
 
     <section>
-    <h4>4. Spherical Equivalent</h4>
+        <h4 class="inline-block">4. Spherical Equivalent</h4>
         <div class="form-group form-inline mb">
             <span class="lbl">Right Eye:</span> <input type="text" class="form-control" id="searchRightEquivalent" placeholder="" ng-model="search.rightEquiv" readonly>
             <span style="margin-left: 35px;">Left Eye:</span> <input type="text" class="form-control" id="searchLeftEquivalent" placeholder="" ng-model="search.leftEquiv" readonly>
         </div>
     </section>
 
-    <section>
+    <section style="margin-top: 5px">
         <span class="lblb"></span>
-        <button type="reset" class="btn btn-default" ng-click="resetForm()">Reset Search</button>
+        <button type="reset" class="btn btn-default" ng-click="resetForm()">Clear Search</button>
         <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">Find Matches</button>
         <div class="loading-icon" ng-show="searchLoadingIcon"><div class="spinner"></div></div>
+    </section>
+
+    <section class="section-hidden" ng-class="{show:(searchResults.length > 0)}">
+        <h4 class="inline-block">Not enough matches?</h4>
+        <button type="submit" class="btn btn-primary" ng-click="searchBySE(search)">Search by Spherical Equivalent</button>
     </section>
     </form>
 
@@ -163,7 +168,7 @@
                     <td>{{ ::x.leftAxis }}</td>
                 </tr>
                 <tr ng-show="prevSearches.length==0 || !prevSearches">
-                    <td class="bl" colspan="10">No previous searches.</td>
+                    <td class="bl" colspan="10">No previous searches this session.</td>
                 </tr>
             </tbody>
         </table>
@@ -291,7 +296,7 @@
         <p>The program accepts 3 different column set-ups for data (in specific order):</p>
         <p><span class="tt" title="Right Sphere, Right Cylinder, Right Axis, Right Add, Left Sphere, Left Cylinder, Left Axis, Left Add, Pair Number">9 columns</span>, 
         <span class="tt" title="Pair/ID number, Right Sphere, Right Cylinder, Right Axis, Right Add, Right Trifocal, Left Sphere, Left Cylinder, Left Axis, Left Add, Left Trifocal">11 columns</span>, 
-        <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns</span>
+        <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns</span><br><span class="small-text">(hover mouse over dotted underline for more info)</span>
         <p><span class="bold underline">NOTE:</span> Negative cylinders prescriptions will be converted to positive values.</p>
         <div class="form-group">
             <input file-model="importFile" type="file" accept=".csv, .json" />
@@ -300,6 +305,7 @@
             <span>Import</span>
         </button>
         <div class="loading-icon" ng-show="importLoadingIcon"><div class="spinner"></div></div>
+        <!-- <div class="import-notification"><span class="import-error">{{ importErrorMessage }}</span></div> -->
     </form>
     <form name="manualAddForm" novalidate>
         <section>
@@ -313,17 +319,17 @@
             </div>
             <div class="form-group form-inline mb">
                 <span class="lbl">Right Eye</span>
-                <input type="text" class="form-control" id="addRightSphere" placeholder="Sphere" ng-model="add.rightSphere">
-                <input type="text" class="form-control" id="addRightCylinder" placeholder="Cylinder" ng-model="add.rightCylinder">
+                <input type="text" class="form-control" id="addRightSphere" ng-blur="addFormatFloat('rightSphere')" placeholder="Sphere" ng-model="add.rightSphere">
+                <input type="text" class="form-control" id="addRightCylinder" ng-blur="addFormatFloat('rightCylinder')" placeholder="Cylinder" ng-model="add.rightCylinder">
                 <input type="text" class="form-control" id="addRightAxis" placeholder="Axis" ng-model="add.rightAxis">
-                <input type="text" class="form-control" id="addRightADD" placeholder="Add" ng-model="add.rightADD">
+                <input type="text" class="form-control" id="addRightADD" placeholder="Add" ng-blur="addFormatFloat('rightADD')" ng-model="add.rightADD">
             </div>
             <div class="form-group form-inline mb">
                 <span class="lbl">Left Eye</span>
-                <input type="text" class="form-control" id="addLeftSphere" placeholder="Sphere" ng-model="add.leftSphere">
-                <input type="text" class="form-control" id="addLeftCylinder" placeholder="Cylinder" ng-model="add.leftCylinder">
+                <input type="text" class="form-control" id="addLeftSphere" placeholder="Sphere" ng-blur="addFormatFloat('leftSphere')" ng-model="add.leftSphere">
+                <input type="text" class="form-control" id="addLeftCylinder" placeholder="Cylinder" ng-blur="addFormatFloat('leftCylinder')" ng-model="add.leftCylinder">
                 <input type="text" class="form-control" id="addLeftAxis" placeholder="Axis" ng-model="add.leftAxis">
-                <input type="text" class="form-control" id="addLeftADD" placeholder="Add" ng-model="add.leftADD">
+                <input type="text" class="form-control" id="addLeftADD" placeholder="Add" ng-blur="addFormatFloat('leftADD')" ng-model="add.leftADD">
             </div>
         </section>
         <section>

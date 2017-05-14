@@ -9,8 +9,12 @@ html, body {
     padding-top: 20px;
 }
 
-h4, .h4 {
+h4 {
     font-size: 18px;
+}
+
+.inline-block {
+    display: inline-block;
 }
 
 th, td {
@@ -32,14 +36,20 @@ th, td {
     text-align: center;
 }
 
-form section:last-child {
-    margin-top: 5px;
-}
-
 .form-group.mb { margin: 0; }
 .form-group.mb input[type="text"] {
     margin-left: 5px;
     margin-bottom: 10px;
+}
+
+section.section-hidden {
+    margin-top: 10px;
+    visibility: hidden!important;
+}
+
+section.section-hidden.show {
+    visibility: visible!important;
+    transition: all 2s ease-in;
 }
 
 .lbl, .lblb {
@@ -190,6 +200,10 @@ table>tbody>tr>td.bl {
 
 .underline {
     text-decoration: underline;
+}
+
+.small-text {
+    font-size: 10px;
 }
 
 .loading-icon {
