@@ -2,7 +2,7 @@
 
 This program is used to search for eyeglasses that match closely (within an acceptable range) to a given patient's eye prescriptions obtained by an autorefractor.
 
-The application has been used by [Global Medical Brigades](https://www.globalbrigades.org/experience-medical-brigades) staff and volunteers in Panama (April 2016) and Honduras (May 2016).
+The application has been used by [Global Medical Brigades](https://www.globalbrigades.org/experience-medical-brigades) staff and volunteers in Panama (since April 2016), Honduras (since May 2016) and Nicaragua (since May 2016). It has also been used by [Surgicorps International](http://surgicorps.org/) staff on medical mission trips in Vietnam (since October 2016). 
 
 ## Instructions
 
