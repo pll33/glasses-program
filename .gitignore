@@ -1,3 +1,29 @@
+## General ##
+node_modules/
+
+# Environment config
+.env
+.editorconfig
+
+# Build files
+/dist/
+
+## OS X ##
+.DS_Store
+
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+## NPM-related files ##
+npm-debug.log
+package-lock.json
+
+## PouchDB ##
 _replicator/
 _users/
 config.json
