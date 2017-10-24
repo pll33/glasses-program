@@ -40,6 +40,7 @@ Program data is automatically saved within the application's local PouchDB datab
 
 - [ ] Log easily understandable info/errors to the 'Log' tab and to a file
 - [ ] Add unique identifier on initial program load, and ability to sync data up to a remote server
+- [ ] Async functions for inventory
 - [ ] Translations (Spanish), i18n/l10n
 - [ ] Replace AngularJS (v1) with newer framework (React, Angular 4, etc)
 
