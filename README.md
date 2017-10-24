@@ -37,7 +37,8 @@ Program data is automatically saved within the application's local PouchDB datab
 ## To Do
 
 - [ ] Log easily understandable info/errors to the 'Log' tab and to a file
+- [ ] Add unique identifier on initial program load, and ability to sync data up to a remote server
 - [ ] Cleanup, refactor, and modularize code
-- [ ] Replace Angular v1 with newer framework (React, Angular 4, etc)
+- [ ] Replace AngularJS (v1) with newer framework (React, Angular 4, etc)
 - [ ] Translations (Spanish), i18n/l10n
 - [x] Remove Chrome app references ([support for non-Chrome OS apps removed by 2018](https://blog.chromium.org/2016/08/from-chrome-apps-to-web.html))

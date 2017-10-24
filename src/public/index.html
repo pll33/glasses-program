@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html ng-app="app">
+<html ng-app="glassesApp">
 <head>
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <title>Glasses Inventory Program</title>
-  <link rel="stylesheet" media="all" href="css/bootstrap.min.css">
-  <link rel="stylesheet" media="all" href="css/styles.css">
+  <link rel="stylesheet" media="all" href="./assets/css/bootstrap.min.css">
+  <link rel="stylesheet" media="all" href="./assets/css/styles.css">
 </head>
 
 <body data-ng-controller="glassesController as tab">
@@ -18,7 +18,7 @@
 <!--         <li id="tabLog" role="presentation" ng-class="{active:tab.isSet(6)}"><a ng-click="tab.setTab(6)">Log </a></li> -->
     </ul>
 
-<div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchCtrl">
+<div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchController">
     <form name="searchForm" novalidate>
     <h3 style="margin-top: 0;">Search Glasses</h3>
     <section>
@@ -175,7 +175,7 @@
     </div>
 </div>
 
-<div id="inventory" class="tab-content" ng-show="tab.isSet(2)" ng-controller="inventoryCtrl">
+<div id="inventory" class="tab-content" ng-show="tab.isSet(2)" ng-controller="inventoryController">
     <form class="form-inline" novalidate>
         <h3 style="margin-top: 0">Search Inventory</h3>
         <div class="form-group">
@@ -287,7 +287,7 @@
     </section>
 </div>
 
-<div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importCtrl">
+<div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importController">
     <h3 style="margin-top: 0">Import Inventory</h3>
     <form name="uploadFileForm" id="formUpload" class="form-inline" novalidate>
     <h4>Upload a .csv or .json file</h4>
@@ -391,7 +391,7 @@
         </div>
     </div>
 </div>
-<div id="export" class="tab-content" ng-show="tab.isSet(4)" ng-controller="exportCtrl">
+<div id="export" class="tab-content" ng-show="tab.isSet(4)" ng-controller="exportController">
     <h3 style="margin-top: 0">Export</h3>
     <p>.CSV files can be opened in spreadsheet programs such as Microsoft Excel and Apple Numbers.<br>.JSON files are used by this program for debugging purposes. Both files can be imported into the program.</p>
 
@@ -434,10 +434,11 @@
     <p><span class="reset-warning">This is the only warning.</span></p>
     <button type="button" class="btn btn-danger" ng-click="destroyDB()">RESET DATABASE</button>
 </div>
-  <script src="js/lib/papaparse.min.js"></script>
-  <script src="js/lib/pouchdb-5.2.1.min.js"></script>
-  <script src="js/lib/pouchdb.find.min.js"></script>
-  <script src="js/lib/angular.min.js"></script>
-  <script src="js/app.js"></script>
+  <script src="./assets/js/papaparse.min.js"></script>
+  <script src="./assets/js/pouchdb-5.2.1.min.js"></script>
+  <script src="./assets/js/pouchdb.find.min.js"></script>
+  <!-- <script src="./assets/js/angular.js"></script> -->
+  <!-- <script src="./assets/js/angular.min.js"></script> -->
+  <script src="./bundle.js"></script>
 </body>
 </html>
