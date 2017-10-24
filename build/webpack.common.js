@@ -14,6 +14,15 @@ const config = {
   module: {
     rules: [
       {
+        enforce: 'pre',
+        test: /\.js$/,
+        include: /app/,
+        exclude: /(node_modules|assets)/,
+        use: {
+          loader: 'eslint-loader',
+        }
+      },
+      {
         test: /\.js$/,
         include: /app/,
         exclude: /(node_modules|assets)/,
@@ -25,7 +34,7 @@ const config = {
   },
   plugins: [
     new CleanWebpackPlugin(['dist'], { root: path.join(__dirname, '../')}),
-    new CopyWebpackPlugin([{ from: 'public' }])
+    new CopyWebpackPlugin([{ from: 'public', ignore: ['*.DS_Store'] }])
   ],
 };
 

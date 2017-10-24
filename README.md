@@ -36,10 +36,17 @@ Program data is automatically saved within the application's local PouchDB datab
 
 ## To Do
 
+### Enhancements
+
 - [ ] Log easily understandable info/errors to the 'Log' tab and to a file
 - [ ] Add unique identifier on initial program load, and ability to sync data up to a remote server
-- [ ] Cleanup, refactor, and modularize code
-  - [ ] Add ESLint and unit tests
-- [ ] Replace AngularJS (v1) with newer framework (React, Angular 4, etc)
 - [ ] Translations (Spanish), i18n/l10n
+- [ ] Replace AngularJS (v1) with newer framework (React, Angular 4, etc)
+
+### Maintenance/Build Tools
 - [x] Remove Chrome app references ([support for non-Chrome OS apps removed by 2018](https://blog.chromium.org/2016/08/from-chrome-apps-to-web.html))
+- [x] Update to ES6 code with Babel/Webpack
+- [ ] Update dependency versions ([papaparse](https://github.com/mholt/PapaParse), [pouchdb](https://github.com/pouchdb/pouchdb), [pouchdb-find](https://github.com/nolanlawson/pouchdb-find))
+- [ ] Cleanup, refactor, and modularize code
+  - [x] Add ESLint
+- [ ] Add unit tests
