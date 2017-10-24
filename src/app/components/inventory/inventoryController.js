@@ -7,6 +7,8 @@ export function inventoryController($scope, $inventoryService) {
     $scope.find = angular.copy(defaultForm);
     $scope.showhideTaken = false;
     $scope.showhideAvail = false;
+    $scope.invTakenLoadingIcon = false;
+    $scope.invAvailableLoadingIcon = false;
 
     $scope.model = {};
 
@@ -19,20 +21,24 @@ export function inventoryController($scope, $inventoryService) {
 
     // Available->Taken
     $scope.takePair = function(numPair) {
+        $scope.invAvailableLoadingIcon = true;
         $inventoryService.take(numPair);
 
         // manually update view after small delay
         setTimeout(function() {
+            $scope.invAvailableLoadingIcon = false;
             $scope.$apply();
         }, invTimeoutDelay);
     };
 
     // Taken->Available
     $scope.putbackPair = function(numPair) {
+        $scope.invTakenLoadingIcon = true;
         $inventoryService.putback(numPair);
 
         // manually update view after small delay
         setTimeout(function() {
+            $scope.invTakenLoadingIcon = false;
             $scope.$apply();
         }, invTimeoutDelay);
     };

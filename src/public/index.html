@@ -192,7 +192,10 @@
         </div>
     </form>
     <section>
-        <h3><a class="sh" ng-click="toggleTaken()">Taken Pairs ({{ model.takenPairs.length }}) <span ng-show="showhideTaken">▼</span></a></h3>
+        <h3>
+            <a class="sh" ng-click="toggleTaken()">Taken Pairs ({{ model.takenPairs.length }}) <span ng-show="showhideTaken">▼</span></a>
+            <div class="loading-icon" ng-show="invTakenLoadingIcon" style="vertical-align: bottom;"><div class="spinner"></div></div>
+        </h3>
         <div id="inventoryTaken" ng-class="{active:showhideTaken}">
             <table class="table table-hover">
             <thead>
@@ -239,7 +242,10 @@
         </div>
     </section>
     <section>
-        <h3><a class="sh" ng-click="toggleAvail()">Available Pairs ({{ model.availablePairs.length }}) <span ng-show="showhideAvail">▼</span></a></h3>
+        <h3>
+            <a class="sh" ng-click="toggleAvail()">Available Pairs ({{ model.availablePairs.length }}) <span ng-show="showhideAvail">▼</span></a>
+            <div class="loading-icon" ng-show="invAvailableLoadingIcon" style="vertical-align: bottom;"><div class="spinner"></div></div>
+        </h3>
         <div id="inventoryAvailable" ng-class="{active:showhideAvail}">
             <table class="table table-hover">
             <thead>
