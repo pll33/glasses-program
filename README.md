@@ -46,7 +46,7 @@ Program data is automatically saved within the application's local PouchDB datab
 ### Maintenance/Build Tools
 - [x] Remove Chrome app references ([support for non-Chrome OS apps removed by 2018](https://blog.chromium.org/2016/08/from-chrome-apps-to-web.html))
 - [x] Update to ES6 code with Babel/Webpack
-- [ ] Update dependency versions ([papaparse](https://github.com/mholt/PapaParse), [pouchdb](https://github.com/pouchdb/pouchdb), [pouchdb-find](https://github.com/nolanlawson/pouchdb-find))
+- [ ] Update dependency versions to latest non-breaking ([papaparse](https://github.com/mholt/PapaParse), [pouchdb](https://github.com/pouchdb/pouchdb), [pouchdb-find](https://github.com/nolanlawson/pouchdb-find))
 - [ ] Cleanup, refactor, and modularize code
   - [x] Add ESLint
 - [ ] Add unit tests

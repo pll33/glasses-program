@@ -1,8 +1,9 @@
-import { addParse, axisParse, axisStringParse, floatParse, formatFloat, roundEquiv, sphericalEquiv } from '../../utils'
+import angular from 'angular';
+import Papa from 'papaparse';
+import { addParse, axisParse, axisStringParse, floatParse, formatFloat, roundEquiv, sphericalEquiv } from '../../utils';
 
 export function importController($scope, $inventoryService) {
-    var formData = new FormData();
-    const defaultForm = { rightSphere: "", rightCylinder: "", rightAxis: "", rightADD: "", leftSphere: "", leftCylinder: "", leftAxis: "", leftADD: "" };
+    const defaultForm = { rightSphere: '', rightCylinder: '', rightAxis: '', rightADD: '', leftSphere: '', leftCylinder: '', leftAxis: '', leftADD: '' };
 
     $scope.add = angular.copy(defaultForm); 
 
@@ -10,36 +11,36 @@ export function importController($scope, $inventoryService) {
     $scope.addedGlasses = [];
     $scope.importLoadingIcon = false;
 
-    var parsePairNum = function(inStr) {
+    let parsePairNum = function(inStr) {
         if (typeof inStr !== 'string') inStr = inStr.toString();
         return parseInt(inStr.replace( /^\D+/g, '')); 
     };
-    var parseSetLetter = function(inStr) {
+    let parseSetLetter = function(inStr) {
         if (typeof inStr !== 'string') return '';
         return inStr.replace(/\d+$/g, '');
     };
-    var parseAvail = function(inStr) {
+    let parseAvail = function(inStr) {
         if (!inStr || (typeof inStr !== 'string')) { return true; }
         else {
-            var s = inStr.toLowerCase();
+            const s = inStr.toLowerCase();
             switch(s) {
-                case 'no':
-                    return true;
-                case 'yes':
-                    return false;
-                default:
-                    return true;
+            case 'no':
+                return true;
+            case 'yes':
+                return false;
+            default:
+                return true;
             }
         }
     };
 
     //TODO: fix so it isn't hacky AF
-    var noDataCheck = function(inArr) {
-        var newArr = inArr.slice();
+    /*let noDataCheck = function(inArr) {
+        let newArr = inArr.slice();
         if (newArr.length == 9) {
             newArr.pop(); // remove number
         } else if (newArr.length == 10) {
-            var first = newArr[0];
+            let first = newArr[0];
             // console.log(first);
             if (typeof first === 'string') {
                 // first col is a pair number/ID
@@ -52,57 +53,55 @@ export function importController($scope, $inventoryService) {
         } else if (newArr.length == 11) {
             newArr.shift(); // remove number
         }
-        var arrStr = newArr.toString();
-        var emptyStr = arrStr.replace(/,/g, "");
-        if (emptyStr == "") return true;
+        let arrStr = newArr.toString();
+        let emptyStr = arrStr.replace(/,/g, '');
+        if (emptyStr == '') return true;
         else return false;
-    };
+    };*/
 
     function importCSV(file) {
-        let csvNextNum = $scope.inventory.getPairNumber();
-        var tempNextNum = $scope.inventory.getPairNumber();
-        var rowCount = 0;
+        let tempNextNum = $scope.inventory.getPairNumber();
+        let rowCount = 0;
 
         // parse/read in CSV file
         Papa.parse(file, {
             dynamicTyping: true,
             skipEmptyLines: true,
             // preview: 100, 
-            step: function(results, parser) {
+            step: function(results) {
                 // add rows past row 0
                 if (rowCount && results.data) {
-                    // console.log("Parse row data: ", results.data);
-                    // console.log("row: ", rowCount, results.data[0], noDataCheck(results.data[0]));
+                    // console.log('Parse row data: ', results.data);
+                    // console.log('row: ', rowCount, results.data[0], noDataCheck(results.data[0]));
                     // if (!noDataCheck(results.data[0])) {
-                        // console.log("row results", results);
-                        // if (tempNextNum < 300) console.log(tempNextNum);
-                        $scope.importCSVAdd(results.data[0], tempNextNum);
-                        tempNextNum++;
+                    // console.log('row results', results);
+                    // if (tempNextNum < 300) console.log(tempNextNum);
+                    $scope.importCSVAdd(results.data[0], tempNextNum);
+                    tempNextNum++;
                     // } else {
-                        // console.log("Import CSV: Row "+rowCount+" skipped due to no glasses data.");
+                    // console.log('Import CSV: Row '+rowCount+' skipped due to no glasses data.');
                     // }
                 }
                 rowCount++;
             },
-            complete: function(results, file) {
-                // console.log("Parsing complete:", results, file);
+            complete: function() {
                 $scope.importLoadingIcon = false;
             },
             error: function(error) {
-                console.log("Import CSV: Error encountered:", error);
+                console.log('Import CSV: Error encountered:', error);
                 $scope.importLoadingIcon = false;
             }
         });
     }
 
     function importJSON(file) {
-        var tempNextNum = $scope.inventory.getPairNumber();
-        var fr = new FileReader();
+        let tempNextNum = $scope.inventory.getPairNumber();
+        let fr = new FileReader();
         fr.onload = function(e) {
-            var contents = e.target.result;
-            var glasses = JSON.parse(contents);
+            let contents = e.target.result;
+            let glasses = JSON.parse(contents);
 
-            glasses.forEach(function (el, idx, arr) {
+            glasses.forEach(function (el) {
                 el.pairNumber = tempNextNum;
 
                 $scope.addedGlasses.push(el);
@@ -122,20 +121,21 @@ export function importController($scope, $inventoryService) {
         // check if input.pairNumber vs nextPairNum
         // if input < nextNum: assign nextNum
         // else if input >= nextNum: use input number
-        var inputNum = parsePairNum(input[8]);
-        var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+        const inputNum = parsePairNum(input[8]);
         if (!inputNum) { return {}; }
 
-        var unroundR = sphericalEquiv(floatParse(input[1]), floatParse(input[0]));
-        var unroundL = sphericalEquiv(floatParse(input[5]), floatParse(input[4]));
+        const pairNum = (inputNum < nextNum) ? nextNum : inputNum;
 
-        var roundR = roundEquiv(unroundR);
-        var roundL = roundEquiv(unroundL);
+        const unroundR = sphericalEquiv(floatParse(input[1]), floatParse(input[0]));
+        const unroundL = sphericalEquiv(floatParse(input[5]), floatParse(input[4]));
 
-        var rightCyl = floatParse(input[1]);
-        var leftCyl = floatParse(input[5]);
+        const roundR = roundEquiv(unroundR);
+        const roundL = roundEquiv(unroundL);
 
-        var data = {};
+        const rightCyl = floatParse(input[1]);
+        const leftCyl = floatParse(input[5]);
+
+        let data = {};
 
         // Negative cylinder?
         // newSphere = sph + f;
@@ -174,7 +174,7 @@ export function importController($scope, $inventoryService) {
             data.leftADD = addParse(input[7]);
         }
 
-        var pair = {
+        let pair = {
             setLetter: parseSetLetter(input[8]),
             pairNumber: pairNum,
             data: data,
@@ -192,27 +192,28 @@ export function importController($scope, $inventoryService) {
         // check if input.pairNumber vs nextPairNum
         // if input < nextNum: assign nextNum
         // else if input >= nextNum: use input number
-        var inputNum = parsePairNum(input[0]);
-        var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+        const inputNum = parsePairNum(input[0]);
         if (!inputNum) { return {}; }
 
-        var unroundR = sphericalEquiv(floatParse(input[2]), floatParse(input[1]));
-        var unroundL = sphericalEquiv(floatParse(input[7]), floatParse(input[6]));
+        const pairNum = (inputNum < nextNum) ? nextNum : inputNum;
 
-        var roundR = roundEquiv(unroundR);
-        var roundL = roundEquiv(unroundL);
+        const unroundR = sphericalEquiv(floatParse(input[2]), floatParse(input[1]));
+        const unroundL = sphericalEquiv(floatParse(input[7]), floatParse(input[6]));
 
-        var biAddR = floatParse(input[4]);
-        var triAddR = floatParse(input[5]);
-        var biAddL = floatParse(input[9]);
-        var triAddL = floatParse(input[10]);
-        var addR = (biAddR > triAddR) ? biAddR : triAddR;
-        var addL = (biAddL > triAddL) ? biAddL : triAddL;
+        const roundR = roundEquiv(unroundR);
+        const roundL = roundEquiv(unroundL);
 
-        var rightCyl = floatParse(input[2]);
-        var leftCyl = floatParse(input[7]);
+        const biAddR = floatParse(input[4]);
+        const triAddR = floatParse(input[5]);
+        const biAddL = floatParse(input[9]);
+        const triAddL = floatParse(input[10]);
+        const addR = (biAddR > triAddR) ? biAddR : triAddR;
+        const addL = (biAddL > triAddL) ? biAddL : triAddL;
 
-        var data = {};
+        const rightCyl = floatParse(input[2]);
+        const leftCyl = floatParse(input[7]);
+
+        let data = {};
         if (rightCyl < 0) {
             data.rightSphere = floatParse(input[1]) + rightCyl;
             data.rightCylinder = Math.abs(rightCyl);
@@ -245,7 +246,7 @@ export function importController($scope, $inventoryService) {
             data.leftADD = addL;
         }
 
-        var pair = {
+        let pair = {
             setLetter: parseSetLetter(input[0]),
             pairNumber: pairNum,
             data: data,
@@ -263,9 +264,10 @@ export function importController($scope, $inventoryService) {
         // check if input.pairNumber vs nextPairNum
         // if input < nextNum: assign nextNum
         // else if input >= nextNum: use input number
-        var inputNum = parsePairNum(input[14]);
-        var pairNum = (inputNum < nextNum) ? nextNum : inputNum;
+        const inputNum = parsePairNum(input[14]);
         if (!inputNum) { return {}; }
+
+        const pairNum = (inputNum < nextNum) ? nextNum : inputNum;
 
         // rightSphere: floatParse(input[0]),
         // rightCylinder: floatParse(input[1]),
@@ -280,10 +282,10 @@ export function importController($scope, $inventoryService) {
         // leftAxis: axisStringParse(input[11]),
         // leftADD: addParse(input[13])
 
-        var rightCyl = floatParse(input[1]);
-        var leftCyl = floatParse(input[8]);
+        const rightCyl = floatParse(input[1]);
+        const leftCyl = floatParse(input[8]);
 
-        var data = {};
+        let data = {};
         if (rightCyl < 0) {
             data.rightSphere = floatParse(input[0]) + rightCyl;
             data.rightCylinder = Math.abs(rightCyl);
@@ -316,7 +318,7 @@ export function importController($scope, $inventoryService) {
             data.leftADD = addParse(input[13]);
         }
 
-        var pair = {
+        let pair = {
             setLetter: parseSetLetter(input[14]),
             pairNumber: pairNum,
             data: data, 
@@ -329,12 +331,12 @@ export function importController($scope, $inventoryService) {
     // Assumes 9 columnn CSV data
     // rightSphere, rightCylinder, rightAxis, rightAdd, leftSphere, leftCylinder, leftAxis, leftAdd, number
     $scope.importCSVAdd = function(input, nextNum) {
-        var emptyObjCompare = function(obj) { return JSON.stringify(obj) == JSON.stringify({}); }
-        var pair = {};
+        let emptyObjCompare = function(obj) { return JSON.stringify(obj) == JSON.stringify({}); };
+        let pair = {};
         if (input.length == 9 || input.length == 10) { pair = nineColumnImport(input, nextNum); }
         else if (input.length == 11 || input.length == 12) { pair = elevenColumnImport(input, nextNum); }
         else if (input.length == 16) { pair = sixteenColumnImport(input, nextNum); }
-        // console.log("ImportCSV Add:", pair);
+        // console.log('ImportCSV Add:', pair);
 
         // add to added glasses
         // console.log(input);
@@ -342,9 +344,9 @@ export function importController($scope, $inventoryService) {
         if (/*emptyObjCompare(pair.data) || */emptyObjCompare(pair)) {
             // no pair data, skip row
             // if (emptyObjCompare(pair.data)) {
-            //     console.log("Error adding pair #"+pair.pairNumber+": Row skipped due to no glasses data.");
+            //     console.log('Error adding pair #'+pair.pairNumber+': Row skipped due to no glasses data.');
             // } else {
-                console.log("Error adding pair: No pair # found. Please check data columns.");
+            console.log('Error adding pair: No pair # found. Please check data columns.');
             // }
         }
         else {
@@ -354,18 +356,18 @@ export function importController($scope, $inventoryService) {
     };
 
     $scope.manualAdd = function(input) {
-        var inv = $scope.inventory;
+        let inv = $scope.inventory;
 
-         // calculate spherical equivalents (rounded+unrounded)
-        var unroundR = sphericalEquiv(floatParse(input.rightCylinder), floatParse(input.rightSphere));
-        var unroundL = sphericalEquiv(floatParse(input.leftCylinder), floatParse(input.leftSphere));
-        
-        var roundR = roundEquiv(unroundR);
-        var roundL = roundEquiv(unroundL);
+        // calculate spherical equivalents (rounded+unrounded)
+        const unroundR = sphericalEquiv(floatParse(input.rightCylinder), floatParse(input.rightSphere));
+        const unroundL = sphericalEquiv(floatParse(input.leftCylinder), floatParse(input.leftSphere));
 
-        var rightCyl = floatParse(input.rightCylinder);
-        var leftCyl = floatParse(input.leftCylinder);
-        var data = {};
+        const roundR = roundEquiv(unroundR);
+        const roundL = roundEquiv(unroundL);
+
+        const rightCyl = floatParse(input.rightCylinder);
+        const leftCyl = floatParse(input.leftCylinder);
+        let data = {};
 
         // rightSphere: floatParse(input.rightSphere),
         // rightCylinder: floatParse(input.rightCylinder),
@@ -417,7 +419,7 @@ export function importController($scope, $inventoryService) {
             data.leftADD = floatParse(input.leftADD);
         }
 
-        var pair = {
+        let pair = {
             pairNumber: inv.getPairNumber(),
             data: data,
             available: true
@@ -442,24 +444,23 @@ export function importController($scope, $inventoryService) {
     };
 
     $scope.import = function() {
-        var file = $scope.importFile;
+        const file = $scope.importFile;
         $scope.importLoadingIcon = true;
         if (file) {
-            console.log("Import file:", file.name, file.type);
-            // console.log("Import file: ", file);
-            if (file.type == "text/csv" || file.type.indexOf("vnd.ms-excel") > -1 ||
-                file.type.indexOf("spreadsheetml") > -1 ||
-                file.type == "application/excel" || file.type == "application/vnd.msexcel") {
-                console.log("Import file: Importing CSV ", file.name, file.type);
+            console.log('Import file:', file.name, file.type);
+            if (file.type == 'text/csv' ||file.type.indexOf('vnd.ms-excel') > -1 ||
+                file.type.indexOf('spreadsheetml') > -1 ||
+                file.type == 'application/excel' || file.type == 'application/vnd.msexcel') {
+                console.log('Import file: Importing CSV ', file.name, file.type);
                 importCSV(file);
-            } else if (file.type == "application/json") {
-                console.log("Import file: Importing JSON ", file.name, file.type);
+            } else if (file.type == 'application/json') {
+                console.log('Import file: Importing JSON ', file.name, file.type);
                 importJSON(file);
             } else if (file.name.indexOf('.csv') === file.name.length - 4) {
-                console.log("Import file: Could not confirm CSV file type but found .csv file extension. Attempting to import as CSV ", file.name)
+                console.log('Import file: Could not confirm CSV file type but found .csv file extension. Attempting to import as CSV ', file.name);
                 importCSV(file);
             } else {
-                console.log("Import file: Improper file format. Upload aborted.", file.name, file.type);
+                console.log('Import file: Improper file format. Upload aborted.', file.name, file.type);
             }
 
             setTimeout(function() {
@@ -467,33 +468,33 @@ export function importController($scope, $inventoryService) {
                 $scope.$apply();
             }, 3500);
         } else {
-            console.log("Import file: No file to import.");
+            console.log('Import file: No file to import.');
         }
     };
 
     // adds sig figs to numbers
     $scope.addFormatFloat = function(inputName) {
         switch(inputName) {
-            case 'rightSphere':
-                $scope.add.rightSphere = formatFloat($scope.add.rightSphere);
-                break;
-            case 'rightCylinder':
-                $scope.add.rightCylinder = formatFloat($scope.add.rightCylinder);
-                break;
-            case 'rightADD':
-                $scope.add.rightADD = formatFloat($scope.add.rightADD);
-                break;
-            case 'leftSphere':
-                $scope.add.leftSphere = formatFloat($scope.add.leftSphere);
-                break;
-            case 'leftCylinder':
-                $scope.add.leftCylinder = formatFloat($scope.add.leftCylinder);
-                break;
-            case 'leftADD':
-                $scope.add.leftADD = formatFloat($scope.add.leftADD);
-                break;
+        case 'rightSphere':
+            $scope.add.rightSphere = formatFloat($scope.add.rightSphere);
+            break;
+        case 'rightCylinder':
+            $scope.add.rightCylinder = formatFloat($scope.add.rightCylinder);
+            break;
+        case 'rightADD':
+            $scope.add.rightADD = formatFloat($scope.add.rightADD);
+            break;
+        case 'leftSphere':
+            $scope.add.leftSphere = formatFloat($scope.add.leftSphere);
+            break;
+        case 'leftCylinder':
+            $scope.add.leftCylinder = formatFloat($scope.add.leftCylinder);
+            break;
+        case 'leftADD':
+            $scope.add.leftADD = formatFloat($scope.add.leftADD);
+            break;
         }
-    }
+    };
 }
 
 importController.$inject = ['$scope', 'inventoryService'];
