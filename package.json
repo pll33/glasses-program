@@ -4,8 +4,8 @@
   "description": "Glasses inventory and search program used by Global Medical Brigades chapters working in Honduras, Panama, Nicaragua",
   "main": "src/app.js",
   "scripts": {
-    "dev": "node_modules/.bin/webpack --config webpack.dev.js",
-    "build": "node_modules/.bin/webpack --config webpack.build.js",
+    "dev": "node_modules/.bin/webpack --config build/webpack.dev.js",
+    "build": "node_modules/.bin/webpack --config build/webpack.release.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
