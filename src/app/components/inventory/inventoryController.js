@@ -1,8 +1,9 @@
+import angular from 'angular';
 
 export function inventoryController($scope, $inventoryService) {
 
-    const invTimeoutDelay = 500;
-    const defaultForm = { number: "" };
+    const invTimeoutDelay = 1000;
+    const defaultForm = { number: '' };
     $scope.find = angular.copy(defaultForm);
     $scope.showhideTaken = false;
     $scope.showhideAvail = false;
@@ -13,9 +14,10 @@ export function inventoryController($scope, $inventoryService) {
     $scope.model.availablePairs = [];
 
     $scope.clearSearch = function() {
-        $scope.find.number = "";
+        $scope.find.number = '';
     };
 
+    // Available->Taken
     $scope.takePair = function(numPair) {
         $inventoryService.take(numPair);
 
@@ -25,6 +27,7 @@ export function inventoryController($scope, $inventoryService) {
         }, invTimeoutDelay);
     };
 
+    // Taken->Available
     $scope.putbackPair = function(numPair) {
         $inventoryService.putback(numPair);
 
@@ -39,7 +42,7 @@ export function inventoryController($scope, $inventoryService) {
 
     // update taken pairs when DB is updated
     $scope.$watchCollection(
-        function watchTaken(scope) {
+        function watchTaken() {
             return $inventoryService.getTaken();
         },
         function handleChange(newTaken, oldTaken) {
@@ -54,7 +57,7 @@ export function inventoryController($scope, $inventoryService) {
 
     // update available pairs when DB is updated
     $scope.$watchCollection(
-        function watchAvailable(scope) {
+        function watchAvailable() {
             return $inventoryService.getAvailable();
         },
         function handleChange(newAvail, oldAvail) {

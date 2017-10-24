@@ -1,11 +1,13 @@
 
-import angular from 'angular'
-import { exportController, importController, inventoryController, searchController } from './components'
-import inventoryService from './services/inventory'
+import angular from 'angular';
+import { exportController, importController, inventoryController, searchController } from './components';
+import inventoryService from './services/inventory';
 
 const app = angular.module('glassesApp', []);
 
-app.controller('glassesController', ['$scope', function ($scope) {
+//app.config('translateService', translateService);
+
+app.controller('glassesController', ['$scope', function () {
     this.tab = 1;
     this.setTab = function (tabId) { this.tab = tabId; };
     this.isSet = function (tabId) { return this.tab === tabId; };
@@ -15,8 +17,8 @@ app.directive('fileModel', ['$parse', function($parse) {
     return {
         restrict: 'A',
         link: function(scope, element, attrs) {
-            var model = $parse(attrs.fileModel);
-            var modelSetter = model.assign;
+            let model = $parse(attrs.fileModel);
+            let modelSetter = model.assign;
 
             element.bind('change', function() {
                 scope.$apply(function() {
@@ -33,4 +35,3 @@ app.controller('inventoryController', ['$scope', 'inventoryService', inventoryCo
 app.controller('importController', ['$scope', 'inventoryService', importController]);
 app.controller('exportController', ['$scope', 'inventoryService', exportController]);
 
-module.exports = { app }

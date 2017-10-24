@@ -1,16 +1,17 @@
+import Papa from 'papaparse';
 
 export function exportController($scope, $inventoryService) {
-    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    var date = new Date();
-    var dateString = "-" + date.getDate() + months[date.getMonth()] + date.getFullYear();
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const date = new Date();
+    const dateString = '-' + date.getDate() + months[date.getMonth()] + date.getFullYear();
 
     function saveFile(data, dataType, fileName) {
-        var a = document.createElement("a");
+        let a = document.createElement('a');
         document.body.appendChild(a);
-        a.style = "display: none";
+        a.style = 'display: none';
 
-        var blob = new Blob([data], {type: dataType});
-        var url = window.URL.createObjectURL(blob);
+        let blob = new Blob([data], {type: dataType});
+        let url = window.URL.createObjectURL(blob);
         a.href = url;
         a.download = fileName;
         a.click();
@@ -19,7 +20,7 @@ export function exportController($scope, $inventoryService) {
 
     function csvify(inArr, opt_compact) {
         inArr.forEach(function (element, idx, arr) {
-            var dbObj = arr[idx];
+            let dbObj = arr[idx];
             if (opt_compact) { arr[idx] = tenCSV(dbObj); }
             else { arr[idx] = sixteenCSV(dbObj); }
         });
@@ -28,30 +29,30 @@ export function exportController($scope, $inventoryService) {
 
     function jsonify(inArr) {
         inArr.forEach(function (element, idx, arr) {
-            var dbObj = arr[idx];
+            let dbObj = arr[idx];
             arr[idx] = simpleObj(dbObj);
         });
         return JSON.stringify(inArr);
     }
 
-    var axisRange = function(axisNum) {
-        if (axisNum > 121) { return "high"; }
-        else if (axisNum > 61) { return "mid"; }
-        else if (axisNum >= 0) { return "low"; }
-        else { return ""; }
+    let axisRange = function(axisNum) {
+        if (axisNum > 121) { return 'high'; }
+        else if (axisNum > 61) { return 'mid'; }
+        else if (axisNum >= 0) { return 'low'; }
+        else { return ''; }
     };
 
-    var takenStr = function(availableBool) {
-        if (availableBool) { return "No"; }
-        else { return "Yes"; }
+    let takenStr = function(availableBool) {
+        if (availableBool) { return 'No'; }
+        else { return 'Yes'; }
     };
 
-    var sortGlassesPairs = function(a, b) {
-        return parseInt(a.number) - parseInt(b.number);
+    let sortGlassesPairs = (a, b) => {
+        parseInt(a.number) - parseInt(b.number);
     };
 
-    var simpleObj = function(dbObj) {
-        var obj = {
+    let simpleObj = function(dbObj) {
+        const obj = {
             pairNumber: dbObj.number,
             data: dbObj.data,
             available: dbObj.available,
@@ -60,9 +61,9 @@ export function exportController($scope, $inventoryService) {
         return obj;
     };
 
-    var sixteenCSV = function(dbObj) {
-        var data = dbObj.data;
-        var pNum = dbObj.set + '' + dbObj.number;
+    let sixteenCSV = function(dbObj) {
+        const data = dbObj.data;
+        const pNum = dbObj.set + '' + dbObj.number;
         return {
             rightSphere: data.rightSphere,
             rightCylinder: data.rightCylinder,
@@ -83,9 +84,9 @@ export function exportController($scope, $inventoryService) {
         };
     };
 
-    var tenCSV = function(dbObj) {
-        var data = dbObj.data;
-        var pNum = dbObj.set + '' + dbObj.number;
+    let tenCSV = function(dbObj) {
+        const data = dbObj.data;
+        const pNum = dbObj.set + '' + dbObj.number;
         return {
             rightSphere: data.rightSphere,
             rightCylinder: data.rightCylinder,
@@ -103,26 +104,26 @@ export function exportController($scope, $inventoryService) {
     // functions for: CSV, JSON
     // for: taken inventory, available inventory, full inventory
     $scope.exportCSV = function(getTaken, getAvailable, opt_compact) {
-        var taken = (getTaken) ? $inventoryService.getTaken() : [];
-        var avail = (getAvailable) ? $inventoryService.getAvailable() : [];
-        var all = taken.concat(avail);
-        all.sort(sortGlassesPairs)
+        let taken = (getTaken) ? $inventoryService.getTaken() : [];
+        let avail = (getAvailable) ? $inventoryService.getAvailable() : [];
+        let all = taken.concat(avail);
+        all.sort(sortGlassesPairs);
 
-        var csv = csvify(all, opt_compact);
-        var filename;
-        if (opt_compact) filename = "export-compact" + dateString + ".csv";
-        else filename = "export-full" + dateString + ".csv";
-        saveFile(csv, "text/csv", filename);
+        let csv = csvify(all, opt_compact);
+        let filename;
+        if (opt_compact) filename = `export-compact${dateString}.csv`;
+        else filename = `export-full${dateString}.csv`;
+        saveFile(csv, 'text/csv', filename);
     };
 
     $scope.exportJSON = function(getTaken, getAvailable) {
-        var taken = (getTaken) ? $inventoryService.getTaken() : [];
-        var avail = (getAvailable) ? $inventoryService.getAvailable() : [];
-        var all = taken.concat(avail);
-        all.sort(sortGlassesPairs)
+        let taken = (getTaken) ? $inventoryService.getTaken() : [];
+        let avail = (getAvailable) ? $inventoryService.getAvailable() : [];
+        let all = taken.concat(avail);
+        all.sort(sortGlassesPairs);
 
-        var json = jsonify(all);
-        saveFile(json, "application/json", "export" + dateString + ".json");
+        let json = jsonify(all);
+        saveFile(json, 'application/json', `export${dateString}.json`);
     };
 
     $scope.syncDB = function() {

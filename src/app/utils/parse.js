@@ -1,7 +1,7 @@
 
 // used by import
 export function addParse(addStr) {
-    if (addStr == "-") return 0;
+    if (addStr == '-') return 0;
     else return addStr;
 }
 

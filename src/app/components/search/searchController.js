@@ -1,8 +1,9 @@
-import { roundEquiv, sphericalEquiv, axisParse, floatParse, formatFloat } from '../../utils'
+import angular from 'angular';
+import { roundEquiv, sphericalEquiv, axisParse, floatParse, formatFloat } from '../../utils';
 
 export function searchController($scope, $inventoryService) {
-    const defaultForm = { dominantEye: "Right", rightSphere: "", rightCylinder: "", rightAxis: "", leftSphere: "", leftCylinder: "", leftAxis: "", rightEquiv: "0.00", leftEquiv: "0.00"};
-    $scope.search = angular.copy(defaultForm); //{};
+    const defaultForm = { dominantEye: 'Right', rightSphere: '', rightCylinder: '', rightAxis: '', leftSphere: '', leftCylinder: '', leftAxis: '', rightEquiv: '0.00', leftEquiv: '0.00'};
+    $scope.search = angular.copy(defaultForm);
 
     $scope.searchResults = [];
     $scope.prevSearches = [];
@@ -13,24 +14,24 @@ export function searchController($scope, $inventoryService) {
     let firstSearch = false;
     let searchTimeoutDelay = 2000;
 
-    var search = $scope.search;
-    var sIDcount = 0;
+    let search = $scope.search;
+    let sIDcount = 0;
 
     search.rightEquiv = search.leftEquiv = '0.00';
     
     $scope.calculateRightEquiv = function(model) {
-        var rcyl = floatParse(model.rightCylinder);
-        var rsph = floatParse(model.rightSphere); 
-        var unroundedRight = sphericalEquiv(rcyl, rsph);
+        const rcyl = floatParse(model.rightCylinder);
+        const rsph = floatParse(model.rightSphere); 
+        const unroundedRight = sphericalEquiv(rcyl, rsph);
         
         model.unrightEquiv = unroundedRight;
         model.rightEquiv = formatFloat(roundEquiv(unroundedRight));
     };
 
     $scope.calculateLeftEquiv = function(model) {
-        var lcyl = floatParse(model.leftCylinder);
-        var lsph = floatParse(model.leftSphere);
-        var unroundedLeft = sphericalEquiv(lcyl, lsph);
+        const lcyl = floatParse(model.leftCylinder);
+        const lsph = floatParse(model.leftSphere);
+        const unroundedLeft = sphericalEquiv(lcyl, lsph);
         
         model.unLeftEquiv = unroundedLeft;
         model.leftEquiv = formatFloat(roundEquiv(unroundedLeft));
@@ -48,18 +49,19 @@ export function searchController($scope, $inventoryService) {
             leftCylinder: prevSrch.leftCylinder,
             leftAxis: prevSrch.leftAxis,
             leftEquiv: prevSrch.leftEquiv,
-        }
+        };
+
         $scope.searchGlasses(prevSrch);
     };
 
     $scope.searchGlasses = function (srch) {  
         //srch = obj representation of search
-        //example: {"rightSphere":"2.200","rightEquiv":"3.25","rightCylinder":"2.3","rightAxis":"5","leftSphere":"2","leftEquiv":"5.50","leftCylinder":"7","leftAxis":"6"}
+        //example: {'rightSphere':'2.200','rightEquiv':'3.25','rightCylinder':'2.3','rightAxis':'5','leftSphere':'2','leftEquiv':'5.50','leftCylinder':'7','leftAxis':'6'}
 
         // parse+validate values
         $scope.searchLoadingIcon = true;
 
-        var revSrch = { //revised/validated search
+        const revSrch = { //revised/validated search
             sID: srch.sID || ++sIDcount,
             patientName: srch.patientName,
             dominantEye: srch.dominantEye,
@@ -73,9 +75,9 @@ export function searchController($scope, $inventoryService) {
             leftEquiv: floatParse(srch.leftEquiv)
         };
 
-        var axisMinFunc = function(axis) { return (axis <= 15) ? 0 : (axis < 165) ? axis-15 : 165; };
-        var axisMaxFunc = function(axis) { return (axis >= 165) ? 180 : (axis > 15) ? axis+15 : 15; };
-        var searchObjFunc = function(equiv, cyl, axis) {
+        let axisMinFunc = function(axis) { return (axis <= 15) ? 0 : (axis < 165) ? axis-15 : 165; };
+        let axisMaxFunc = function(axis) { return (axis >= 165) ? 180 : (axis > 15) ? axis+15 : 15; };
+        let searchObjFunc = function(equiv, cyl, axis) {
             return {
                 equivMin: equiv,
                 equivMax: equiv+1,
@@ -93,33 +95,32 @@ export function searchController($scope, $inventoryService) {
             //axis = group 2 (16-164) (x-15)<x<(x+15)
         // then <value>
 
-        var searchObj;
+        let searchObj, rightObj, leftObj;
         switch(revSrch.dominantEye) {
-            case 'Right':
-                searchObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
-                $inventoryService.lookupDomRight(searchObj);
-                break;
-            case 'Left':
-                searchObj = searchObjFunc(revSrch.leftEquiv, revSrch.leftCylinder, revSrch.leftAxis);
-                $inventoryService.lookupDomLeft(searchObj);
-                break;
-            case 'None':
-                var rightObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
-                var leftObj = searchObjFunc(revSrch.leftEquiv, revSrch.leftCylinder, revSrch.leftAxis);
-                $inventoryService.lookupDomNone(rightObj, leftObj);
-                break;
-            default:
-                searchObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
-                $inventoryService.lookupDomRight(searchObj);
+        case 'Right':
+            searchObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
+            $inventoryService.lookupDomRight(searchObj);
+            break;
+        case 'Left':
+            searchObj = searchObjFunc(revSrch.leftEquiv, revSrch.leftCylinder, revSrch.leftAxis);
+            $inventoryService.lookupDomLeft(searchObj);
+            break;
+        case 'None':
+            rightObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
+            leftObj = searchObjFunc(revSrch.leftEquiv, revSrch.leftCylinder, revSrch.leftAxis);
+            $inventoryService.lookupDomNone(rightObj, leftObj);
+            break;
+        default:
+            searchObj = searchObjFunc(revSrch.rightEquiv, revSrch.rightCylinder, revSrch.rightAxis);
+            $inventoryService.lookupDomRight(searchObj);
         }
 
         setTimeout(function () {
-            // console.log("SEARCH RESULTS RETRIEVE: ", Date.now());
             $scope.searchResults = $inventoryService.getSearchResults();
             $scope.dominantMatch = revSrch.dominantEye;
             $scope.noResults = ($scope.searchResults.length) ? false : true;
             $scope.searchLoadingIcon = false;
-            // console.log("Search results: " + $scope.searchResults.length + " pairs found.");
+            // console.log('Search results: ' + $scope.searchResults.length + ' pairs found.');
             $scope.$apply();
 
 
@@ -130,8 +131,8 @@ export function searchController($scope, $inventoryService) {
         // this.resetForm();
 
         // add search to previous searches list
-        var prev = $scope.prevSearches;
-        var prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID; });
+        let prev = $scope.prevSearches;
+        let prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID; });
         if (!prevsID.length) $scope.prevSearches.push(revSrch);
     };
 
@@ -142,14 +143,14 @@ export function searchController($scope, $inventoryService) {
         search.leftSphere = srch.leftSphere = srch.leftEquiv;
 
         // clear cylinder and axis values
-        srch.rightCylinder = srch.leftCylinder = "0.00"
-        srch.rightAxis = srch.leftAxis = "0"
+        srch.rightCylinder = srch.leftCylinder = '0.00';
+        srch.rightAxis = srch.leftAxis = '0';
 
-        $scope.searchGlasses(srch)
-    }
+        $scope.searchGlasses(srch);
+    };
 
     $scope.takeGlasses = function(pair) {
-        console.log("Taking pair #" + pair.number + " out of search results.");
+        console.log('Taking pair #' + pair.number + ' out of search results.');
         $inventoryService.take(pair.number);
         pair.available = false;
     };
@@ -174,20 +175,20 @@ export function searchController($scope, $inventoryService) {
 
     $scope.searchFormatFloat = function(inputName) {
         switch(inputName) {
-            case 'rightSphere':
-                $scope.search.rightSphere = formatFloat($scope.search.rightSphere);
-                break;
-            case 'rightCylinder':
-                $scope.search.rightCylinder = formatFloat($scope.search.rightCylinder);
-                break;
-            case 'leftSphere':
-                $scope.search.leftSphere = formatFloat($scope.search.leftSphere);
-                break;
-            case 'leftCylinder':
-                $scope.search.leftCylinder = formatFloat($scope.search.leftCylinder);
-                break;
+        case 'rightSphere':
+            $scope.search.rightSphere = formatFloat($scope.search.rightSphere);
+            break;
+        case 'rightCylinder':
+            $scope.search.rightCylinder = formatFloat($scope.search.rightCylinder);
+            break;
+        case 'leftSphere':
+            $scope.search.leftSphere = formatFloat($scope.search.leftSphere);
+            break;
+        case 'leftCylinder':
+            $scope.search.leftCylinder = formatFloat($scope.search.leftCylinder);
+            break;
         }
-    }
+    };
 }
 
 searchController.$inject = ['$scope', 'inventoryService'];
