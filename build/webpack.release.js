@@ -1,6 +1,7 @@
 
 const merge = require('webpack-merge');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin')
 const common = require('./webpack.common.js');
 
 module.exports = merge(common, {
@@ -13,6 +14,9 @@ module.exports = merge(common, {
           comments: false
         }
       }
+    }),
+    new ZipPlugin({
+      filename: 'glasses-program.zip'
     })
   ],
   stats: 'normal'

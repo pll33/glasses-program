@@ -8,7 +8,7 @@ The application has been used by [Global Medical Brigades](https://www.globalbri
 
 ### Set Up
 
-1. Download and unzip a ZIP from the repo or clone the repo to your computer
+1. Download and unzip a `GLASSES-PROGRAM.ZIP` from the code repository release page: https://github.com/pll33/glasses-program/releases
 3. Open 'index.html' with web browser of your choice (recommended: Google Chrome)
 4. Locate and click on the 'Import' tab
 5. Add glasses data by either clicking the 'Choose File' button under Upload, or add them manually. A sample dataset (exampleSet.csv) is provided in the data directory.

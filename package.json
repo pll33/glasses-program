@@ -41,7 +41,8 @@
     "path": "^0.12.7",
     "uglifyjs-webpack-plugin": "^1.0.0",
     "webpack": "^3.8.1",
-    "webpack-merge": "^4.1.0"
+    "webpack-merge": "^4.1.0",
+    "zip-webpack-plugin": "^2.0.0"
   },
   "dependencies": {
     "angular": "^1.5.0-rc.0",
