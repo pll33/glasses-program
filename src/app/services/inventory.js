@@ -13,6 +13,7 @@ export default function inventoryService() {
     let _setLetter = '';
 
     let _invSearch = [];
+    let inventory = {};
 
     function initDB() {
         localDB.changes({ include_docs: true }).on('complete', function(info) {
