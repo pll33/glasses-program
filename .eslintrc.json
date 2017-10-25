@@ -27,7 +27,6 @@
         "no-var": [
             "error"
         ],
-        "no-undef": "off",
         "no-console": "off"
     }
 }
