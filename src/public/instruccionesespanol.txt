@@ -1,0 +1,43 @@
+Programa de inventario de lentes
+
+Este programa se utiliza para buscar lentes que coincidan estrechamente (dentro de un rango aceptable) con las prescripciones de los ojos de un paciente determinado obtenidas mediante un autorrefractor.
+
+La aplicación ha sido utilizada por el personal y los voluntarios de Global Medical Brigades <https://www.globalbrigades.org/experience-medical-brigades> en Panamá (abril de 20160, Honduras (2016-2018) y Nicaragua (2017-2018).
+
+====================
+    Instrucciones
+====================
+
+Configuro
+
+1. Abra 'index.html' con Google Chrome.
+2. Ubique y haga clic en la pestaña 'Importar'
+3. Haga clic en el botón 'Elegir archivo' en Subir. Por primera vez, utilizando un conjunto, cargue el archivo "Establecer X - Importación inicial.csv". Para cada momento posterior, cargue el archivo .csv de inventario más reciente mirando la fecha en el nombre del archivo.
+6. Haga clic en el botón Importar (SOLO HAGA CLIC UNA VEZ, puede haber un desfase dependiendo de qué tan grande sea el conjunto) para agregarlos al inventario del programa. Ahora serán visibles en la pestaña Inventario (haga clic en actualizar para el navegador Google Chrome si todavía no ve esto).
+____________
+
+II. Buscando el inventario
+
+1. Vaya a la pestaña 'Búsqueda de lentes’
+2. Ingrese el ojo dominante del paciente (derecha, izquierda o ninguna) y sus números de refracción. Los valores esféricos equivalentes se generan automáticamente
+3. Haga clic en el botón 'Encontrar coincidencias' para buscar en el inventario. Su búsqueda se guarda automáticamente en la tabla de Búsquedas anteriores en la parte inferior del panel
+
+____________
+
+III. Seleccionando el mejor par
+
+1. Las mejores coincidencias se resaltarán más por fila en verde. Esto significa que un valor particular que ingresó es una coincidencia exacta con el mismo valor en un par de anteojos
+2. Además, priorice la correspondencia de los valores esféricos equivalentes generados automáticamente (bajo el número 4 en "Búsqueda de vidrios") lo más cerca posible del S.E. números para los ojos derecho e izquierdo para cada par de anteojos. Lo mejor es mantener los valores esféricos equivalentes dentro de más o menos 0.00-0.75 de los equivalentes esféricos de los ojos del paciente.
+3. Si no aparecen (o no suficientes) pares de anteojos:
+     1. Haga clic en el botón "Buscar por equivalente esférico".
+     2. Si aún no aparecen los anteojos, entonces no hay pares restantes de anteojos en su conjunto que sean aptos para el paciente.
+
+____________
+
+IV. Exportador
+
+1. Navega a la pestaña 'Exportar'
+2. Exportar datos del programa a través del compacto "Full Inventory" .CSV.
+3. Asegúrese de arrastrar este archivo a la unidad flash.
+
+Los datos del programa se guardan automáticamente en la base de datos PouchDB local de la aplicación durante el uso y el programa se puede cerrar de forma segura en cualquier momento sin pérdida de datos.

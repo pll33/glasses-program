@@ -46,6 +46,9 @@
   },
   "dependencies": {
     "angular": "^1.5.0-rc.0",
+    "angular-translate": "^2.18.1",
+    "angular-translate-storage-cookie": "^2.18.1",
+    "angular-translate-storage-local": "^2.18.1",
     "papaparse": "^4.1.2",
     "pouchdb": "^5.2.1",
     "pouchdb-find": "^0.10.2"

@@ -1,6 +1,36 @@
 html, body {
     overflow-y: scroll;
 }
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #ddd;
+}
+
+.nav-tabs {
+    border-bottom: 0;
+}
+
+.nav-translate button {
+    text-transform: uppercase;
+}
+
+/*.nav-tabs > li#tabInstructions > a {
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46b8da;
+    border-bottom: 0;
+}
+
+.nav-tabs > li#tabInstructions > a:hover, .nav-tabs > li#tabInstructions.active > a, .nav-tabs > li#tabInstructions.active a:hover, .nav-tabs > li#tabInstructions.active a:focus {
+    color: #fff;
+    background-color: #31b0d5;
+    border-color: #269abc;
+    border-bottom-color: transparent;
+}
+*/
+
 #tabContainer {
     padding: 20px;
 }
@@ -92,8 +122,12 @@ a.sh:hover {
     width: 60%;
 }
 
-#inventory .table, #import .table{
+#inventory .table, #import .table {
     width: 75%;
+}
+
+#searchResults table td {
+    vertical-align: middle;
 }
 
 #searchResults table>thead>tr:nth-child(1)>th:not(:last-child) {
@@ -115,11 +149,6 @@ table>tbody>tr>td {
     border-right: 2px solid #ddd;
     border-bottom: 2px solid #ddd;
 }
-
-#searchResults.active, #previousSearches.active,
-#inventoryTaken.active, #inventoryAvailable.active { display: block; }
-#searchResults, #previousSearches,
-#inventoryTaken.active, #inventoryAvailable.active { display: none; }
 
 #previousSearches table>thead>tr:nth-child(1)>th:not(:first-child) {
     border-top: 2px solid #ddd;
@@ -174,6 +203,29 @@ table>tbody>tr>td.bl {
 #inventoryAvailable table>thead>tr:nth-child(2)>th:nth-child(12) {
     border-right: 2px solid #ddd;
 }
+
+/* EXPORT */
+
+
+/* */
+ol.ol-1 li {
+    margin: 4px 0;
+}
+
+ol.ol-1 li span {
+    font-weight: bold;
+}
+
+.panel {
+    background: #f8f8f8;
+    padding: 16px;
+}
+
+.toggle-default-show { display: block; }
+.toggle-default-show.active { display: none; }
+
+.toggle-default-hide { display: none; }
+.toggle-default-hide.active { display: block; }
 
 .taken, .hide {
     /*background: #f9f2f4;*/

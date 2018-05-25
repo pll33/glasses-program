@@ -1,445 +1,538 @@
 <!DOCTYPE html>
 <html ng-app="glassesApp">
-<head>
-  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-  <title>Glasses Inventory Program</title>
-  <link rel="stylesheet" media="all" href="./assets/css/bootstrap.min.css">
-  <link rel="stylesheet" media="all" href="./assets/css/styles.css">
-</head>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <title>Glasses Inventory Program</title>
+        <link rel="stylesheet" media="all" href="./assets/css/bootstrap.min.css">
+        <link rel="stylesheet" media="all" href="./assets/css/styles.css">
+        <script src="./sourcecode.js"></script>
+    </head>
+    <body data-ng-controller="glassesController as gc" ng-cloak>
+        <div id="tabContainer">
+            <nav>
+                <div>
+                    <ul class="nav nav-tabs">
+                        <li id="tabSearch" role="presentation" ng-class="{active:gc.isTab(1)}"><a ng-click="gc.setTab(1)">{{ 'TAB_SEARCH' | translate }}</a></li>
+                        <li id="tabInventory" role="presentation" ng-class="{active:gc.isTab(2)}"><a ng-click="gc.setTab(2)">{{ 'TAB_INVENTORY' | translate }}</a></li>
+                        <li id="tabImport" role="presentation" ng-class="{active:gc.isTab(3)}"><a ng-click="gc.setTab(3)">{{ 'TAB_IMPORT' | translate }}</a></li>
+                        <li id="tabExport" role="presentation" ng-class="{active:gc.isTab(4)}"><a ng-click="gc.setTab(4)">{{ 'TAB_EXPORT' | translate }}</a></li>
+                        <li id="tabInstructions" role="presentation" ng-class="{active:gc.isTab(5)}"><a ng-click="gc.setTab(5)">{{ 'TAB_INSTRUCTIONS' | translate }}</a></li>
+                        <!-- <li id="tabLog" role="presentation" ng-class="{active:gc.isTab(6)}"><a ng-click="gc.setTab(6)">Log </a></li> -->
+                    </ul>
+                </div>
+                <div class="nav-translate">
+                    <button type="button" class="btn btn-sm" ng-class="{active:gc.programLanguage === 'en', 'btn-info': gc.programLanguage === 'en', 'btn-default': gc.programLanguage !== 'en'}" ng-click="gc.setProgramLanguage('en')">{{ 'LANG_ENGLISH'| translate }}</button>
+                    <button type="button" class="btn btn-sm" ng-class="{active:gc.programLanguage === 'es', 'btn-info': gc.programLanguage === 'es', 'btn-default': gc.programLanguage !== 'es'}" ng-click="gc.setProgramLanguage('es')">{{ 'LANG_SPANISH'| translate }}</button>
+                </div>
+            </nav>
 
-<body data-ng-controller="glassesController as tab">
-    <div id="tabContainer">
-    <ul class="nav nav-tabs">
-        <li id="tabSearch" role="presentation" ng-class="{active:tab.isSet(1)}"><a ng-click="tab.setTab(1)">Glasses Search</a></li>
-        <li id="tabInventory" role="presentation" ng-class="{active:tab.isSet(2)}"><a ng-click="tab.setTab(2)">Inventory</a></li>
-        <li id="tabImport" role="presentation" ng-class="{active:tab.isSet(3)}"><a ng-click="tab.setTab(3)">Import</a></li>
-        <li id="tabExport" role="presentation" ng-class="{active:tab.isSet(4)}"><a ng-click="tab.setTab(4)">Export<!--/Sync--></a></li>
-        <!-- <li id="tabSettings" role="presentation" ng-class="{active:tab.isSet(5)}"><a ng-click="tab.setTab(5)">Settings</a></li> -->
-<!--         <li id="tabLog" role="presentation" ng-class="{active:tab.isSet(6)}"><a ng-click="tab.setTab(6)">Log </a></li> -->
-    </ul>
+            <div id="search" class="tab-content" ng-show="gc.isTab(1)" ng-controller="searchController">
+                <form name="searchForm" novalidate>
+                <h3 style="margin-top: 0;">{{ 'SEARCH_GLASSES' | translate }}</h3>
+                <section>
+                    <div class="form-group form-inline">
+                        <h4 class="inline-block">1. {{ 'PATIENT_NAME' | translate }}</h4>
+                        <input type="text" style="margin-left: 8px; width: 150px;" class="form-control" id="searchName" placeholder="{{ 'NAME_OPTIONAL' | translate }}" ng-model="search.patientName">
+                    </div>
+                </section>
+                <section>
+                    <div class="form-group form-inline">
+                        <h4 class="inline-block">2. {{ 'DOMINANT_EYE' | translate }}</h4>
+                        <select id="dominantEye" class="form-control" style="margin-left: 17px" ng-model="search.dominantEye" ng-init="search.dominantEye = 'Right'">
+                          <option value="Right">{{ 'RIGHT' | translate }}</option>
+                          <option value="Left">{{ 'LEFT' | translate }}</option>
+                          <option value="None">{{ 'NONE' | translate }}</option>
+                        </select>
+                    </div>
+                </section>
 
-<div id="search" class="tab-content" ng-show="tab.isSet(1)" ng-controller="searchController">
-    <form name="searchForm" novalidate>
-    <h3 style="margin-top: 0;">Search Glasses</h3>
-    <section>
-        <div class="form-group form-inline">
-            <h4 class="inline-block">1. Patient's Name</h4>
-            <input type="text" style="margin-left: 8px; width: 150px;" class="form-control" id="searchName" placeholder="Name (optional)" ng-model="search.patientName">
-        </div>
-    </section>
-    <section>
-        <div class="form-group form-inline">
-            <h4 class="inline-block">2. Dominant Eye</h4>
-            <select id="dominantEye" class="form-control" style="margin-left: 17px" ng-model="search.dominantEye" ng-init="search.dominantEye = 'Right'">
-              <option value="Right">Right</option>
-              <option value="Left">Left</option>
-              <option value="None">None</option>
-            </select>
-        </div>
-    </section>
+                <section>
+                    <h4 class="inline-block">3. {{ 'PATIENT_REFRACTION' | translate }}</h4>
+                    <p>{{ 'SEARCH_REFRACTION_NOTE' | translate }}</p>
+                    <div class="form-group form-inline mb padt">
+                        <span class="lbl"></span>
+                        <span class="input-heading">{{ 'SPHERE' | translate }}</span>
+                        <span class="input-heading">{{ 'CYLINDER' | translate }}</span>
+                        <span class="input-heading">{{ 'AXIS' | translate }}</span>
+                    </div>
+                    <div class="form-group form-inline mb">
+                        <span class="lbl">{{ 'RIGHT_EYE' | translate }}:</span>
+                        <input type="text" class="form-control" id="searchRightSphere" placeholder="{{ 'SPHERE' | translate }}" ng-model="search.rightSphere" ng-change="calculateRightEquiv(search)" ng-blur="searchFormatFloat('rightSphere')">
+                        <input type="text" class="form-control" id="searchRightCylinder" placeholder="{{ 'CYLINDER' | translate }}" ng-model="search.rightCylinder" ng-change="calculateRightEquiv(search)" ng-blur="searchFormatFloat('rightCylinder')">
+                        <input type="text" class="form-control" id="searchRightAxis" placeholder="{{ 'AXIS' | translate }}" ng-model="search.rightAxis">
+                    </div>
+                    <div class="form-group form-inline mb">
+                        <span class="lbl">{{ 'LEFT_EYE' | translate }}:</span>
+                        <input type="text" class="form-control" id="searchLeftSphere" placeholder="{{ 'SPHERE' | translate }}"  ng-model="search.leftSphere" ng-change="calculateLeftEquiv(search)" ng-blur="searchFormatFloat('leftSphere')">
+                        <input type="text" class="form-control" id="searchLeftCylinder" placeholder="{{ 'CYLINDER' | translate }}" ng-model="search.leftCylinder" ng-change="calculateLeftEquiv(search)" ng-blur="searchFormatFloat('leftCylinder')">
+                        <input type="text" class="form-control" id="searchLeftAxis" placeholder="{{ 'AXIS' | translate }}" ng-model="search.leftAxis">
+                    </div>
+                </section>
 
-    <section>
-        <h4 class="inline-block">3. Patient's Refraction</h4>
-        <div class="form-group form-inline mb padt">
-            <span class="lbl"></span>
-            <span class="input-heading">Sphere</span>
-            <span class="input-heading">Cylinder</span>
-            <span class="input-heading">Axis</span>
-        </div>
-        <div class="form-group form-inline mb">
-            <span class="lbl">Right Eye:</span>
-            <input type="text" class="form-control" id="searchRightSphere" placeholder="Sphere" ng-model="search.rightSphere" ng-change="calculateRightEquiv(search)" ng-blur="searchFormatFloat('rightSphere')">
-            <input type="text" class="form-control" id="searchRightCylinder" placeholder="Cylinder" ng-model="search.rightCylinder" ng-change="calculateRightEquiv(search)" ng-blur="searchFormatFloat('rightCylinder')">
-            <input type="text" class="form-control" id="searchRightAxis" placeholder="Axis" ng-model="search.rightAxis">
-        </div>
-        <div class="form-group form-inline mb">
-            <span class="lbl">Left Eye:</span>
-            <input type="text" class="form-control" id="searchLeftSphere" placeholder="Sphere"  ng-model="search.leftSphere" ng-change="calculateLeftEquiv(search)" ng-blur="searchFormatFloat('leftSphere')">
-            <input type="text" class="form-control" id="searchLeftCylinder" placeholder="Cylinder" ng-model="search.leftCylinder" ng-change="calculateLeftEquiv(search)" ng-blur="searchFormatFloat('leftCylinder')">
-            <input type="text" class="form-control" id="searchLeftAxis" placeholder="Axis" ng-model="search.leftAxis">
-        </div>
-    </section>
+                <section>
+                    <h4 class="inline-block">4. {{ 'SPHERICAL_EQUIVALENT' | translate }}</h4>
+                    <div class="form-group form-inline mb">
+                        <span class="lbl">{{ 'RIGHT_EYE' | translate }}:</span> <input type="text" class="form-control" id="searchRightEquivalent" placeholder="" ng-model="search.rightEquiv" readonly>
+                        <span style="margin-left: 35px;">{{ 'LEFT_EYE' | translate }}:</span> <input type="text" class="form-control" id="searchLeftEquivalent" placeholder="" ng-model="search.leftEquiv" readonly>
+                    </div>
+                </section>
 
-    <section>
-        <h4 class="inline-block">4. Spherical Equivalent</h4>
-        <div class="form-group form-inline mb">
-            <span class="lbl">Right Eye:</span> <input type="text" class="form-control" id="searchRightEquivalent" placeholder="" ng-model="search.rightEquiv" readonly>
-            <span style="margin-left: 35px;">Left Eye:</span> <input type="text" class="form-control" id="searchLeftEquivalent" placeholder="" ng-model="search.leftEquiv" readonly>
-        </div>
-    </section>
+                <section style="margin-top: 5px">
+                    <span class="lblb"></span>
+                    <button type="reset" class="btn btn-default" ng-click="resetForm()">{{ 'SEARCH_CLEAR' | translate }}</button>
+                    <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">{{ 'SEARCH_MATCHES' | translate }}</button>
+                    <div class="loading-icon" ng-show="searchLoadingIcon"><div class="spinner"></div></div>
+                </section>
 
-    <section style="margin-top: 5px">
-        <span class="lblb"></span>
-        <button type="reset" class="btn btn-default" ng-click="resetForm()">Clear Search</button>
-        <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">Find Matches</button>
-        <div class="loading-icon" ng-show="searchLoadingIcon"><div class="spinner"></div></div>
-    </section>
-
-    <section class="section-hidden" ng-class="{show:(searchResults.length > 0)}">
-        <h4 class="inline-block">Not enough matches?</h4>
-        <button type="submit" class="btn btn-primary" ng-click="searchBySE(search)">Search by Spherical Equivalent</button>
-    </section>
-    </form>
+                <section class="section-hidden" ng-class="{show:(searchResults.length >= 0)}">
+                    <h4 class="inline-block" style="margin-left: 19px; margin-right: 2px;">{{ 'SEARCH_NOT_ENOUGH' | translate }}</h4>
+                    <button type="submit" class="btn btn-primary" ng-click="searchBySE(search)">{{ 'SEARCH_SPH_EQUIV' | translate }}</button>
+                </section>
+                </form>
 
 
-    <div id="searchResults" class="active">
-        <h3>Available Glasses</h3>
-        <p>NOTE: Better matches have more cells highlighted in green in each row/pair. </p>
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th ng-class="{match:(dominantMatch=='Right'||dominantMatch=='None')}" colspan="5">Right Eye (OD)</th>
-                    <th ng-class="{match:(dominantMatch=='Left'||dominantMatch=='None')}" colspan="5">Left Eye (OS)</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <th class="bl">Pair #</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Available</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-class="{taken:!x.available}" ng-repeat="x in searchResults">
-                    <td class="bl">{{ ::x.number }}</td>
-                    <td ng-class="::{match:isMatch('rightSphere', x.data.rightSphere)}">{{ ::x.data.rightSphere.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ ::x.data.rightCylinder.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('rightEquiv', x.data.rightEquiv)}">{{ ::x.data.rightEquiv.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('rightAxis', x.data.rightAxis)}">{{ ::x.data.rightAxis }}</td>
-                    <td>{{ x.data.rightADD.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('leftSphere', x.data.leftSphere)}">{{ ::x.data.leftSphere.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('leftCylinder', x.data.leftCylinder)}">{{ ::x.data.leftCylinder.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('leftEquiv', x.data.leftEquiv)}">{{ ::x.data.leftEquiv.toFixed(2) }}</td>
-                    <td ng-class="::{match:isMatch('leftAxis', x.data.leftAxis)}">{{ ::x.data.leftAxis }}</td>
-                    <td>{{ x.data.leftADD.toFixed(2) }}</td>
-                    <td><button type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">Take</button></td>
-                </tr>
-                <tr ng-show="searchResults.length==0 || !searchResults" ng-class="{hide:noResults}">
-                    <td class="bl" colspan="12">Nothing to display.</td>
-                </tr>
-                <tr ng-show="noResults">
-                    <td class="bl" colspan="12">No results to display.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <h3><a class="sh" ng-click="togglePrevSearches()">Previous Searches</a></h3>
-    <div id="previousSearches" ng-class="{active:showPrevSearches}">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th colspan="2"></th>
-                    <th colspan="4">Right Eye (OD)</th>
-                    <th colspan="4">Left Eye (OS)</th>
-                </tr>
-                <tr>
-                    <th class="bl">Patient Name</th>
-                    <th>Dominant Eye</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in prevSearches" ng-click="previousSearch(x)">
-                    <td class="bl">{{ ::x.patientName }}</td>
-                    <td>{{ ::x.dominantEye }}</td>
-                    <td>{{ ::x.rightSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.rightCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.rightAxis }}</td>
-                    <td>{{ ::x.leftSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.leftCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.leftAxis }}</td>
-                </tr>
-                <tr ng-show="prevSearches.length==0 || !prevSearches">
-                    <td class="bl" colspan="10">No previous searches this session.</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<div id="inventory" class="tab-content" ng-show="tab.isSet(2)" ng-controller="inventoryController">
-    <form class="form-inline" novalidate>
-        <h3 style="margin-top: 0">Search Inventory</h3>
-        <div class="form-group">
-            <div class="input-group"> 
-                <div class="input-group-addon">Pair #</div>
-                <input type="text" class="form-control" id="findPairs" placeholder="" style="text-align: left" ng-model="find.number">
-                <span class="input-group-btn">
-                    <button type="submit" class="btn btn-primary start">Find</button>
-                </span>
+                <div id="searchResults" class="active">
+                    <h3>{{ 'SEARCH_AVAILABLE' | translate }}</h3>
+                    <p>{{ 'SEARCH_NOTE' | translate }}</p>
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th ng-class="{match:(dominantMatch=='Right'||dominantMatch=='None')}" colspan="5">{{ 'RIGHT_EYE' | translate }} (OD)</th>
+                                <th ng-class="{match:(dominantMatch=='Left'||dominantMatch=='None')}" colspan="5">{{ 'LEFT_EYE' | translate }} (OS)</th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th class="bl">{{ 'PAIR_NUMBER' | translate }}</th>
+                                <th>{{ 'SPHERE' | translate }}</th>
+                                <th>{{ 'CYLINDER' | translate }}</th>
+                                <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'ADD' | translate }}</th>
+                                <th>{{ 'SPHERE' | translate }}</th>
+                                <th>{{ 'CYLINDER' | translate }}</th>
+                                <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'ADD' | translate }}</th>
+                                <th>{{ 'AVAILABLE' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-class="{taken:!x.available}" ng-repeat="x in searchResults">
+                                <td class="bl">{{ ::x.number }}</td>
+                                <td ng-class="::{match:isMatch('rightSphere', x.data.rightSphere)}">{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ ::x.data.rightCylinder.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('rightEquiv', x.data.rightEquiv)}">{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('rightAxis', x.data.rightAxis)}">{{ ::x.data.rightAxis }}</td>
+                                <td>{{ x.data.rightADD.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('leftSphere', x.data.leftSphere)}">{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('leftCylinder', x.data.leftCylinder)}">{{ ::x.data.leftCylinder.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('leftEquiv', x.data.leftEquiv)}">{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                                <td ng-class="::{match:isMatch('leftAxis', x.data.leftAxis)}">{{ ::x.data.leftAxis }}</td>
+                                <td>{{ x.data.leftADD.toFixed(2) }}</td>
+                                <td><button type="submit" class="btn btn-primary" ng-click="takeGlasses(x)">{{ 'TAKE' | translate }}</button></td>
+                            </tr>
+                            <tr ng-show="searchResults.length==0 || !searchResults" ng-class="{hide:noResults}">
+                                <td class="bl" colspan="12">{{ 'DISPLAY_NOTHING' | translate }}</td>
+                            </tr>
+                            <tr ng-show="noResults">
+                                <td class="bl" colspan="12">{{ 'DISPLAY_NO_RESULTS' | translate }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <h3><a class="sh" ng-click="togglePrevSearches()">{{ 'SEARCH_PREVIOUS' | translate }} <span ng-show="showPrevSearches === false">▼</span></a></h3>
+                <div id="previousSearches" class="toggle-default-hide" ng-class="{active:showPrevSearches}">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th colspan="2"></th>
+                                <th colspan="4">{{ 'RIGHT_EYE' | translate }} (OD)</th>
+                                <th colspan="4">{{ 'LEFT_EYE' | translate }} (OS)</th>
+                            </tr>
+                            <tr>
+                                <th class="bl">{{ 'PATIENT_NAME' | translate }}</th>
+                                <th>{{ 'DOMINANT_EYE' | translate }}</th>
+                                <th>{{ 'SPHERE' | translate }}</th>
+                                <th>{{ 'CYLINDER' | translate }}</th>
+                                <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'SPHERE' | translate }}</th>
+                                <th>{{ 'CYLINDER' | translate }}</th>
+                                <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                <th>{{ 'AXIS' | translate }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="x in prevSearches" ng-click="previousSearch(x)">
+                                <td class="bl">{{ ::x.patientName }}</td>
+                                <td>{{ ::x.dominantEye }}</td>
+                                <td>{{ ::x.rightSphere.toFixed(2) }}</td>
+                                <td>{{ ::x.rightCylinder.toFixed(2) }}</td>
+                                <td>{{ ::x.rightEquiv.toFixed(2) }}</td>
+                                <td>{{ ::x.rightAxis }}</td>
+                                <td>{{ ::x.leftSphere.toFixed(2) }}</td>
+                                <td>{{ ::x.leftCylinder.toFixed(2) }}</td>
+                                <td>{{ ::x.leftEquiv.toFixed(2) }}</td>
+                                <td>{{ ::x.leftAxis }}</td>
+                            </tr>
+                            <tr ng-show="prevSearches.length==0 || !prevSearches">
+                                <td class="bl" colspan="10">{{ 'DISPLAY_NO_PREV_SEARCH' | translate }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <button type="reset" class="btn btn-default" ng-click="clearSearch()">
-                <span>Clear</span>
-            </button>
-        </div>
-    </form>
-    <section>
-        <h3>
-            <a class="sh" ng-click="toggleTaken()">Taken Pairs ({{ model.takenPairs.length }}) <span ng-show="showhideTaken">▼</span></a>
-            <div class="loading-icon" ng-show="invTakenLoadingIcon" style="vertical-align: bottom;"><div class="spinner"></div></div>
-        </h3>
-        <div id="inventoryTaken" ng-class="{active:showhideTaken}">
-            <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th colspan="2"></th>
-                    <th colspan="5">Right Eye (OD)</th>
-                    <th colspan="5">Left Eye (OS)</th>
-                </tr>
-                <tr>
-                    <th class="bl">Taken</th>
-                    <th>Pair #</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in model.takenPairs | filter:find" ng-class="{match:x.number==find.number}">
-                    <td class="bl"><input type="checkbox" ng-model="checked" ng-init="checked=true" ng-click="putbackPair(x.number)"></td>
-                    <td>{{ ::x.number }}</td>
-                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightAxis }}</td>
-                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
-                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftAxis }}</td>
-                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
-                </tr>
-                <tr ng-show="model.takenPairs.length==0 || !model.takenPairs">
-                    <td class="bl" colspan="13">Nothing to display.</td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-    </section>
-    <section>
-        <h3>
-            <a class="sh" ng-click="toggleAvail()">Available Pairs ({{ model.availablePairs.length }}) <span ng-show="showhideAvail">▼</span></a>
-            <div class="loading-icon" ng-show="invAvailableLoadingIcon" style="vertical-align: bottom;"><div class="spinner"></div></div>
-        </h3>
-        <div id="inventoryAvailable" ng-class="{active:showhideAvail}">
-            <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th colspan="2"></th>
-                    <th colspan="5">Right Eye (OD)</th>
-                    <th colspan="5">Left Eye (OS)</th>
-                </tr>
-                <tr>
-                    <th class="bl">Taken</th>
-                    <th>Pair #</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">S.E.</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in model.availablePairs | filter:find" ng-class="{match:x.number==find.number}">
-                    <td class="bl"><input type="checkbox" ng-click="takePair(x.number)"></td>
-                    <td>{{ ::x.number }}</td>
-                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightAxis }}</td>
-                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
-                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftAxis }}</td>
-                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
-                </tr>
-                <tr ng-show="model.availablePairs.length==0 || !model.availablePairs">
-                    <td class="bl" colspan="13">No pairs available.</td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-    </section>
-</div>
 
-<div id="import" class="tab-content" ng-show="tab.isSet(3)" ng-controller="importController">
-    <h3 style="margin-top: 0">Import Inventory</h3>
-    <form name="uploadFileForm" id="formUpload" class="form-inline" novalidate>
-    <h4>Upload a .csv or .json file</h4>
-        <p><span class="bold underline">Instructions:</span> When importing pairs of glasses, ONLY the first row of data should contain header information. <br>
-        Remove all empty rows and prefix each pair number with the letter of the set (example: Set C, Pair # 1 becomes "C1"). </p>
-        <p>The program accepts 3 different column set-ups for data (in specific order):</p>
-        <p><span class="tt" title="Right Sphere, Right Cylinder, Right Axis, Right Add, Left Sphere, Left Cylinder, Left Axis, Left Add, Pair Number">9 columns</span>, 
-        <span class="tt" title="Pair/ID number, Right Sphere, Right Cylinder, Right Axis, Right Add, Right Trifocal, Left Sphere, Left Cylinder, Left Axis, Left Add, Left Trifocal">11 columns</span>, 
-        <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns</span><br><span class="small-text">(hover mouse over dotted underline for more info)</span>
-        <p><span class="bold underline">NOTE:</span> Negative cylinders prescriptions will be converted to positive values.</p>
-        <div class="form-group">
-            <input file-model="importFile" type="file" accept=".csv, .json" />
-        </div>
-        <button type="submit" class="btn btn-primary start" ng-click="import()">
-            <span>Import</span>
-        </button>
-        <div class="loading-icon" ng-show="importLoadingIcon"><div class="spinner"></div></div>
-        <!-- <div class="import-notification"><span class="import-error">{{ importErrorMessage }}</span></div> -->
-    </form>
-    <form name="manualAddForm" novalidate>
-        <section>
-            <h4>Enter manually: </h4>
-            <div class="form-group form-inline mb">
-                <span class="lbl"></span>
-                <span class="input-heading">Sphere</span>
-                <span class="input-heading">Cylinder</span>
-                <span class="input-heading">Axis</span>
-                <span class="input-heading">Add</span>
+            <div id="inventory" class="tab-content" ng-show="gc.isTab(2)" ng-controller="inventoryController">
+                <form class="form-inline" novalidate>
+                    <h3 style="margin-top: 0">{{ 'SEARCH_INVENTORY' | translate }}</h3>
+                    <div class="form-group">
+                        <div class="input-group"> 
+                            <div class="input-group-addon">{{ 'PAIR_NUMBER' | translate }}</div>
+                            <input type="text" class="form-control" id="findPairs" placeholder="" style="text-align: left" ng-model="find.number">
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-primary start">{{ 'SEARCH_MATCHES' | translate }}</button>
+                            </span>
+                        </div>
+                        <button type="reset" class="btn btn-default" ng-click="clearSearch()">
+                            <span>{{ 'CLEAR' | translate }}</span>
+                        </button>
+                    </div>
+                </form>
+                <section>
+                    <h3>
+                        <a class="sh" ng-click="toggleTaken()">{{ 'INVENTORY_TAKEN' | translate }} ({{ model.takenPairs.length }}) <span ng-show="showhideTaken">▼</span></a>
+                        <div class="loading-icon" ng-show="invTakenLoadingIcon" style="vertical-align: bottom;"><div class="spinner"></div></div>
+                    </h3>
+                    <div id="inventoryTaken" class="toggle-default-show" ng-class="{active:showhideTaken}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th colspan="5">{{ 'RIGHT_EYE' | translate }} (OD)</th>
+                                    <th colspan="5">{{ 'LEFT_EYE' | translate }} (OS)</th>
+                                </tr>
+                                <tr>
+                                    <th class="bl">{{ 'TAKEN' | translate }}</th>
+                                    <th>{{ 'PAIR_NUMBER' | translate }}</th>
+                                    <th>{{ 'SPHERE' | translate }}</th>
+                                    <th>{{ 'CYLINDER' | translate }}</th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                    <th>{{ 'AXIS' | translate }}</th>
+                                    <th>{{ 'ADD' | translate }}</th>
+                                    <th>{{ 'SPHERE' | translate }}</th>
+                                    <th>{{ 'CYLINDER' | translate }}</th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                    <th>{{ 'AXIS' | translate }}</th>
+                                    <th>{{ 'ADD' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in model.takenPairs | filter:find" ng-class="{match:x.number==find.number}">
+                                    <td class="bl"><input type="checkbox" ng-model="checked" ng-init="checked=true" ng-click="putbackPair(x.number)"></td>
+                                    <td>{{ ::x.number }}</td>
+                                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightAxis }}</td>
+                                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
+                                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftAxis }}</td>
+                                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
+                                </tr>
+                                <tr ng-show="model.takenPairs.length==0 || !model.takenPairs">
+                                    <td class="bl" colspan="13">{{ 'DISPLAY_NOTHING' | translate }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section>
+                    <h3>
+                        <a class="sh" ng-click="toggleAvail()">{{ 'INVENTORY_AVAILABLE' | translate }} ({{ model.availablePairs.length }}) <span ng-show="showhideAvail">▼</span></a>
+                        <div class="loading-icon" ng-show="invAvailableLoadingIcon" style="vertical-align: bottom;"><div class="spinner"></div></div>
+                    </h3>
+                    <div id="inventoryAvailable" class="toggle-default-show" ng-class="{active:showhideAvail}">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="2"></th>
+                                    <th colspan="5">{{ 'RIGHT_EYE' | translate }} (OD)</th>
+                                    <th colspan="5">{{ 'LEFT_EYE' | translate }} (OS)</th>
+                                </tr>
+                                <tr>
+                                    <th class="bl">{{ 'TAKEN' | translate }}</th>
+                                    <th>{{ 'PAIR_NUMBER' | translate }}</th>
+                                    <th>{{ 'SPHERE' | translate }}</th>
+                                    <th>{{ 'CYLINDER' | translate }}</th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                    <th>{{ 'AXIS' | translate }}</th>
+                                    <th>{{ 'ADD' | translate }}</th>
+                                    <th>{{ 'SPHERE' | translate }}</th>
+                                    <th>{{ 'CYLINDER' | translate }}</th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                    <th>{{ 'AXIS' | translate }}</th>
+                                    <th>{{ 'ADD' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in model.availablePairs | filter:find" ng-class="{match:x.number==find.number}">
+                                    <td class="bl"><input type="checkbox" ng-click="takePair(x.number)"></td>
+                                    <td>{{ ::x.number }}</td>
+                                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightAxis }}</td>
+                                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
+                                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftAxis }}</td>
+                                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
+                                </tr>
+                                <tr ng-show="model.availablePairs.length==0 || !model.availablePairs">
+                                    <td class="bl" colspan="13">{{ 'DISPLAY_NO_PAIRS' | translate }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
             </div>
-            <div class="form-group form-inline mb">
-                <span class="lbl">Right Eye</span>
-                <input type="text" class="form-control" id="addRightSphere" ng-blur="addFormatFloat('rightSphere')" placeholder="Sphere" ng-model="add.rightSphere">
-                <input type="text" class="form-control" id="addRightCylinder" ng-blur="addFormatFloat('rightCylinder')" placeholder="Cylinder" ng-model="add.rightCylinder">
-                <input type="text" class="form-control" id="addRightAxis" placeholder="Axis" ng-model="add.rightAxis">
-                <input type="text" class="form-control" id="addRightADD" placeholder="Add" ng-blur="addFormatFloat('rightADD')" ng-model="add.rightADD">
+
+            <div id="import" class="tab-content" ng-show="gc.isTab(3)" ng-controller="importController">
+                <h3 style="margin-top: 0">{{ 'IMPORT_INVENTORY' | translate }}</h3>
+                <form name="uploadFileForm" id="formUpload" class="form-inline" novalidate>
+                <h4>{{ 'IMPORT_UPLOAD_HEADING' | translate }}</h4>
+                    <p><span class="bold underline">{{ 'IMPORT_INSTRUCTIONS' | translate }}:</span> {{ 'IMPORT_INSTRUCTIONS_L1' | translate }} <br>
+                    {{ 'IMPORT_INSTRUCTIONS_L2' | translate }} </p>
+                    <p>{{ 'IMPORT_INSTRUCTIONS_L3' | translate }}</p>
+                    <p><span class="tt" title="{{ 'IMPORT_COL_9' | translate }}">9 {{ 'IMPORT_COLS' | translate }}</span>, 
+                    <span class="tt" title="{{ 'IMPORT_COL_11' | translate }}">11 {{ 'IMPORT_COLS' | translate }}</span>, 
+                    <span class="tt" title="{{ 'IMPORT_COL_16' | translate }}">16 {{ 'IMPORT_COLS' | translate }}</span><br><span class="small-text">({{ 'IMPORT_HOVER' | translate }})</span>
+                    <p><span class="bold underline">{{ 'IMPORT_NOTE' | translate }}</span> {{ 'IMPORT_NOTE_DESC' | translate }}</p>
+                    <div class="form-group">
+                        <input file-model="importFile" type="file" accept=".csv, .json" />
+                    </div>
+                    <button type="submit" class="btn btn-primary start" ng-click="import()" ng-disabled="importLoadingIcon === true">
+                        <span>{{ 'IMPORT_BUTTON' | translate }}</span>
+                    </button>
+                    <div class="loading-icon" ng-show="importLoadingIcon === true"><div class="spinner"></div></div>
+                    <!-- <div class="import-notification"><span class="import-error">{{ importErrorMessage }}</span></div> -->
+                </form>
+                <form name="manualAddForm" novalidate>
+                    <section>
+                        <h4>{{ 'IMPORT_MANUAL' | translate }}: </h4>
+                        <div class="form-group form-inline mb">
+                            <span class="lbl"></span>
+                            <span class="input-heading">{{ 'SPHERE' | translate }}</span>
+                            <span class="input-heading">{{ 'CYLINDER' | translate }}</span>
+                            <span class="input-heading">{{ 'AXIS' | translate }}</span>
+                            <span class="input-heading">{{ 'ADD' | translate }}</span>
+                        </div>
+                        <div class="form-group form-inline mb">
+                            <span class="lbl">{{ 'RIGHT_EYE' | translate }}</span>
+                            <input type="text" class="form-control" id="addRightSphere" ng-blur="addFormatFloat('rightSphere')" placeholder="{{ 'SPHERE' | translate }}" ng-model="add.rightSphere">
+                            <input type="text" class="form-control" id="addRightCylinder" ng-blur="addFormatFloat('rightCylinder')" placeholder="{{ 'CYLINDER' | translate }}" ng-model="add.rightCylinder">
+                            <input type="text" class="form-control" id="addRightAxis" placeholder="{{ 'AXIS' | translate }}" ng-model="add.rightAxis">
+                            <input type="text" class="form-control" id="addRightADD" placeholder="{{ 'ADD' | translate }}" ng-blur="addFormatFloat('rightADD')" ng-model="add.rightADD">
+                        </div>
+                        <div class="form-group form-inline mb">
+                            <span class="lbl">{{ 'LEFT_EYE' | translate }}</span>
+                            <input type="text" class="form-control" id="addLeftSphere" placeholder="{{ 'SPHERE' | translate }}" ng-blur="addFormatFloat('leftSphere')" ng-model="add.leftSphere">
+                            <input type="text" class="form-control" id="addLeftCylinder" placeholder="{{ 'CYLINDER' | translate }}" ng-blur="addFormatFloat('leftCylinder')" ng-model="add.leftCylinder">
+                            <input type="text" class="form-control" id="addLeftAxis" placeholder="{{ 'AXIS' | translate }}" ng-model="add.leftAxis">
+                            <input type="text" class="form-control" id="addLeftADD" placeholder="{{ 'ADD' | translate }}" ng-blur="addFormatFloat('leftADD')" ng-model="add.leftADD">
+                        </div>
+                    </section>
+                    <section>
+                        <div class="form-group form-inline mb">
+                            <!-- <span class="lblb"></span> -->
+                            <button type="submit" class="btn btn-primary start" ng-click="manualAdd(add)">
+                                <span>{{ 'IMPORT_MANUAL_ADD' | translate }}</span>
+                            </button>
+                        </div>
+                    </section>
+                </form>
+                <div>
+                    <h4>{{ 'IMPORT_ADDED_GLASSES' | translate }}</h4>
+                    <div id="inventoryAdded">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th colspan="6">{{ 'RIGHT_EYE' | translate }} (OD)</th>
+                                    <th colspan="6">{{ 'LEFT_EYE' | translate }} (OS)</th>
+                                </tr>
+                                <tr>
+                                    <th class="bl">Pair #</th>
+                                    <th>{{ 'SPHERE' | translate }}</th>
+                                    <th>{{ 'CYLINDER' | translate }}</th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'UNROUNDED' | translate }})">SEu</span></th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">SEr</span></th>
+                                    <th>{{ 'AXIS' | translate }}</th>
+                                    <th>{{ 'ADD' | translate }}</th>
+                                    <th>{{ 'SPHERE' | translate }}</th>
+                                    <th>{{ 'CYLINDER' | translate }}</th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'UNROUNDED' | translate }})">SEu</span></th>
+                                    <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">SEr</span></th>
+                                    <th>{{ 'AXIS' | translate }}</th>
+                                    <th>{{ 'ADD' | translate }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr ng-repeat="x in addedGlasses">
+                                    <td class="bl">{{ x.pairNumber }}</td>
+                                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightEquivUnround.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.rightAxis }}</td>
+                                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
+                                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftEquivUnround.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
+                                    <td>{{ ::x.data.leftAxis }}</td>
+                                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
+                                </tr>
+                                <tr ng-show="addedGlasses.length==0 || !addedGlasses">
+                                    <td class="bl" colspan="15">{{ 'DISPLAY_NO_ADDED_GLASSES' | translate }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="form-group form-inline mb">
-                <span class="lbl">Left Eye</span>
-                <input type="text" class="form-control" id="addLeftSphere" placeholder="Sphere" ng-blur="addFormatFloat('leftSphere')" ng-model="add.leftSphere">
-                <input type="text" class="form-control" id="addLeftCylinder" placeholder="Cylinder" ng-blur="addFormatFloat('leftCylinder')" ng-model="add.leftCylinder">
-                <input type="text" class="form-control" id="addLeftAxis" placeholder="Axis" ng-model="add.leftAxis">
-                <input type="text" class="form-control" id="addLeftADD" placeholder="Add" ng-blur="addFormatFloat('leftADD')" ng-model="add.leftADD">
+            <div id="export" class="tab-content" ng-show="gc.isTab(4)" ng-controller="exportController">
+                <h3 style="margin-top: 0">{{ 'TAB_EXPORT' | translate }}</h3>
+                <button type="button" class="btn btn-success" ng-click="exportCSV(true, true, true)">{{ 'EXPORT_FULL_COMPACT' | translate }} .csv</button>
+
+                <h4>
+                    <a class="sh" ng-click="toggleExportOptions()">{{ 'EXPORT_OPTIONS' | translate }} <span ng-show="showExportOptions === false">▼</span></a>
+                </h4>
+                <div id="exportOptions" class="panel toggle-default-hide" ng-class="{active:showExportOptions}">
+                    <p>{{ 'EXPORT_CSV' | translate }}<br>{{ 'EXPORT_JSON' | translate }}</p>
+
+                    <p>{{ 'EXPORT_COMPACT_DESC' | translate }} <span class="tt" title="{{ 'EXPORT_COMPACT_TT' | translate }}">10 {{ 'EXPORT_COLS' | translate }}</span>.<br></p>
+                    <p>{{ 'EXPORT_FULL_DESC' | translate }} <span class="tt" title="{{ 'EXPORT_FULL_TT' | translate }}">16 {{ 'EXPORT_COLS' | translate }}</span>.<br></p>
+                    <h4>{{ 'EXPORT_FULL' | translate }}</h4>
+                    <button type="button" class="btn btn-success" ng-click="exportCSV(true, true, true)">{{ 'COMPACT' | translate }} .csv</button>
+                    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true, false)">{{ 'FULL' | translate }} .csv</button>
+                    <button type="button" class="btn btn-default" ng-click="exportJSON(true, true)">.json</button>
+
+                    <h4>{{ 'EXPORT_TAKEN' | translate }}</h4>
+                    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false, true)">{{ 'COMPACT' | translate }} .csv</button>
+                    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false, false)">{{ 'FULL' | translate }} .csv</button>
+                    <button type="button" class="btn btn-default" ng-click="exportJSON(true, false)">.json</button>
+
+                    <h4>{{ 'EXPORT_AVAILABLE' | translate }}</h4>
+                    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true, true)">{{ 'COMPACT' | translate }} .csv</button>
+                    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true, false)">{{ 'FULL' | translate }} .csv</button>
+                    <button type="button" class="btn btn-default" ng-click="exportJSON(false, true)">.json</button>
+                </div>
+
+                <h3>{{ 'RESET_DATABASE' | translate }}</h3>
+                <p><span class="reset-warning">{{ 'RESET_WARNING' | translate }}</span> {{ 'RESET_WARNING_L1A' | translate }} <b>{{ 'RESET_WARNING_ALL' | translate }}</b> {{ 'RESET_WARNING_L1B' | translate }} <br>{{ 'RESET_WARNING_L2' | translate }}</p>
+                <p><span class="reset-warning">{{ 'RESET_WARNING_LAST' | translate }}</span></p>
+                <button type="button" class="btn btn-danger" ng-click="destroyDB()" style="text-transform: uppercase">{{ 'RESET_DATABASE' | translate }}</button>
             </div>
-        </section>
-        <section>
-            <div class="form-group form-inline mb">
-                <!-- <span class="lblb"></span> -->
-                <button type="submit" class="btn btn-primary start" ng-click="manualAdd(add)">
-                    <span>Add</span>
-                </button>
+            <div id="instructions" class="tab-content" ng-show="gc.isTab(5)">
+                <div class="panel" ng-show="gc.programLanguage === 'en'">
+                    <h1>Glasses Inventory Program</h1>
+                    <p>This program is used to search for eyeglasses that match closely (within an acceptable range) to a given patient's eye prescriptions obtained by an autorefractor.</p>
+                    <p>The application has been used by the Global Medical Brigades <https://www.globalbrigades.org/experience-medical-brigades> staff and volunteers in Panama (April 2016), Honduras (2016-2018) and Nicaragua (2017-2018).</p>
+
+                    <h2>Instructions</h2>
+                    <ol class="ol-1" type="I">
+                        <li><span>Set Up</span>
+                            <ol>
+                                <li>Open 'index.html' with Google Chrome</li>
+                                <li>Locate and click on the 'Import' tab</li>
+                                <li>Click the 'Choose File' button under Upload. For the very first time using a set, upload the “Set X - Initial Import.csv” file. For every time after, upload the most recent inventory .csv file by looking at the date in the file name.</li>
+                                <li>Click the Import button (ONLY CLICK ONCE, there may be a lag depending on how large the set is) to add them to the program inventory. These will now be visible in the Inventory tab (click refresh for the Google Chrome browser if you still do not see this).</li>
+                            </ol>
+                        </li>
+                        <li><span>Searching the inventory</span>
+                            <ol>
+                                <li>Go to the 'Glasses Search' tab</li>
+                                <li>Input the patient's dominant eye (right, left, or none) and their refraction numbers. Spherical equivalent values are automatically generated</li>
+                                <li>Click the 'Find Matches' button to search the inventory. Your search is automatically saved into the Previous Searches table at the bottom of the panel</li>
+                            </ol>
+                        </li>
+                        <li><span>Selecting the best pair</span>
+                            <ol>
+                                <li>Best matches will be highlighted the most per row in green. This means a particular value you entered is an exact match to the same value in a pair of glasses</li>
+                                <li>Additionally, prioritize matching the automatically generated spherical equivalent values (under number 4 in ‘Glasses Search’) as closely as possible to the S.E. numbers for right and left eyes for each pair of glasses. It is best to keep the spherical equivalent values within plus or minus 0.00-0.75 away from the patient’s eyes’ spherical equivalents.</li>
+                                <li>If no (or not enough) pairs of eyeglasses appear:
+                                    <ol>
+                                        <li>Click the “Search by spherical equivalent” button.</li>
+                                        <li>If still no eyeglasses appear, then there are no remaining pairs of eyeglasses in your set that fit for the patient.</li>
+                                    </ol>
+                                </li>
+                            </ol>
+                        </li>
+                        <li><span>Exporting</span>
+                            <ol>
+                                <li>Navigate to the 'Export' tab</li>
+                                <li>Export program data via “Full Inventory” compact .CSV.</li>
+                                <li>Be sure to drag this file to the flash drive.</li>
+                            </ol>
+                        </li>
+                    </ol>
+                    <p>Program data is automatically saved within the application's local PouchDB database during use and the program can be exited safely at any time without loss of data.</p>
+
+                    <p class="small-text">Program last modified: <a href="https://github.com/pll33/glasses-program/releases">{{ gc.lastModifiedDate }}</a></p>
+                </div>
+                <div class="panel" ng-show="gc.programLanguage === 'es'">
+                    <h1>Programa de inventario de lentes</h1>
+                    <p>Este programa se utiliza para buscar lentes que coincidan estrechamente (dentro de un rango aceptable) con las prescripciones de los ojos de un paciente determinado obtenidas mediante un autorrefractor.</p>
+                    <p>La aplicación ha sido utilizada por el personal y los voluntarios de Global Medical Brigades <https://www.globalbrigades.org/experience-medical-brigades> en Panamá (abril de 2016), Honduras (2016-2018) y Nicaragua (2017-2018).</p>
+
+                    <h2>Instrucciones</h2>
+                    <ol class="ol-1" type="I">
+                        <li><span>Configuro</span>
+                            <ol>
+                                <li>Abra 'index.html' con Google Chrome.</li>
+                                <li>Ubique y haga clic en la pestaña 'Importar'</li>
+                                <li>Haga clic en el botón 'Elegir archivo' en Subir. Por primera vez, utilizando un conjunto, cargue el archivo "Establecer X - Importación inicial.csv". Para cada momento posterior, cargue el archivo .csv de inventario más reciente mirando la fecha en el nombre del archivo.</li>
+                                <li>Haga clic en el botón Importar (SOLO HAGA CLIC UNA VEZ, puede haber un desfase dependiendo de qué tan grande sea el conjunto) para agregarlos al inventario del programa. Ahora serán visibles en la pestaña Inventario (haga clic en actualizar para el navegador Google Chrome si todavía no ve esto).</li>
+                            </ol>
+                        </li>
+                        <li><span>Buscando el inventario</span>
+                            <ol>
+                                <li>Vaya a la pestaña 'Búsqueda de lentes’</li>
+                                <li>Ingrese el ojo dominante del paciente (derecha, izquierda o ninguna) y sus números de refracción. Los valores esféricos equivalentes se generan automáticamente</li>
+                                <li>Haga clic en el botón 'Encontrar coincidencias' para buscar en el inventario. Su búsqueda se guarda automáticamente en la tabla de Búsquedas anteriores en la parte inferior del panel</li>
+                            </ol>
+                        </li>
+                        <li><span>Seleccionando el mejor par</span>
+                            <ol>
+                                <li>Las mejores coincidencias se resaltarán más por fila en verde. Esto significa que un valor particular que ingresó es una coincidencia exacta con el mismo valor en un par de anteojos</li>
+                                <li>Además, priorice la correspondencia de los valores esféricos equivalentes generados automáticamente (bajo el número 4 en "Búsqueda de vidrios") lo más cerca posible del S.E. números para los ojos derecho e izquierdo para cada par de anteojos. Lo mejor es mantener los valores esféricos equivalentes dentro de más o menos 0.00-0.75 de los equivalentes esféricos de los ojos del paciente.</li>
+                                <li>Si no aparecen (o no suficientes) pares de anteojos:
+                                    <ol>
+                                        <li>Haga clic en el botón "Buscar por equivalente esférico".</li>
+                                        <li>Si aún no aparecen los anteojos, entonces no hay pares restantes de anteojos en su conjunto que sean aptos para el paciente.</li>
+                                    </ol>
+                                </li>
+                            </ol>
+                        </li>
+                        <li><span>Exportador</span>
+                            <ol>
+                                <li>Navega a la pestaña 'Exportar'</li>
+                                <li>Exportar datos del programa a través del compacto "Full Inventory" .CSV.</li>
+                                <li>Asegúrese de arrastrar este archivo a la unidad flash.</li>
+                            </ol>
+                        </li>
+                    </ol>
+                    <p>Los datos del programa se guardan automáticamente en la base de datos PouchDB local de la aplicación durante el uso y el programa se puede cerrar de forma segura en cualquier momento sin pérdida de datos.</p>
+
+                    <p class="small-text">Fecha de la última modificación del programa: <a href="https://github.com/pll33/glasses-program/releases">{{ gc.lastModifiedDate }}</a></p>
+                </div>
             </div>
-        </section>
-    </form>
-    <div>
-    <h4>Added Glasses</h4>
-        <div id="inventoryAdded">
-            <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th colspan="6">Right Eye (OD)</th>
-                    <th colspan="6">Left Eye (OS)</th>
-                </tr>
-                <tr>
-                    <th class="bl">Pair #</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (unrounded)">SEu</span></th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">SEr</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                    <th>Sphere</th>
-                    <th>Cylinder</th>
-                    <th><span class="tt" title="Spherical Equivalent (unrounded)">SEu</span></th>
-                    <th><span class="tt" title="Spherical Equivalent (rounded)">SEr</span></th>
-                    <th>Axis</th>
-                    <th>Add</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr ng-repeat="x in addedGlasses">
-                    <td class="bl">{{ x.pairNumber }}</td>
-                    <td>{{ ::x.data.rightSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightEquivUnround.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.data.rightAxis }}</td>
-                    <td>{{ ::x.data.rightADD.toFixed(2)  }}</td>
-                    <td>{{ ::x.data.leftSphere.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftCylinder.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftEquivUnround.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftEquiv.toFixed(2) }}</td>
-                    <td>{{ ::x.data.leftAxis }}</td>
-                    <td>{{ ::x.data.leftADD.toFixed(2) }}</td>
-                </tr>
-                <tr ng-show="addedGlasses.length==0 || !addedGlasses">
-                    <td class="bl" colspan="15">No glasses added this session.</td>
-                </tr>
-            </tbody>
-        </table>
         </div>
-    </div>
-</div>
-<div id="export" class="tab-content" ng-show="tab.isSet(4)" ng-controller="exportController">
-    <h3 style="margin-top: 0">Export</h3>
-    <p>.CSV files can be opened in spreadsheet programs such as Microsoft Excel and Apple Numbers.<br>.JSON files are used by this program for debugging purposes. Both files can be imported into the program.</p>
-
-    <p>
-    Compact datasets contain <span class="tt" title="Right Sphere, Right Cylinder, Right Axis, Right Add, Left Sphere, Left Cylinder, Left Axis, Left Add, Pair Number, Taken Status">10 columns of data</span>.<br>
-    <p>
-    <p>
-    Full CSV datasets contain <span class="tt" title="Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status">16 columns of data</span>.<br>
-    </p>
-    <h4>Full Inventory</h4>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true, true)">Compact .csv</button>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(true, true, false)">Full .csv</button>
-    <button type="button" class="btn btn-default" ng-click="exportJSON(true, true)">.json</button>
-
-    <h4>Taken Glasses</h4>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false, true)">Compact .csv</button>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(true, false, false)">Full .csv</button>
-    <button type="button" class="btn btn-default" ng-click="exportJSON(true, false)">.json</button>
-
-    <h4>Available Glasses</h4>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true, true)">Compact .csv</button>
-    <button type="button" class="btn btn-default" ng-click="exportCSV(false, true, false)">Full .csv</button>
-    <button type="button" class="btn btn-default" ng-click="exportJSON(false, true)">.json</button>
-
-<!--     <h3>Sync</h3>
-    <form class="form-inline">
-        <div class="input-group"> 
-            <div class="input-group-addon">Database URL</div>
-            <input type="text" class="form-control" placeholder="" style="text-align: left" ng-model="remoteDB.url">
-            <span class="input-group-btn">
-                <button type="submit" class="btn btn-primary start">Save</button>
-            </span>
-        </div>
-    </form>
-    Status: <span class="connection">{{remoteDB.connectionStatus}}</span><br>
-    <button type="button" class="btn btn-info" ng-click="syncDB()">Sync</button>
- -->
-    <h3>Reset database</h3>
-    <p><span class="reset-warning">WARNING:</span> This resets the database and removes <b>ALL</b> pairs of glasses. <br>Be sure to export glasses data above before resetting the database. </p>
-    <p><span class="reset-warning">This is the only warning.</span></p>
-    <button type="button" class="btn btn-danger" ng-click="destroyDB()">RESET DATABASE</button>
-</div>
-  <script src="./bundle.js"></script>
-</body>
+    </body>
 </html>

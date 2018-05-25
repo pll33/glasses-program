@@ -1,0 +1,43 @@
+Glasses Inventory Program
+
+This program is used to search for eyeglasses that match closely (within an acceptable range) to a given patient's eye prescriptions obtained by an autorefractor.
+
+The application has been used by the Global Medical Brigades <https://www.globalbrigades.org/experience-medical-brigades> staff and volunteers in Panama (April 2016) and Honduras (May 2016).
+
+====================
+    Instructions
+====================
+
+I. Set Up
+
+1. Open 'index.html' with Google Chrome
+2. Locate and click on the 'Import' tab
+3. Click the 'Choose File' button under Upload. For the very first time using a set, upload the “Set X - Initial Import.csv” file. For every time after, upload the most recent inventory .csv file by looking at the date in the file name. 
+6. Click the Import button (ONLY CLICK ONCE, there may be a lag depending on how large the set is) to add them to the program inventory. These will now be visible in the Inventory tab (click refresh for the Google Chrome browser if you still do not see this).
+____________
+
+II. Searching the inventory
+
+1. Go to the 'Glasses Search' tab
+2. Input the patient's dominant eye (right, left, or none) and their refraction numbers. Spherical equivalent values are automatically generated
+3. Click the 'Find Matches' button to search the inventory. Your search is automatically saved into the Previous Searches table at the bottom of the panel
+
+____________
+
+III. Selecting the best pair
+
+1. Best matches will be highlighted the most per row in green. This means a particular value you entered is an exact match to the same value in a pair of glasses
+2. Additionally, prioritize matching the automatically generated spherical equivalent values (under number 4 in ‘Glasses Search’) as closely as possible to the S.E. numbers for right and left eyes for each pair of glasses. It is best to keep the spherical equivalent values within plus or minus 0.00-0.75 away from the patient’s eyes’ spherical equivalents.
+3. If no (or not enough) pairs of eyeglasses appear:
+     1. Click the “Search by spherical equivalent” button.
+     2. If still no eyeglasses appear, then there are no remaining pairs of eyeglasses in your set that fit for the patient.
+
+____________
+
+IV. Exporting
+
+1. Navigate to the 'Export' tab
+2. Export program data via “Full Inventory” compact .CSV.
+3. Be sure to drag this file to the flash drive.
+
+Program data is automatically saved within the application's local PouchDB database during use and the program can be exited safely at any time without loss of data.
