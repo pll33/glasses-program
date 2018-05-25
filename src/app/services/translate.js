@@ -1,6 +1,3 @@
-// TO-DO: do not commit yet
-// ideally split each translation language into its own JSON file and import
-// reference: https://angular-translate.github.io/
 
 export default function translateService($translateProvider) {
 
