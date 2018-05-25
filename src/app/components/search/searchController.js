@@ -58,6 +58,9 @@ export function searchController($scope, $inventoryService) {
         //srch = obj representation of search
         //example: {'rightSphere':'2.200','rightEquiv':'3.25','rightCylinder':'2.3','rightAxis':'5','leftSphere':'2','leftEquiv':'5.50','leftCylinder':'7','leftAxis':'6'}
 
+        // clear old search results
+        $scope.searchResults = [];
+
         // parse+validate values
         $scope.searchLoadingIcon = true;
 
@@ -122,7 +125,6 @@ export function searchController($scope, $inventoryService) {
             $scope.searchLoadingIcon = false;
             // console.log('Search results: ' + $scope.searchResults.length + ' pairs found.');
             $scope.$apply();
-
 
             // update timeout after first search
             if (!firstSearch) { firstSearch = true; searchTimeoutDelay = 500; }

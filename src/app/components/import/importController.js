@@ -348,15 +348,13 @@ export function importController($scope, $inventoryService) {
             // } else {
             console.log('Error adding pair: No pair # found. Please check data columns.');
             // }
-        }
-        else {
+        } else {
             $scope.addedGlasses.push(pair);
             $scope.inventory.add(pair);
         }
     };
 
     $scope.manualAdd = function(input) {
-        let inv = $scope.inventory;
 
         // calculate spherical equivalents (rounded+unrounded)
         const unroundR = sphericalEquiv(floatParse(input.rightCylinder), floatParse(input.rightSphere));
@@ -420,17 +418,22 @@ export function importController($scope, $inventoryService) {
         }
 
         let pair = {
-            pairNumber: inv.getPairNumber(),
+            pairNumber: $scope.inventory.getPairNumber(),
             data: data,
             available: true
         };
 
         // add to added glasses
         $scope.addedGlasses.push(pair);
-        inv.add(pair);
+        $scope.inventory.add(pair);
 
         // reset input form
-        this.resetAddForm();
+        $scope.resetAddForm();
+
+        setTimeout(function() {
+            $scope.inventory.update();
+            $scope.$apply();
+        }, 1500);
     };
     
     $scope.resetAddForm = function() {
@@ -445,8 +448,10 @@ export function importController($scope, $inventoryService) {
 
     $scope.import = function() {
         const file = $scope.importFile;
-        $scope.importLoadingIcon = true;
         if (file) {
+            // show loading icon, also temporarily disables import button until loading is finished
+            $scope.importLoadingIcon = true;
+
             console.log('Import file:', file.name, file.type);
             if (file.type == 'text/csv' ||file.type.indexOf('vnd.ms-excel') > -1 ||
                 file.type.indexOf('spreadsheetml') > -1 ||
@@ -464,6 +469,7 @@ export function importController($scope, $inventoryService) {
             }
 
             setTimeout(function() {
+                // reset upload form
                 $scope.resetUploadForm();
                 $scope.$apply();
             }, 3500);

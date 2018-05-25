@@ -101,6 +101,9 @@ export function exportController($scope, $inventoryService) {
         };
     };
 
+    $scope.showExportOptions = false;
+    $scope.toggleExportOptions = function() { $scope.showExportOptions = !$scope.showExportOptions; };
+
     // functions for: CSV, JSON
     // for: taken inventory, available inventory, full inventory
     $scope.exportCSV = function(getTaken, getAvailable, opt_compact) {

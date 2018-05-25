@@ -8,7 +8,7 @@ const config = {
   entry: ['./app/app.js'],
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: 'bundle.js',
+    filename: 'sourcecode.js',
     publicPath: 'assets/',
   },
   module: {
