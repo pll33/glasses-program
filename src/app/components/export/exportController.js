@@ -24,6 +24,7 @@ export function exportController($scope, $inventoryService) {
             if (opt_compact) { arr[idx] = tenCSV(dbObj); }
             else { arr[idx] = sixteenCSV(dbObj); }
         });
+
         return Papa.unparse(inArr);
     }
 
@@ -47,8 +48,8 @@ export function exportController($scope, $inventoryService) {
         else { return 'Yes'; }
     };
 
-    let sortGlassesPairs = (a, b) => {
-        parseInt(a.number) - parseInt(b.number);
+    let sortGlassesPairs = function(a, b) {
+        return parseInt(a.number, 10) - parseInt(b.number, 10);
     };
 
     let simpleObj = function(dbObj) {

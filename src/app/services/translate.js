@@ -73,7 +73,7 @@ export default function translateService($translateProvider) {
         'EXPORT_AVAILABLE': 'Available Glasses',
         'EXPORT_CSV': '.CSV files can be opened in spreadsheet programs such as Microsoft Excel and Apple Numbers.',
         'EXPORT_JSON': '.JSON files are used by this program for debugging purposes. Both files can be imported into this program.',
-        'EXPORT_COLS': 'columns of data.',
+        'EXPORT_COLS': 'columns of data',
         'EXPORT_FULL_DESC': 'Compact datasets contain',
         'EXPORT_FULL_TT': 'Right Sphere, Right Cylinder, Right SE Unrounded, Right SE Rounded, Right Axis, Right Axis Range, Right Add, Left Sphere, Left Cylinder, Left SE Unrounded, Left SE Rounded, Left Axis, Left Axis Range, Left Add, Pair Number, Taken Status',
         'EXPORT_COMPACT_DESC': 'Full CSV datasets contain',
@@ -189,5 +189,5 @@ export default function translateService($translateProvider) {
     });
 
     $translateProvider.preferredLanguage('en');
-
+    $translateProvider.useSanitizeValueStrategy('sceParameters');
 }
