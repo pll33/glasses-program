@@ -138,16 +138,29 @@ a.sh:hover {
     border-top: 2px solid #ddd;
 } 
 
-#searchResults table>thead>tr:nth-child(2)>th:nth-child(1), 
-#searchResults table>thead>tr:nth-child(2)>th:nth-child(6),  
-#searchResults table>thead>tr:nth-child(2)>th:nth-child(11), 
+#searchResults table>thead>tr:nth-child(2)>th:nth-child(1),
+#searchResults table>thead>tr:nth-child(2)>th:nth-child(11),
 #searchResults table>thead>tr:nth-child(2)>th:last-child {
     border-right: 2px solid #ddd;
+}
+
+#searchResults table tr:nth-child(1) th:nth-child(2),
+#searchResults table tr:nth-child(2) th:nth-child(6),
+#searchResults table td:nth-child(6) {
+    border-right: 2px solid #aaa!important;
 }
 
 table>tbody>tr>td {
     border-right: 2px solid #ddd;
     border-bottom: 2px solid #ddd;
+}
+
+#tableSearchResults .tempstatus-match {
+    background-color: #f9f7ca;
+}
+
+#tableSearchResults .tempstatus-nomatch {
+    background-color: #ffeeed;
 }
 
 #previousSearches table>thead>tr:nth-child(1)>th:not(:first-child) {
@@ -156,16 +169,20 @@ table>tbody>tr>td {
 
 #previousSearches table>thead>tr:nth-child(1)>th,
 #previousSearches table>thead>tr:nth-child(2)>th:nth-child(2),
-#previousSearches table>thead>tr:nth-child(2)>th:nth-child(6),
 #previousSearches table>thead>tr:nth-child(2)>th:nth-child(10) {
     border-right: 2px solid #ddd;
 }
 
 #previousSearches table>tbody>tr>td:nth-child(2),
-#previousSearches table>tbody>tr>td:nth-child(6),
 #previousSearches table>tbody>tr>td:nth-child(10),
 #previousSearches table>tbody>tr>td:last-child {
     border-right: 2px solid #ddd;
+}
+
+#previousSearches table>thead>tr:nth-child(1)>th:nth-child(2),
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(6),
+#previousSearches table>tbody>tr>td:nth-child(6) {
+    border-right: 2px solid #aaa!important;
 }
 
 table>thead>tr>th.bl,
@@ -186,22 +203,34 @@ table>tbody>tr>td.bl {
 
 #inventoryAdded table>thead>tr:nth-child(1)>th,
 #inventoryAdded table>thead>tr:nth-child(2)>th:nth-child(1),
-#inventoryAdded table>thead>tr:nth-child(2)>th:nth-child(7),
 #inventoryAdded table>thead>tr:nth-child(2)>th:nth-child(13) {
     border-right: 2px solid #ddd;
+}
+
+#inventoryAdded table>thead>tr:nth-child(1)>th:nth-child(2),
+#inventoryAdded table>thead>tr:nth-child(2)>th:nth-child(7),
+#inventoryAdded table>tbody>tr>td:nth-child(7) {
+    border-right: 2px solid #aaa!important;
 }
 
 #inventoryTaken table>thead>tr:nth-child(1)>th,
 #inventoryTaken table>thead>tr:nth-child(2)>th:nth-child(1),
 #inventoryTaken table>thead>tr:nth-child(2)>th:nth-child(2),
-#inventoryTaken table>thead>tr:nth-child(2)>th:nth-child(7),
 #inventoryTaken table>thead>tr:nth-child(2)>th:nth-child(12),
 #inventoryAvailable table>thead>tr:nth-child(1)>th,
 #inventoryAvailable table>thead>tr:nth-child(2)>th:nth-child(1),
 #inventoryAvailable table>thead>tr:nth-child(2)>th:nth-child(2),
-#inventoryAvailable table>thead>tr:nth-child(2)>th:nth-child(7),
 #inventoryAvailable table>thead>tr:nth-child(2)>th:nth-child(12) {
     border-right: 2px solid #ddd;
+}
+
+#inventoryTaken table>thead>tr:nth-child(1)>th:nth-child(2),
+#inventoryTaken table>thead>tr:nth-child(2)>th:nth-child(7),
+#inventoryTaken table>tbody>tr>td:nth-child(7),
+#inventoryAvailable table>thead>tr:nth-child(1)>th:nth-child(2),
+#inventoryAvailable table>thead>tr:nth-child(2)>th:nth-child(7),
+#inventoryAvailable table>tbody>tr>td:nth-child(7) {
+    border-right: 2px solid #aaa!important;
 }
 
 /* EXPORT */

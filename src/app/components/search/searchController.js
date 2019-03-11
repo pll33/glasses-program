@@ -157,6 +157,22 @@ export function searchController($scope, $inventoryService) {
         pair.available = false;
     };
 
+    $scope.toggleTemporaryStatus = function(row) {
+        let index = row.$index;
+        let resultsTableEl = document.getElementById('tableSearchResults');
+        let rowCell = resultsTableEl.children[1].children[index].children[0];
+        let cellClasses = rowCell.classList;
+
+        if (cellClasses.value.indexOf('tempstatus-match') > -1) {
+            cellClasses.remove('tempstatus-match');
+            cellClasses.add('tempstatus-nomatch');
+        } else if (cellClasses.value.indexOf('tempstatus-nomatch') > -1) {
+            cellClasses.remove('tempstatus-nomatch');
+        } else {
+            cellClasses.add('tempstatus-match');
+        }
+    };
+
     $scope.isMatch = function(key, cellData) {
         return ($scope.search[key] == cellData);
     };

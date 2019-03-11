@@ -94,7 +94,7 @@
                 <div id="searchResults" class="active">
                     <h3>{{ 'SEARCH_AVAILABLE' | translate }}</h3>
                     <p>{{ 'SEARCH_NOTE' | translate }}</p>
-                    <table class="table table-hover">
+                    <table id="tableSearchResults" class="table table-hover">
                         <thead>
                             <tr>
                                 <th></th>
@@ -119,7 +119,7 @@
                         </thead>
                         <tbody>
                             <tr ng-class="{taken:!x.available}" ng-repeat="x in searchResults">
-                                <td class="bl">{{ ::x.number }}</td>
+                                <td class="bl" ng-click="toggleTemporaryStatus(this)">{{ ::x.number }}</td>
                                 <td ng-class="::{match:isMatch('rightSphere', x.data.rightSphere)}">{{ ::x.data.rightSphere.toFixed(2) }}</td>
                                 <td ng-class="::{match:isMatch('rightCylinder', x.data.rightCylinder)}">{{ ::x.data.rightCylinder.toFixed(2) }}</td>
                                 <td ng-class="::{match:isMatch('rightEquiv', x.data.rightEquiv)}">{{ ::x.data.rightEquiv.toFixed(2) }}</td>
@@ -192,7 +192,7 @@
                             <div class="input-group-addon">{{ 'PAIR_NUMBER' | translate }}</div>
                             <input type="text" class="form-control" id="findPairs" placeholder="" style="text-align: left" ng-model="find.number">
                             <span class="input-group-btn">
-                                <button type="submit" class="btn btn-primary start">{{ 'SEARCH_MATCHES' | translate }}</button>
+                                <button type="submit" class="btn btn-primary start">{{ 'SEARCH' | translate }}</button>
                             </span>
                         </div>
                         <button type="reset" class="btn btn-default" ng-click="clearSearch()">
