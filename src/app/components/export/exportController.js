@@ -1,9 +1,7 @@
 import Papa from 'papaparse';
 
 export function exportController($scope, $inventoryService) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const date = new Date();
-    const dateString = '-' + date.getDate() + months[date.getMonth()] + date.getFullYear();
+    const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
     function saveFile(data, dataType, fileName) {
         let a = document.createElement('a');
@@ -34,6 +32,11 @@ export function exportController($scope, $inventoryService) {
             arr[idx] = simpleObj(dbObj);
         });
         return JSON.stringify(inArr);
+    }
+
+    function getDateString() {
+        let newDate = new Date();
+        return '-' + newDate.getDate() + MONTHS[newDate.getMonth()] + newDate.getFullYear();
     }
 
     let axisRange = function(axisNum) {
@@ -111,9 +114,9 @@ export function exportController($scope, $inventoryService) {
         let taken = (getTaken) ? $inventoryService.getTaken() : [];
         let avail = (getAvailable) ? $inventoryService.getAvailable() : [];
         let all = taken.concat(avail);
-        all.sort(sortGlassesPairs);
 
-        let csv = csvify(all, opt_compact);
+        let csv = csvify(all.sort(sortGlassesPairs), opt_compact);
+        let dateString = getDateString();
         let filename;
         if (opt_compact) filename = `export-compact${dateString}.csv`;
         else filename = `export-full${dateString}.csv`;
@@ -124,9 +127,9 @@ export function exportController($scope, $inventoryService) {
         let taken = (getTaken) ? $inventoryService.getTaken() : [];
         let avail = (getAvailable) ? $inventoryService.getAvailable() : [];
         let all = taken.concat(avail);
-        all.sort(sortGlassesPairs);
 
-        let json = jsonify(all);
+        let json = jsonify(all.sort(sortGlassesPairs));
+        let dateString = getDateString();
         saveFile(json, 'application/json', `export${dateString}.json`);
     };
 
