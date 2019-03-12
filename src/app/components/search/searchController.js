@@ -124,18 +124,23 @@ export function searchController($scope, $inventoryService) {
             $scope.noResults = ($scope.searchResults.length) ? false : true;
             $scope.searchLoadingIcon = false;
             // console.log('Search results: ' + $scope.searchResults.length + ' pairs found.');
-            $scope.$apply();
 
             // update timeout after first search
             if (!firstSearch) { firstSearch = true; searchTimeoutDelay = 500; }
+
+            // add number of results to prev search
+            revSrch.numMatches = $scope.searchResults.length;
+
+            // add search to previous searches list
+            let prev = $scope.prevSearches;
+            let prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID; });
+            if (!prevsID.length) $scope.prevSearches.push(revSrch);
+
+            $scope.$apply();
         }, searchTimeoutDelay);
+
         // reset the form -- clear all text fields
         // this.resetForm();
-
-        // add search to previous searches list
-        let prev = $scope.prevSearches;
-        let prevsID = prev.filter(function(obj) { return obj.sID == revSrch.sID; });
-        if (!prevsID.length) $scope.prevSearches.push(revSrch);
     };
 
     // Search By Spherical Equivalent (values)

@@ -149,6 +149,7 @@
                                 <th colspan="2"></th>
                                 <th colspan="4">{{ 'RIGHT_EYE' | translate }} (OD)</th>
                                 <th colspan="4">{{ 'LEFT_EYE' | translate }} (OS)</th>
+                                <th></th>
                             </tr>
                             <tr>
                                 <th class="bl">{{ 'PATIENT_NAME' | translate }}</th>
@@ -161,6 +162,7 @@
                                 <th>{{ 'CYLINDER' | translate }}</th>
                                 <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
                                 <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'SEARCH_NUMBER_MATCHES' | translate }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,9 +177,10 @@
                                 <td>{{ ::x.leftCylinder.toFixed(2) }}</td>
                                 <td>{{ ::x.leftEquiv.toFixed(2) }}</td>
                                 <td>{{ ::x.leftAxis }}</td>
+                                <td ng-class="{nomatch:x.numMatches===0}">{{ ::x.numMatches }}</td>
                             </tr>
                             <tr ng-show="prevSearches.length==0 || !prevSearches">
-                                <td class="bl" colspan="10">{{ 'DISPLAY_NO_PREV_SEARCH' | translate }}</td>
+                                <td class="bl" colspan="11">{{ 'DISPLAY_NO_PREV_SEARCH' | translate }}</td>
                             </tr>
                         </tbody>
                     </table>

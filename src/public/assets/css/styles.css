@@ -159,17 +159,20 @@ table>tbody>tr>td {
     background-color: #f9f7ca;
 }
 
-#tableSearchResults .tempstatus-nomatch {
+#tableSearchResults .tempstatus-nomatch,
+.nomatch {
     background-color: #ffeeed;
 }
 
-#previousSearches table>thead>tr:nth-child(1)>th:not(:first-child) {
+#previousSearches table>thead>tr:nth-child(1)>th:nth-child(2),
+#previousSearches table>thead>tr:nth-child(1)>th:nth-child(3) {
     border-top: 2px solid #ddd;
 }
 
-#previousSearches table>thead>tr:nth-child(1)>th,
+#previousSearches table>thead>tr:nth-child(1)>th:not(:last-child),
 #previousSearches table>thead>tr:nth-child(2)>th:nth-child(2),
-#previousSearches table>thead>tr:nth-child(2)>th:nth-child(10) {
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(10),
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(11) {
     border-right: 2px solid #ddd;
 }
 
