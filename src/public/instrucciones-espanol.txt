@@ -2,7 +2,7 @@ Programa de inventario de lentes
 
 Este programa se utiliza para buscar lentes que coincidan estrechamente (dentro de un rango aceptable) con las prescripciones de los ojos de un paciente determinado obtenidas mediante un autorrefractor.
 
-La aplicación ha sido utilizada por el personal y los voluntarios de Global Medical Brigades <https://www.globalbrigades.org/experience-medical-brigades> en Panamá (abril de 20160, Honduras (2016-2018) y Nicaragua (2017-2018).
+La aplicación ha sido utilizada por el personal y los voluntarios de Global Medical Brigades <https://www.globalbrigades.org/experience-medical-brigades> en Panamá (abril de 2016), Honduras (2016-), y Nicaragua (2017-2018).
 
 ====================
     Instrucciones
@@ -10,7 +10,7 @@ La aplicación ha sido utilizada por el personal y los voluntarios de Global Med
 
 Configuro
 
-1. Abra 'index.html' con Google Chrome.
+1. Abra 'GlassesInventoryProgram.html' con Google Chrome.
 2. Ubique y haga clic en la pestaña 'Importar'
 3. Haga clic en el botón 'Elegir archivo' en Subir. Por primera vez, utilizando un conjunto, cargue el archivo "Establecer X - Importación inicial.csv". Para cada momento posterior, cargue el archivo .csv de inventario más reciente mirando la fecha en el nombre del archivo.
 6. Haga clic en el botón Importar (SOLO HAGA CLIC UNA VEZ, puede haber un desfase dependiendo de qué tan grande sea el conjunto) para agregarlos al inventario del programa. Ahora serán visibles en la pestaña Inventario (haga clic en actualizar para el navegador Google Chrome si todavía no ve esto).
