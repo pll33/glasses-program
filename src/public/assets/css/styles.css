@@ -51,6 +51,10 @@ th, td {
     text-align: center;
 }
 
+.form-group {
+    margin-bottom: 12px;
+}
+
 .form-group.padt {
     padding-top: 5px;
 }
@@ -82,6 +86,12 @@ section.section-hidden.show {
     transition: all 2s ease-in;
 }
 
+.readonly:focus {
+    border-color: #ccc;
+    box-shadow: none;
+    outline: none;
+}
+
 .lbl, .lblb {
     display: inline-block;
     text-align: right;
@@ -95,6 +105,18 @@ section.section-hidden.show {
     width: 203px;
 }
 
+#search .hideAddSpan {
+    width: 204px;
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#search .hideAddSpan label {
+    margin: 0;
+    line-height: 1;
+}
+
 #import .lbl {
     width: 100px;
 }
@@ -105,6 +127,23 @@ section.section-hidden.show {
 
 #formUpload .lblb {
     width: 310px;
+}
+
+label {
+    margin: 0;
+}
+
+input.form-control[type=checkbox] {
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    margin: 0 0 4px;
+}
+
+#searchHideAdd {
+    display: inline-block;
+    width: auto;
+    height: auto;
+    vertical-align: middle;
 }
 
 a.sh {
@@ -172,7 +211,8 @@ table>tbody>tr>td {
 #previousSearches table>thead>tr:nth-child(1)>th:not(:last-child),
 #previousSearches table>thead>tr:nth-child(2)>th:nth-child(2),
 #previousSearches table>thead>tr:nth-child(2)>th:nth-child(10),
-#previousSearches table>thead>tr:nth-child(2)>th:nth-child(11) {
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(11),
+#previousSearches table>thead>tr:nth-child(2)>th:nth-child(12) {
     border-right: 2px solid #ddd;
 }
 
@@ -184,8 +224,21 @@ table>tbody>tr>td {
 
 #previousSearches table>thead>tr:nth-child(1)>th:nth-child(2),
 #previousSearches table>thead>tr:nth-child(2)>th:nth-child(6),
+#previousSearches table>tfoot>tr:nth-child(1)>th:nth-child(6),
 #previousSearches table>tbody>tr>td:nth-child(6) {
     border-right: 2px solid #aaa!important;
+}
+
+#previousSearches table>tfoot>tr:nth-child(1)>th:not(:last-child),
+#previousSearches table>tfoot>tr:nth-child(1)>th:nth-child(2),
+#previousSearches table>tfoot>tr:nth-child(1)>th:nth-child(10),
+#previousSearches table>tfoot>tr:nth-child(1)>th:nth-child(11),
+#previousSearches table>tfoot>tr:nth-child(1)>th:nth-child(12) {
+    border-right: 2px solid #ddd;
+}
+
+#previousSearches table>tfoot>tr:nth-child(1)>th:nth-child(1) {
+    border-left: 2px solid #ddd;
 }
 
 table>thead>tr>th.bl,

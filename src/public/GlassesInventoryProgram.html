@@ -38,7 +38,7 @@
                 <section>
                     <div class="form-group form-inline">
                         <h4 class="inline-block">2. {{ 'DOMINANT_EYE' | translate }}</h4>
-                        <select id="dominantEye" class="form-control" style="margin-left: 17px" ng-model="search.dominantEye" ng-init="search.dominantEye = 'Right'">
+                        <select id="dominantEye" class="form-control" style="margin-left: 19px" ng-model="search.dominantEye" ng-init="search.dominantEye = 'Right'">
                           <option value="Right">{{ 'RIGHT' | translate }}</option>
                           <option value="Left">{{ 'LEFT' | translate }}</option>
                           <option value="None">{{ 'NONE' | translate }}</option>
@@ -72,20 +72,22 @@
                 <section>
                     <h4 class="inline-block">4. {{ 'SPHERICAL_EQUIVALENT' | translate }}</h4>
                     <div class="form-group form-inline mb">
-                        <span class="lbl">{{ 'RIGHT_EYE' | translate }}:</span> <input type="text" class="form-control" id="searchRightEquivalent" placeholder="" ng-model="search.rightEquiv" readonly>
-                        <span style="margin-left: 35px;">{{ 'LEFT_EYE' | translate }}:</span> <input type="text" class="form-control" id="searchLeftEquivalent" placeholder="" ng-model="search.leftEquiv" readonly>
+                        <span class="lbl">{{ 'RIGHT_EYE' | translate }}:</span> <input type="text" class="form-control readonly" id="searchRightEquivalent" placeholder="0.00" ng-model="search.rightEquiv" readonly>
+                        <span style="margin-left: 35px;">{{ 'LEFT_EYE' | translate }}:</span> <input type="text" class="form-control readonly" id="searchLeftEquivalent" placeholder="0.00" ng-model="search.leftEquiv" readonly>
                     </div>
                 </section>
 
                 <section style="margin-top: 5px">
-                    <span class="lblb"></span>
+                    <span class="hideAddSpan">
+                        <label><input type="checkbox" class="form-control" id="searchHideAdd" ng-model="search.hideAddMatches"> {{ 'SEARCH_HIDE_ADD' | translate }}</label>
+                    </span>
                     <button type="reset" class="btn btn-default" ng-click="resetForm()">{{ 'SEARCH_CLEAR' | translate }}</button>
                     <button type="submit" class="btn btn-primary" ng-click="searchGlasses(search)">{{ 'SEARCH_MATCHES' | translate }}</button>
                     <div class="loading-icon" ng-show="searchLoadingIcon"><div class="spinner"></div></div>
                 </section>
 
                 <section class="section-hidden" ng-class="{show:(searchResults.length >= 0)}">
-                    <h4 class="inline-block" style="margin-left: 19px; margin-right: 2px;">{{ 'SEARCH_NOT_ENOUGH' | translate }}</h4>
+                    <h4 class="inline-block" style="margin-left: 20px; margin-right: 2px;">{{ 'SEARCH_NOT_ENOUGH' | translate }}</h4>
                     <button type="submit" class="btn btn-primary" ng-click="searchBySE(search)">{{ 'SEARCH_SPH_EQUIV' | translate }}</button>
                 </section>
                 </form>
@@ -149,7 +151,7 @@
                                 <th colspan="2"></th>
                                 <th colspan="4">{{ 'RIGHT_EYE' | translate }} (OD)</th>
                                 <th colspan="4">{{ 'LEFT_EYE' | translate }} (OS)</th>
-                                <th></th>
+                                <th colspan="2"></th>
                             </tr>
                             <tr>
                                 <th class="bl">{{ 'PATIENT_NAME' | translate }}</th>
@@ -162,6 +164,7 @@
                                 <th>{{ 'CYLINDER' | translate }}</th>
                                 <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
                                 <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'SEARCH_HIDDEN_ADD' | translate }}</th>
                                 <th>{{ 'SEARCH_NUMBER_MATCHES' | translate }}</th>
                             </tr>
                         </thead>
@@ -177,12 +180,29 @@
                                 <td>{{ ::x.leftCylinder.toFixed(2) }}</td>
                                 <td>{{ ::x.leftEquiv.toFixed(2) }}</td>
                                 <td>{{ ::x.leftAxis }}</td>
+                                <td>{{ ::(x.hideAddMatches ? 'Yes': 'No') }}</td>
                                 <td ng-class="{nomatch:x.numMatches===0}">{{ ::x.numMatches }}</td>
                             </tr>
                             <tr ng-show="prevSearches.length==0 || !prevSearches">
-                                <td class="bl" colspan="11">{{ 'DISPLAY_NO_PREV_SEARCH' | translate }}</td>
+                                <td class="bl" colspan="12">{{ 'DISPLAY_NO_PREV_SEARCH' | translate }}</td>
                             </tr>
                         </tbody>
+                        <tfoot ng-show="prevSearches.length > 10">
+                            <tr>
+                                <th class="bl">{{ 'PATIENT_NAME' | translate }}</th>
+                                <th>{{ 'DOMINANT_EYE' | translate }}</th>
+                                <th>{{ 'SPHERE' | translate }}</th>
+                                <th>{{ 'CYLINDER' | translate }}</th>
+                                <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'SPHERE' | translate }}</th>
+                                <th>{{ 'CYLINDER' | translate }}</th>
+                                <th><span class="tt" title="{{ 'SPHERICAL_EQUIVALENT' | translate }} ({{ 'ROUNDED' | translate }})">S.E.</span></th>
+                                <th>{{ 'AXIS' | translate }}</th>
+                                <th>{{ 'SEARCH_HIDDEN_ADD' | translate }}</th>
+                                <th>{{ 'SEARCH_NUMBER_MATCHES' | translate }}</th>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>

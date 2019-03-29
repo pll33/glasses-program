@@ -1,9 +1,10 @@
 import angular from 'angular';
 import { roundEquiv, sphericalEquiv, axisParse, floatParse, formatFloat } from '../../utils';
 
+const DEFAULT_FORM = { dominantEye: 'Right', rightSphere: '', rightCylinder: '', rightAxis: '', leftSphere: '', leftCylinder: '', leftAxis: '', rightEquiv: '0.00', leftEquiv: '0.00', hideAddMatches: false };
+
 export function searchController($scope, $inventoryService) {
-    const defaultForm = { dominantEye: 'Right', rightSphere: '', rightCylinder: '', rightAxis: '', leftSphere: '', leftCylinder: '', leftAxis: '', rightEquiv: '0.00', leftEquiv: '0.00'};
-    $scope.search = angular.copy(defaultForm);
+    $scope.search = angular.copy(DEFAULT_FORM);
 
     $scope.searchResults = [];
     $scope.prevSearches = [];
@@ -49,6 +50,7 @@ export function searchController($scope, $inventoryService) {
             leftCylinder: prevSrch.leftCylinder,
             leftAxis: prevSrch.leftAxis,
             leftEquiv: prevSrch.leftEquiv,
+            hideAddMatches: prevSrch.hideAddMatches
         };
 
         $scope.searchGlasses(prevSrch);
@@ -75,7 +77,8 @@ export function searchController($scope, $inventoryService) {
             leftSphere: floatParse(srch.leftSphere),
             leftCylinder: floatParse(srch.leftCylinder),
             leftAxis: axisParse(srch.leftAxis),
-            leftEquiv: floatParse(srch.leftEquiv)
+            leftEquiv: floatParse(srch.leftEquiv),
+            hideAddMatches: srch.hideAddMatches
         };
 
         let axisMinFunc = function(axis) { return (axis <= 15) ? 0 : (axis < 165) ? axis-15 : 165; };
@@ -119,9 +122,17 @@ export function searchController($scope, $inventoryService) {
         }
 
         setTimeout(function () {
-            $scope.searchResults = $inventoryService.getSearchResults();
+            let results = $inventoryService.getSearchResults();
+            let resultsFiltered = (srch.hideAddMatches)
+                ? results.filter(function(res) {
+                    return (res.data.rightADD === '' && res.data.leftADD === '')
+                        || (res.data.rightADD === null && res.data.leftADD === null);
+                })
+                : results;
+
+            $scope.searchResults = resultsFiltered;
             $scope.dominantMatch = revSrch.dominantEye;
-            $scope.noResults = ($scope.searchResults.length) ? false : true;
+            $scope.noResults = (resultsFiltered.length) ? false : true;
             $scope.searchLoadingIcon = false;
             // console.log('Search results: ' + $scope.searchResults.length + ' pairs found.');
 
@@ -129,7 +140,7 @@ export function searchController($scope, $inventoryService) {
             if (!firstSearch) { firstSearch = true; searchTimeoutDelay = 500; }
 
             // add number of results to prev search
-            revSrch.numMatches = $scope.searchResults.length;
+            revSrch.numMatches = resultsFiltered.length;
 
             // add search to previous searches list
             let prev = $scope.prevSearches;
@@ -188,7 +199,7 @@ export function searchController($scope, $inventoryService) {
 
     $scope.resetForm = function() {
         $scope.searchForm.$setPristine();
-        $scope.search = angular.copy(defaultForm);
+        $scope.search = angular.copy(DEFAULT_FORM);
         $scope.search.rightEquiv = $scope.search.leftEquiv = '0.00';
 
         $scope.searchResults = [];
