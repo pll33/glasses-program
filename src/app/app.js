@@ -14,7 +14,8 @@ app.config(['$translateProvider', translateService]);
 app.controller('glassesController', ['$scope', '$translate', function ($scope, $translate) {
 
     // last modified date
-    this.lastModifiedDate = 'Mar 13, 2019';
+    this.lastUpdatedDate = '2019/04/04';
+    this.currentVersion = 'v1.5.1';
 
     // tab settings
     this.tab = 1;

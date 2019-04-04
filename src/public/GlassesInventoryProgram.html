@@ -507,7 +507,7 @@
                     </ol>
                     <p>Program data is automatically saved within the application's local PouchDB database during use and the program can be exited safely at any time without loss of data.</p>
 
-                    <p class="small-text">Program last modified: <a href="https://github.com/pll33/glasses-program/releases">{{ gc.lastModifiedDate }}</a></p>
+                    <p class="small-text">Program last updated: {{ gc.lastUpdatedDate }} (<a href="https://github.com/pll33/glasses-program/releases">{{gc.currentVersion}}</a>)</p>
                 </div>
                 <div class="panel" ng-show="gc.programLanguage === 'es'">
                     <h1>Programa de inventario de lentes</h1>
@@ -553,7 +553,7 @@
                     </ol>
                     <p>Los datos del programa se guardan automáticamente en la base de datos PouchDB local de la aplicación durante el uso y el programa se puede cerrar de forma segura en cualquier momento sin pérdida de datos.</p>
 
-                    <p class="small-text">Fecha de la última modificación del programa: <a href="https://github.com/pll33/glasses-program/releases">{{ gc.lastModifiedDate }}</a></p>
+                    <p class="small-text">Fecha de la última modificación del programa: {{ gc.lastUpdatedDate }} (<a href="https://github.com/pll33/glasses-program/releases">{{gc.currentVersion}}</a>)</p>
                 </div>
             </div>
         </div>
